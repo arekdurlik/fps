@@ -3,6 +3,11 @@
   src: url(./ms_sans_serif.woff2) format('woff2');
 }
 
+* {
+  -webkit-font-smoothing: none;
+  font-size: 11px;
+  font-family: 'Console';
+}
 #root,
 body {
   height: 100vh;

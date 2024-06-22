@@ -3,6 +3,9 @@ const sounds = {
   land: new Audio('land.wav'),
   walkL: new Audio('walkl.wav'),
   walkR: new Audio('walkr.wav'),
+  gunshot: new Audio('ump.wav'),
+  emptyGunshot: new Audio('empty-gun.mp3'),
+  reload: new Audio('ump-reload.wav'),
 };
 
 export function playSound(name: keyof typeof sounds, volume = 1) {

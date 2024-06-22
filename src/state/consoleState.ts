@@ -1,20 +1,24 @@
 import { create } from 'zustand'
-import { ConsoleFilters } from '../components/scene/Console'
+import { ConsoleFilter } from '../components/debug/Console'
 
 type ConsoleState = {
-  commands: { text: string, type: ConsoleFilters, color: string }[]
-  clear: () => void
+  commands: { text: string, type: ConsoleFilter, color: string }[]
 }
 
 export const Debug = {
-  log(text: string, type = 'default' as ConsoleFilters, color = '#ddd') {
+  log(text: string, type = 'default' as ConsoleFilter, color = '#ddd') {
     const commands = useConsoleState.getState().commands;
     commands.push({ text, type, color });
     useConsoleState.setState({ commands });
-  }
+  },
+  error(text: string) {
+    const commands = useConsoleState.getState().commands;
+    commands.push({ text, type: 'error', color: '#c00' });
+    useConsoleState.setState({ commands });
+  },
+  clear: () => useConsoleState.setState({ commands: [] })
 }
 
-export const useConsoleState = create<ConsoleState>((set, _) => ({
-  commands: [],
-  clear: () => set({ commands: [] })
+export const useConsoleState = create<ConsoleState>(() => ({
+  commands: []
 }))

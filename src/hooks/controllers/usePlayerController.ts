@@ -5,9 +5,11 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { useRapier } from '@react-three/rapier'
 import { useKeyboardInputRef } from '../inputs/useKeyboardInput'
 import { lerp } from 'three/src/math/MathUtils.js'
-import { usePlayerState } from '../../state/playerState'
+import { PlayerState, usePlayerState } from '../../state/playerState'
+import { useMouseInputRef } from '../inputs/useMouseInput'
+import { GunState, useGunState } from '../../state/gunState'
 
-const PLAYER_SPEED = 0.25;
+const PLAYER_SPEED = 0.2;
 const JUMP_VELOCITY = 4.5;
 const JUMP_COOLDOWN = 200;
 
@@ -21,21 +23,18 @@ let jumpEndTimestamp = 0;
 export function usePlayerController(ref: MutableRefObject<RAPIER.RigidBody | null>) {
   const { camera } = useThree();
   const rapier = useRapier();
-  const keyboard = useKeyboardInputRef(['w', 's', 'a', 'd', ' ', 'shift']);
+  const keyboard = useKeyboardInputRef(['w', 's', 'a', 'd', 'r', ' ', 'shift']);
+  const mouse = useMouseInputRef();
   const player = ref.current;
-  const playerStateRef = useRef(usePlayerState.getState());
+  const alreadyTriedToFire = useRef(false);
 
-  useEffect(() => {
-    usePlayerState.subscribe(state => (playerStateRef.current = state));
-  }, [])
 
   useFrame(() => {
     if (!player) return;
 
-    const playerState = playerStateRef.current;
-
-    // read keyboard inputs
-    const { w, s, a, d, shift, space } = keyboard.current;
+    // read inputs
+    const { w, s, a, d, r, shift, space } = keyboard.current;
+    const { lmb, rmb } = mouse.current;
 
     // make camera follow the player
     camera.position.set(
@@ -66,117 +65,143 @@ export function usePlayerController(ref: MutableRefObject<RAPIER.RigidBody | nul
     
     const grounded = grounded1 || grounded2 || grounded3 || grounded4;
 
+    if (!GunState.reloading) {
+      // fire gun or empty click
+      if (!PlayerState.running && lmb) {
+        if (GunState.ammoInMag === 0) {
+          if (!alreadyTriedToFire.current) {
+            alreadyTriedToFire.current = true;
+            PlayerState.notify('shotFired');
+          }
+        } else {
+          PlayerState.notify('shotFired');
+        }
+      }
+
+      if (r && !shift && !lmb && !rmb) {
+        GunState.reloadStart();
+      }
+
+      // reset single click on empty mag
+      if (!lmb && alreadyTriedToFire.current) {
+        alreadyTriedToFire.current = false;
+      }
+    
+      // aim
+      if (!PlayerState.running && !PlayerState.aiming && rmb) {
+        PlayerState.setAiming();
+      }
+      
+      // stop aiming
+      if (PlayerState.aiming && !rmb) {
+        PlayerState.setAiming(false);
+      }
+    }
+
     // no moving in air
-    if (!playerState.jumping) {
+    if (!PlayerState.jumping) {
 
       // slow down velocity
       velocity.set(lerp(velocity.x, 0, 0.1), 0, lerp(velocity.z, 0, 0.1));
+
+      
       
       if (w || a || s || d) {
         if (!shift) {
-          if (!playerState.walking) {
-            playerState.setWalking();
-            playerState.notify('walkStart');
+          if (!PlayerState.walking) {
+            PlayerState.setWalking();
           }
         }
       } else {
-        if (!playerState.idling) {
-          playerState.setIdling();
-          playerState.notify('idleStart');
+        if (!PlayerState.idling) {
+          PlayerState.setIdling();
         }
       }
 
       let speed = PLAYER_SPEED;
       
-      // sprint
-      if (w && shift) {
-        speed *= 2;
-  
-        if (!playerState.running) {
-          playerState.setRunning();
-          playerState.notify('runStart');
+      if (!GunState.reloading) {
+        // sprint
+        if (!PlayerState.aiming && w && shift) {
+          speed *= 2;
+    
+          if (!PlayerState.running) {
+            PlayerState.setRunning();
+          }
         }
-      }
 
-      // stop sprinting
-      if (playerState.running && !w) {
-        playerState.setRunning(false);
-        playerState.notify('runEnd');
+        // stop sprinting
+        if (PlayerState.running && !w) {
+          PlayerState.setRunning(false);
 
-        // switch to walking
-        if (a || s || d) {
-          playerState.setWalking();
-          playerState.notify('walkStart');
+          // switch to walking
+          if (a || s || d) {
+            PlayerState.setWalking();
+          }
         }
       }
 
       // strafe
       if (a) { 
-        if (!playerState.strafingLeft && !d) {
-          playerState.setStrafingLeft();
-          playerState.notify('strafeLeftStart');
+        if (!PlayerState.strafingLeft && !d) {
+          PlayerState.setStrafingLeft();
         }
 
       } else {
-        if (playerState.strafingLeft) {
-          playerState.setStrafingLeft(false);
-          playerState.notify('strafeLeftEnd');
+        if (PlayerState.strafingLeft) {
+          PlayerState.setStrafingLeft(false);
         }
       }
       
       if (d) { 
-        if (!playerState.strafingRight && !a) {
-          playerState.setStrafingRight();
-          playerState.notify('strafeRightStart');
+        if (!PlayerState.strafingRight && !a) {
+          PlayerState.setStrafingRight();
         }
       } else {
-        if (playerState.strafingRight) {
-          playerState.setStrafingRight(false);
-          playerState.notify('strafeRightEnd');
+        if (PlayerState.strafingRight) {
+          PlayerState.setStrafingRight(false);
         }
       }
 
       if (a && d) {
-        if (playerState.strafingLeft) {
-          playerState.setStrafingLeft(false);
-          playerState.notify('strafeLeftEnd');
-        } else if (playerState.strafingRight) {
-          playerState.setStrafingRight(false);
-          playerState.notify('strafeRightEnd');
+        if (PlayerState.strafingLeft) {
+          PlayerState.setStrafingLeft(false);
+        } else if (PlayerState.strafingRight) {
+          PlayerState.setStrafingRight(false);
         }
       }
 
       // calculate velocity
       if (w) { vertical += lerp(0, speed, 1); }
       if (s) { vertical -= lerp(0, speed, 1); }
-      if (a) { horizontal -= lerp(0, playerState.running ? speed / 3 : speed, 1); }
-      if (d) { horizontal += lerp(0, playerState.running ? speed / 3 : speed, 1); }
+      if (a) { horizontal -= lerp(0, PlayerState.running ? speed / 3 : speed, 1); }
+      if (d) { horizontal += lerp(0, PlayerState.running ? speed / 3 : speed, 1); }
 
       if (horizontal !== 0) { velocity.add(right.multiplyScalar(horizontal)); }
       if (vertical !== 0) { velocity.add(forward.multiplyScalar(vertical)); }
 
       player.setLinvel({ x: velocity.x, y: player.linvel().y, z: velocity.z }, true);
     }
-    
-    // jump
-    if (space && !playerState.jumping && grounded && (Date.now() - jumpEndTimestamp > JUMP_COOLDOWN )
-    || (!playerState.jumping && !grounded)) { 
-      playerState.setJumping(true);
   
+    // jump
+    if (space && !PlayerState.jumping && grounded && (Date.now() - jumpEndTimestamp > JUMP_COOLDOWN )
+      || (!PlayerState.jumping && !grounded)) { 
+    
       if (space) {
-        playerState.notify('jumpStart');
-        
-        jumpStartTimestamp = Date.now();
-        player.setLinvel({ x: player.linvel().x, y: JUMP_VELOCITY, z: player.linvel().z }, true);
+        if (!GunState.reloading) {
+          PlayerState.setJumping(true);
+          
+          jumpStartTimestamp = Date.now();
+          player.setLinvel({ x: player.linvel().x, y: JUMP_VELOCITY, z: player.linvel().z }, true);
+        }
       } else {
-        playerState.notify('fallStart');
+        PlayerState.setJumping(true, { fall: true });
       }
     }
-    
     // end jump
-    if (grounded && playerState.jumping && (Date.now() - jumpStartTimestamp > 400)) {
-      playerState.setJumping(false);
-      playerState.notify('jumpEnd');
+    if (grounded && PlayerState.jumping && (Date.now() - jumpStartTimestamp > 400)) {
+      PlayerState.setJumping(false);
+      PlayerState.notify('jumpEnd');
 
       jumpEndTimestamp = Date.now();
     }

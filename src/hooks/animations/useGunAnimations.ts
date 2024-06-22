@@ -1,56 +1,59 @@
-import { useSpring } from '@react-spring/three'
-import { useMouseVelocity } from '../useMouseVelocity'
+import { easings, useSpring } from '@react-spring/three'
+import { useMouseVelocity } from '../inputs/useMouseVelocity'
 import { clamp } from 'three/src/math/MathUtils.js'
 import { Debug } from '../../state/consoleState'
+import { NotifyData } from '../../types'
+import { GunState } from '../../state/gunState'
 
 export function useGunAnimations() {
   const mouseVelocity = useMouseVelocity();
-  const [{ x, y }, spring] = useSpring(() => ({ x: 0, y: 0 }));
+  const [{ posX, posY }, positionSpring] = useSpring(() => ({ posX: 0.2, posY: 0 }));
+  const [{ swayX, swayY }, swaySpring] = useSpring(() => ({ swayX: 0, swayY: 0 }));
   const [{ roll }, rollSpring] = useSpring(() => ({ roll: 0 }));
-  const [{ velX, velY }, swaySpring] = useSpring(() => ({ velX: 0, velY: 0 }));
-  const [{ jumpY }, jumpSpring] = useSpring(() => ({ jumpY: 0}));
-  
+  const [{ velX, velY }, velocitySpring] = useSpring(() => ({ velX: 0, velY: 0 }));
+  const [{ sprite }, spriteSpring] = useSpring(() => ({ sprite: 0 }));
+  const [{ jumpY }, jumpSpring] = useSpring(() => ({ jumpY: 0 }));
+  const [{ muzzleflash, knockback }, shootSpring] = useSpring(() => ({ muzzleflash: 0, knockback: 0 }));
+  const [{ reloadX, reloadY }, reloadSpring] = useSpring(() => ({ reloadX: 0, reloadY: 0 }));
   function idle() {
     Debug.log('Gun animation: Idle', 'gunAnimation');
-    
-    spring.stop();
-    spring.start({
+
+    swaySpring.stop();
+    swaySpring.start({
       to: [
-        { x: 0.001, y: 0, },
-        { x: 0.0005, y: 0.0025, },
-        { x: 0, y: 0.005 },
-        { x: -0.00125, y: 0.0025 },
-        { x: -0.0025, y: 0 },
-        { x: -0.00125, y: -0.0025 },
-        { x: 0, y: -0.005 },
-        { x: 0.0025, y: -0.0025 },
-        { x: 0.005, y: 0 },
-        { x: 0.003, y: 0.0025 },
-        { x: 0.001, y: 0.005 },
-        { x: 0.0005, y: 0.0025 },
-        { x: -0.001, y: 0 },
-        { x: -0.0005, y: -0.0025 },
-        { x: 0, y: -0.005 },
-        { x: 0.0005, y: -0.0025 },
-        { x: 0.001, y: 0 },
-  
+        { swayX: 0.001, swayY: 0, },
+        { swayX: 0.0005, swayY: 0.0025, },
+        { swayX: 0, swayY: 0.005 },
+        { swayX: -0.00125, swayY: 0.0025 },
+        { swayX: -0.0025, swayY: 0 },
+        { swayX: -0.00125, swayY: -0.0025 },
+        { swayX: 0, swayY: -0.005 },
+        { swayX: 0.0025, swayY: -0.0025 },
+        { swayX: 0.005, swayY: 0 },
+        { swayX: 0.003, swayY: 0.0025 },
+        { swayX: 0.001, swayY: 0.005 },
+        { swayX: 0.0005, swayY: 0.0025 },
+        { swayX: -0.001, swayY: 0 },
+        { swayX: -0.0005, swayY: -0.0025 },
+        { swayX: 0, swayY: -0.005 },
+        { swayX: 0.0005, swayY: -0.0025 },
+        { swayX: 0.001, swayY: 0 },
       ],
       loop: true,
       config: { duration: 300 }
     });
-    
   }
   
   function run() {
     Debug.log('Gun animation: Run', 'gunAnimation');
     
-    spring.stop();
-    spring.start({
+    swaySpring.stop();
+    swaySpring.start({
       to: [
-        { x: 0.15, y: -0.225 },
-        { x: 0.00, y: -0.3 },
-        { x: -0.35, y: -0.275 },
-        { x: 0.00, y: -0.3 }
+        { swayX: 0.15, swayY: -0.225 },
+        { swayX: 0.00, swayY: -0.3 },
+        { swayX: -0.35, swayY: -0.275 },
+        { swayX: 0.00, swayY: -0.3 }
       ],
       loop: true,
       config: { duration: 150 }
@@ -58,6 +61,7 @@ export function useGunAnimations() {
   }
   
   function jumpStart() {
+    Debug.log('Gun animation: Jump', 'gunAnimation');
     jumpSpring.start({
       to: [
         { jumpY: 0.05, config: { duration: 150} },
@@ -82,8 +86,8 @@ export function useGunAnimations() {
     });
   }
 
-  function hipSway() {
-    swaySpring.start({ 
+  function velocity() {
+    velocitySpring.start({ 
       velX: clamp(-mouseVelocity.current.x / 3, -0.1, 0.1), 
       velY: clamp(-mouseVelocity.current.y / 3, -0.1, 0.1),
       config: {
@@ -93,25 +97,51 @@ export function useGunAnimations() {
     })
   }
 
-  function stopAnimation() {
-    Debug.log('Gun animation: None', 'gunAnimation');
+  function aimStart() {
+    positionSpring.stop();
+    positionSpring.start({ posX: 0, posY: 0 });
+    spriteSpring.start({
+      to: [
+        { sprite: 1, config: { duration: 0 }},
+        { sprite: 2, config: { duration: 75, easing: easings.steps(1), round: 1 }},
+      ]
+    })
+  }
 
-    spring.stop();
-    spring.start({ x: 0, y: 0, config: { duration: 200 }});
+  function aimEnd() {
+    positionSpring.stop();
+    positionSpring.start({ posX: 0.2, posY: 0 });
+
+    spriteSpring.start({
+      to: [
+        { sprite: 1, config: { duration: 0 }},
+        { sprite: 0, config: { duration: 75, easing: easings.steps(1), round: 1}},
+      ]
+    })
+  }
+
+  function shoot() {
+      shootSpring.start({ muzzleflash: 1, config: { duration: 0 }});
+      shootSpring.start({
+        to: [
+          { knockback: 0.1, config: { duration: 50 }},
+          { knockback: 0, muzzleflash: 0 }
+        ]
+      });
   }
 
   function rollLeft() {
     Debug.log('Gun animation: Roll left', 'gunAnimation');
-
+    
     rollSpring.stop();
     rollSpring.start({
       roll: 0.1, config: { duration: 300, friction: 0 }
     })
   }
-
+  
   function rollRight() {
     Debug.log('Gun animation: Roll right', 'gunAnimation');
-
+    
     rollSpring.stop();
     rollSpring.start({
       roll: -0.1, config: { duration: 300, friction: 0 }
@@ -120,28 +150,75 @@ export function useGunAnimations() {
   
   function rollEnd() {
     Debug.log('Gun animation: Roll end', 'gunAnimation');
-
+    
     rollSpring.stop();
     rollSpring.start({
       roll: 0, config: { duration: 300, friction: 0 }
     })
   }
 
+  function reloadStart(data: NotifyData) {
+    const duration = (data?.duration ?? 2000) as number;
+
+    reloadSpring.stop();
+    reloadSpring.start({
+      to: [
+        { reloadX: 0.15, reloadY: -0.3, config: { mass: 1 } },
+        { reloadX: 0.15, reloadY: -0.3, delay: duration - 800 },
+      ],
+      config: { duration },
+      onResolve(result) {
+        if (result.noop) return;
+
+        reloadEnd();
+      }
+    });
+  }
+
+  function reloadEnd() {
+    reloadSpring.stop();
+    reloadSpring.start({ reloadX: 0, reloadY: 0, config: { duration: 200 }, onResolve(result) {
+      if (result.noop) return;
+
+      GunState.reloadEnd();
+      console.log('onresolve', result)
+    } });
+  }
+  
+  function stopAnimation() {
+    Debug.log('Gun animation: None', 'gunAnimation');
+
+    positionSpring.stop();
+    positionSpring.start({ posX: 0, posY: 0, config: { duration: 200 }});
+  }
+
   return {
     idle,
     run,
+    shoot,
     jumpStart,
     jumpEnd,
-    hipSway,
-    stopAnimation,
+    velocity,
+    aimStart,
+    aimEnd,
     rollLeft,
     rollRight,
     rollEnd,
-    get x() { return x.get() },
-    get y() { return y.get() },
+    reloadStart,
+    reloadEnd,
+    stopAnimation,
+    get posX() { return posX.get() },
+    get posY() { return posY.get() },
+    get reloadX() { return reloadX.get() },
+    get reloadY() { return reloadY.get() },
+    get knockback() { return knockback.get() },
+    get muzzleflash() { return muzzleflash.get() },
     get jumpY() { return jumpY.get() },
     get velX() { return velX.get() },
     get velY() { return velY.get() },
+    get swayX() { return swayX.get() },
+    get swayY() { return swayY.get() },
     get roll() { return roll.get() },
+    get sprite() { return sprite.get() },
   }
 }
