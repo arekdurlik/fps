@@ -2,23 +2,12 @@ import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { useKeyboardInput } from '../../hooks/useKeyboardInput'
 import { toSentenceCase } from '../../helpers'
-import { useDebugState } from '../../state/debugState'
-
-const initFilters = { 
-  error: true, 
-  playerEnterState: false, 
-  playerLeaveState: false, 
-  playerAnimation: false, 
-  gunAnimation: false 
-}
-
-export type ConsoleFilter = keyof typeof initFilters
+import { Filter, useDebugState } from '../../state/debugState'
 
 export function Console() {
   const [active, setActive] = useState(false);
-  const [filters, setFilters] = useState(initFilters)
   const keyboard = useKeyboardInput(['`']);
-  const { commands } = useDebugState();
+  const { commands, filters, setFilter, clearCommands } = useDebugState();
   const filteredAndReversedCommands = commands.filter(command => filters[command.type] === true).reverse();
 
   // open console if last message is an error and error filter is on
@@ -37,34 +26,51 @@ export function Console() {
     }
   }, [keyboard]);
 
-  function setFilter(filter: string, value: boolean) {
-    setFilters(filters => ({ ...filters, [filter]: value }));
-  }
-
   return active && <Container onClick={e => e.stopPropagation()}>
+      <ClearButton onClick={clearCommands}>Clear</ClearButton>
       <Commands>
         {filteredAndReversedCommands.map((command, i) => <Command key={i} color={command.color} >{command.text}</Command>)}
       </Commands>
       <Filters>
         Filters:
         {Object.keys(filters).map(filter => (
-          <Button
-            $active={filters[filter as ConsoleFilter]}
-            onClick={() => setFilter(filter, !filters[filter as ConsoleFilter])}
+          <FilterOption
+            $active={filters[filter]}
+            onClick={() => setFilter(filter as Filter, !filters[filter])}
           > 
             {toSentenceCase(filter)}
-          </Button>
+          </FilterOption>
         ))}
       </Filters>
     </Container>
 }
 
-const Button = styled.button<{ $active: boolean }>`
+const Button = styled.button`
   background-color: transparent;
   border: 1px outset;
   border-radius: 3px;
-  color: #888;
   padding: 4px 6px;
+  color: #ddd;
+
+  &:active {
+    border: 1px inset;
+  }
+`
+
+const ClearButton = styled(Button)`
+position: absolute;
+top: 0;
+right: 0;
+margin: 5px 28px;
+`
+
+const FilterOption = styled(Button)<{ $active: boolean }>`
+  color: #888;
+
+  &:active {
+    border: 1px inset;
+  }
+
   ${({ $active }) => $active && `
     color: #ddd;
     border: 1px inset;
@@ -78,8 +84,6 @@ const Container = styled.div`
   font-size: 11px;
 }
 position: absolute;
-width: 500px;
-
 background-color: #4e4e4ecc;
 color: #ddd;
 
@@ -94,12 +98,11 @@ flex-direction: column-reverse;
 border-bottom: 1px outset;
 padding: 10px;
 
-overflow-y: auto;
+overflow-y: scroll;
 color-scheme: dark;
 `
 
-const Command = styled.span<{ color?: string, type?: ConsoleFilter }>`
-  
+const Command = styled.span<{ color?: string, type?: Filter }>`
   padding-top: 5px;
   font-size: 11px;
   color: #ddd;

@@ -15,11 +15,7 @@ function App() {
     <Console/>
     <HUD/>
     <Suspense fallback={null}>
-      <Canvas 
-        shadows 
-        gl={{ antialias: false }} 
-        dpr={0.5}
-      >  
+      <Canvas shadows={{ type: 0 }} gl={{ antialias: false }} dpr={0.5}>  
         <PointerLockControls/>
         <Stats/>
         <Physics gravity={[0, -12.81, 0]}>

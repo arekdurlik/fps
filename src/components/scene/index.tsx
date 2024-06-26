@@ -27,15 +27,13 @@ export function Scene() {
     <pointLight castShadow
       args={['#ffffff', 4, 15, 1]} 
       position={[3, 5.4, -4]} 
-      shadow-mapSize-width={1024} 
-      shadow-mapSize-height={1024} 
       shadow-bias={0.0001}
     />
 
    
     
       <Ground />
-      <Box position={[2.5, 0, -3.5]} rotation={[0, Math.PI / 4, 0]}/>
+      <Box position={[2.5, 0.25, -2.5]} rotation={[0, Math.PI / 4, 0]} scale={0.5}/>
       <Box position={[2.5, 0.5, -4.5]}/>
       <Box position={[2.5, 0.5, -7.5]}/>
       <Player />

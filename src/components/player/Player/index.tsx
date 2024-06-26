@@ -13,22 +13,13 @@ import { PlayerState } from '../../../state/playerState'
 export function Player() {
   const ref = useRef<RAPIER.RigidBody | null>(null);
   const cameraWrapper = useRef<THREE.Group>(null!);
-  const camera = useRef<THREE.PerspectiveCamera>(null!)
+  const camera = useRef<THREE.PerspectiveCamera>(null!);
   const { animations } = usePlayerEvents();
 
   useEffect(() => {
     GameState.setCamera(camera.current);
     PlayerState.setPlayer(ref);
-  }, [ref, camera])
-
-  // render player on top of everything
-  useEffect(() => {
-    cameraWrapper.current.traverse(object =>{ 
-      object.renderOrder = 2;
-
-      object.userData.shootThrough = true;
-    })
-  }, [])
+  }, [ref, camera]);
 
   useFrame(() => {
     cameraWrapper.current.position.set(0, 0, 0);
@@ -44,11 +35,11 @@ export function Player() {
   return <>
       <group ref={cameraWrapper}>
         <PerspectiveCamera makeDefault ref={camera}>
-          <Gun />
+          <Gun/>
         </PerspectiveCamera>
       </group>
       <RigidBody ref={ref} name='player' position={[0, -2, 0]} enabledRotations={[false, false, false]}>
-        <CapsuleCollider args={[0.5, 0.2]} />
+        <CapsuleCollider args={[0.5, 0.2]}/>
       </RigidBody>
   </>
 }

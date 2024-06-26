@@ -4,7 +4,7 @@ import { useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useRapier } from '@react-three/rapier'
 import { lerp } from 'three/src/math/MathUtils.js'
-import { PlayerState, PlayerSubjects, usePlayerState } from '../state/playerState'
+import { PlayerState, PlayerSubject, usePlayerState } from '../state/playerState'
 import { GunState } from '../state/gunState'
 import { useMouseInputRef } from '../hooks/useMouseInput'
 import { useKeyboardInputRef } from '../hooks/useKeyboardInput'
@@ -71,15 +71,15 @@ export function PlayerController() {
         if (GunState.ammoInMag === 0) {
           if (!alreadyTriedToFire.current) {
             alreadyTriedToFire.current = true;
-            PlayerState.notify(PlayerSubjects.SHOT_FIRED);
+            PlayerState.notify(PlayerSubject.SHOT_FIRED);
           }
         } else {
-          PlayerState.notify(PlayerSubjects.SHOT_FIRED);
+          PlayerState.notify(PlayerSubject.SHOT_FIRED);
         }
       }
 
       if (r && !shift && !lmb && !rmb) {
-        GunState.reloadStart();
+        GunState.reloadBegin();
       }
 
       // reset single click on empty mag
@@ -186,25 +186,25 @@ export function PlayerController() {
     // jump
     if (space && !PlayerState.jumping && grounded && (Date.now() - jumpEndTimestamp > JUMP_COOLDOWN )
       || (!PlayerState.jumping && !grounded)) { 
-    
-      if (space) {
-        if (!GunState.reloading) {
-          PlayerState.setJumping(true);
-          
-          jumpStartTimestamp = Date.now();
-          player.setLinvel({ x: player.linvel().x, y: JUMP_VELOCITY, z: player.linvel().z }, true);
+        
+        if (space) {
+          if (!GunState.reloading) {
+            PlayerState.setJumping(true);
+            
+            jumpStartTimestamp = Date.now();
+            player.setLinvel({ x: player.linvel().x, y: JUMP_VELOCITY, z: player.linvel().z }, true);
+          }
+        } else {
+          PlayerState.setJumping(true, { fall: true });
         }
-      } else {
-        PlayerState.setJumping(true, { fall: true });
       }
-    }
-    // end jump
-    if (grounded && PlayerState.jumping && (Date.now() - jumpStartTimestamp > 400)) {
-      PlayerState.setJumping(false);
-      PlayerState.notify(PlayerSubjects.JUMP_END);
+      // end jump
+      if (grounded && PlayerState.jumping && (Date.now() - jumpStartTimestamp > 400)) {
+        PlayerState.setJumping(false);
+        PlayerState.notify(PlayerSubject.JUMP_END);
 
-      jumpEndTimestamp = Date.now();
-    }
+        jumpEndTimestamp = Date.now();
+      }
   });
 
   return null;

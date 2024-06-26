@@ -3,8 +3,8 @@ import { useEffect, useRef } from 'react'
 import { useNearestFilterTexture } from '../../../hooks/useNearestFilterTexture'
 import { useFrame } from '@react-three/fiber'
 import { useGunEvents } from './events'
-import { PlayerState, PlayerSubjects, usePlayerState } from '../../../state/playerState'
-import { GunState, GunSubjects } from '../../../state/gunState'
+import { PlayerState, PlayerSubject, usePlayerState } from '../../../state/playerState'
+import { GunState, GunSubject } from '../../../state/gunState'
 import { WEAPONS_DATA } from '../../../data'
 import { playSound } from '../../../utils'
 
@@ -28,17 +28,17 @@ export function Gun() {
 
   // subscribe to events
   useEffect(() => {
-    const playerUnsubscribe = PlayerState.subscribe(PlayerSubjects.SHOT_FIRED, tryShoot);
+    const playerUnsubscribe = PlayerState.subscribe(PlayerSubject.SHOT_FIRED, tryShoot);
     const gunUnsubscribe = GunState.subscribeMany([
-      [GunSubjects.SHOT_FIRED, handleShotFired],
-      [GunSubjects.MAGAZINE_EMPTY, handleEmptyShotFired]
+      [GunSubject.SHOT_FIRED, handleShotFired],
+      [GunSubject.MAGAZINE_EMPTY, handleEmptyShotFired]
     ]);
 
     return () => {
       playerUnsubscribe();
       gunUnsubscribe();
     }
-  }, [])
+  }, []);
 
   // texture setup
   useEffect(() => {
@@ -59,10 +59,10 @@ export function Gun() {
     if (Date.now() - lastShotTimestamp.current < GunState.rateOfFire) return;
 
     if (GunState.ammoInMag === 0) {
-      GunState.notify(GunSubjects.MAGAZINE_EMPTY);
+      GunState.notify(GunSubject.MAGAZINE_EMPTY);
     } else {
       GunState.decreaseAmmoInMag();
-      GunState.notify(GunSubjects.SHOT_FIRED, {
+      GunState.notify(GunSubject.SHOT_FIRED, {
         damage: GunState.damage,
         recoilZ: GunState.recoilZ,
         recoilY: GunState.recoilY,
@@ -168,7 +168,7 @@ export function Gun() {
       </mesh>
       <mesh ref={muzzleflashMesh} position={[0, 0.06, -0.01]} matrixAutoUpdate={false} matrixWorldAutoUpdate={false} userData={{ shootThrough: true }}>
         <planeGeometry args={[1, 1, 1, 1]}/>
-        <meshBasicMaterial map={muzzleflash} transparent  depthTest={false}/>
+        <meshBasicMaterial map={muzzleflash} transparent depthTest={false}/>
       </mesh>
     </group>  
   </group>

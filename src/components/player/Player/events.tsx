@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
-import { PlayerState, PlayerSubjects } from '../../../state/playerState'
-import { GunState, GunSubjects } from '../../../state/gunState'
+import { PlayerState, PlayerSubject } from '../../../state/playerState'
+import { GunState, GunSubject } from '../../../state/gunState'
 import { NotifyData } from '../../../types'
 import { usePlayerAnimations } from './animations'
 import { playSound } from '../../../utils'
@@ -17,23 +17,24 @@ export function usePlayerEvents() {
     const runR = () => playSound('walkR', 0.4);
     
     const playerUnsubscribe = PlayerState.subscribeMany([
-      [PlayerSubjects.WALK_STEP_LEFT, walkL],
-      [PlayerSubjects.WALK_STEP_RIGHT, walkR],
-      [PlayerSubjects.RUN_STEP_LEFT, runL],
-      [PlayerSubjects.RUN_STEP_RIGHT, runR],
+      [PlayerSubject.WALK_STEP_LEFT, walkL],
+      [PlayerSubject.WALK_STEP_RIGHT, walkR],
+      [PlayerSubject.RUN_STEP_LEFT, runL],
+      [PlayerSubject.RUN_STEP_RIGHT, runR],
 
-      [PlayerSubjects.JUMP_BEGIN, jump],
-      [PlayerSubjects.JUMP_BEGIN, animations.stopAnimation],
+      [PlayerSubject.JUMP_BEGIN, jump],
+      [PlayerSubject.JUMP_BEGIN, animations.stopAnimation],
+      [PlayerSubject.JUMP_END, land],
 
-      [PlayerSubjects.JUMP_END, land],
-      [PlayerSubjects.IDLE_BEGIN, animations.idle],
-      [PlayerSubjects.WALK_BEGIN, animations.walk],
-      [PlayerSubjects.RUN_BEGIN, animations.run],
+      [PlayerSubject.IDLE_BEGIN, animations.idle],
+      [PlayerSubject.WALK_BEGIN, animations.walk],
+      [PlayerSubject.RUN_BEGIN, animations.run],
 
-      [PlayerSubjects.AIM_BEGIN, animations.aimBegin],
-      [PlayerSubjects.AIM_END, animations.aimEnd],
-    ])
-    const gunUnsubscribe = GunState.subscribe(GunSubjects.SHOT_FIRED, animations.shoot)
+      [PlayerSubject.AIM_BEGIN, animations.aimBegin],
+      [PlayerSubject.AIM_END, animations.aimEnd],
+    ]);
+    
+    const gunUnsubscribe = GunState.subscribe(GunSubject.SHOT_FIRED, animations.shoot);
     
     return () => {
       playerUnsubscribe();

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 type HookReturn = {
   [key:string]: boolean
-}
+};
 
 export function useKeyboardInput(keysToListen = <string[]>[]) {
   const getKeys = useCallback(() => {

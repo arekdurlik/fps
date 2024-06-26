@@ -3,7 +3,7 @@ import * as THREE from 'three'
 
 type GameState = {
   camera: THREE.PerspectiveCamera
-}
+};
 
 // ease of use and getting state values in event callbacks
 export const GameState = {
@@ -12,8 +12,8 @@ export const GameState = {
   },
   
   get camera() { return useGameState.getState().camera }
-}
+};
 
 export const useGameState = create<GameState>(() => ({
   camera: null!,
-}))
+}));

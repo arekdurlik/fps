@@ -2,7 +2,7 @@ import { useThree } from '@react-three/fiber'
 import { useEffect, useRef } from 'react'
 import { useNearestFilterTexture } from '../hooks/useNearestFilterTexture'
 import * as THREE from 'three'
-import { GunState, GunSubjects } from '../state/gunState'
+import { GunState, GunSubject } from '../state/gunState'
 import { GameState } from '../state/gameState'
 import { invlerp } from '../helpers'
 import { DecalGeometry } from 'three/examples/jsm/Addons.js'
@@ -29,7 +29,7 @@ export function BulletHolesController() {
   const { raycaster, scene } = useThree();
 
   useEffect(() => {
-    const unsubscribe = GunState.subscribe(GunSubjects.SHOT_FIRED, handleShotFired);
+    const unsubscribe = GunState.subscribe(GunSubject.SHOT_FIRED, handleShotFired);
     return () => unsubscribe();
   }, [])
 

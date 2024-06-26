@@ -1,6 +1,6 @@
 import { useSpring } from '@react-spring/three'
 import { Debug } from '../../../state/debugState'
-import { PlayerState, PlayerSubjects } from '../../../state/playerState'
+import { PlayerState, PlayerSubject } from '../../../state/playerState'
 import { NotifyData } from '../../../types'
 
 export function usePlayerAnimations() {
@@ -22,13 +22,13 @@ export function usePlayerAnimations() {
       to: [
         { x: -0.0125, y: -0.03, 
           onResolve({ finished }) {
-            finished && PlayerState.notify(PlayerSubjects.WALK_STEP_LEFT);
+            finished && PlayerState.notify(PlayerSubject.WALK_STEP_LEFT);
           }  
         },
         { x: 0, y: 0 },
         { x: 0.0125, y: -0.03, 
           onResolve({ finished }) {
-            finished && PlayerState.notify(PlayerSubjects.WALK_STEP_RIGHT);
+            finished && PlayerState.notify(PlayerSubject.WALK_STEP_RIGHT);
           } 
         },
         { x: 0, y: 0 }
@@ -48,14 +48,14 @@ export function usePlayerAnimations() {
       to: [
         { x: -0.05, y: -0.1, 
           onResolve({ finished }) {
-            finished && PlayerState.notify(PlayerSubjects.RUN_STEP_LEFT, { firstStep });
+            finished && PlayerState.notify(PlayerSubject.RUN_STEP_LEFT, { firstStep });
             firstStep = false;
           }  
         },
         { x: 0, y: 0 },
         { x: 0.05, y: -0.1, 
           onResolve({ finished }) {
-            finished && PlayerState.notify(PlayerSubjects.RUN_STEP_RIGHT); 
+            finished && PlayerState.notify(PlayerSubject.RUN_STEP_RIGHT); 
           } 
         },
         { x: 0, y: 0 }
