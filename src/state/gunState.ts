@@ -1,14 +1,7 @@
 import { create } from 'zustand'
-import { Debug } from './consoleState'
-import { playSound } from '../hooks/controllers/useAudioController'
+import { Debug } from './debugState'
 import { WEAPONS_DATA } from '../data'
-
-const initObservers = {
-  shotFired: [],
-  magazineEmpty: [],
-  reloadStart: [],
-  reloadEnd: []
-}
+import { playSound } from '../utils'
 
 type GunState = {
   equipped: keyof typeof WEAPONS_DATA
@@ -22,12 +15,23 @@ type GunState = {
   reloading: boolean
 
   observers: { [key:string]: Function[] }
-  subscribe: (subject: keyof typeof initObservers, cb: Function) => void
-  unsubscribe: (subject: keyof typeof initObservers, cb: Function) => void
-  notify: (subject: keyof typeof initObservers, data?: unknown) => void
+  subscribe: (subject: Subject, cb: Function) => void
+  unsubscribe: (subject: Subject, cb: Function) => void
+  notify: (subject: Subject, data?: unknown) => void
 }
 
 type Subject = keyof typeof initObservers
+
+export const GunSubjects = {
+  SHOT_FIRED: 'SHOT_FIRED',
+  MAGAZINE_EMPTY: 'MAGAZINE_EMPTY',
+  RELOAD_BEGIN: 'RELOAD_BEGIN',
+  RELOAD_END: 'RELOAD_END',
+}
+
+const initObservers = Object.fromEntries(
+  Object.keys(GunSubjects).map(key => [key, []])
+);
 
 // ease of use and getting state values in event callbacks
 export const GunState = {
@@ -37,24 +41,42 @@ export const GunState = {
   reloadStart() {
     if (this.reloading) return;
     
-    GunState.notify('reloadStart');
+    GunState.notify(GunSubjects.RELOAD_BEGIN);
     playSound('reload');
     useGunState.setState(({ magCapacity }) => ({ reloading: true, ammoInMag: magCapacity }));
   },
   reloadEnd() {
     if (!this.reloading) return;
     
-    GunState.notify('reloadEnd');
+    GunState.notify(GunSubjects.RELOAD_END);
     useGunState.setState(() => ({ reloading: false }));
   },
   subscribe(subject: Subject, cb: Function) {
     useGunState.getState().subscribe(subject, cb);
+    return () => {
+      this.unsubscribe(subject, cb);
+    };
+  },
+  subscribeMany(subjects: [subject: Subject, cb: Function][]) {
+    subjects.forEach(entry => {
+      this.subscribe(entry[0], entry[1]);
+    })
+
+    return () => {
+      subjects.forEach(entry => {
+        this.unsubscribe(entry[0], entry[1]);
+      });
+    };
   },
   unsubscribe(subject: Subject, cb: Function) {
     useGunState.getState().unsubscribe(subject, cb);
   },
   notify(subject: Subject, data?: unknown) {
-    useGunState.getState().notify(subject, data);
+    try {
+      useGunState.getState().notify(subject, data);
+    } catch {
+      throw new Error(`Subject "${subject}" not found in Gun subjects.`);
+    }
   },
 
   get equipped() { return useGunState.getState().equipped },
@@ -68,7 +90,7 @@ export const GunState = {
   get reloading() { return useGunState.getState().reloading }
 }
 
-const smg = WEAPONS_DATA.smg
+const smg = WEAPONS_DATA.smg;
 
 export const useGunState = create<GunState>((set, get) => ({
   equipped: 'smg',
@@ -82,7 +104,7 @@ export const useGunState = create<GunState>((set, get) => ({
   reloading: false,
 
   observers: initObservers,
-  subscribe: (subject: keyof typeof initObservers, cb: Function) => {
+  subscribe: (subject: Subject, cb: Function) => {
     set(state => {
       const newObservers = get().observers[subject];
       newObservers.push(cb);
@@ -90,18 +112,18 @@ export const useGunState = create<GunState>((set, get) => ({
       return { observers: { ...state.observers, subject: newObservers }};
     })
   },
-  unsubscribe: (subject: string, cb: Function) => {
+  unsubscribe: (subject: Subject, cb: Function) => {
     set(state => {
       const newObservers = get().observers[subject].filter(observers => observers !== cb);
       
       return { observers: { ...state.observers, [subject]: newObservers }};
     })
   },
-  notify: (subject: string, data?: unknown) => {
+  notify: (subject: Subject, data?: unknown) => {
     try {
       get().observers[subject].forEach(observer => observer(data));
     } catch (e) {
       Debug.error(`[Gun state] Error notifying "${subject}" observers: ${e}`);
     }
   }
-}))
+}));

@@ -12,7 +12,7 @@ export function Box({ position = [0, 0, 0], rotation = [0, 0, 0] }: { position?:
 
   return (
     <RigidBody type="fixed" colliders={false}>
-      <mesh position={position} rotation={rotation} name='box' receiveShadow>
+      <mesh position={position} rotation={rotation} name='box' receiveShadow castShadow>
         <boxGeometry args={[1, 1]} />
         <meshStandardMaterial color="#fff" map={grid}/>
       </mesh>

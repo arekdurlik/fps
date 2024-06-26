@@ -1,22 +1,27 @@
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { useKeyboardInput } from '../../hooks/inputs/useKeyboardInput'
-import { useConsoleState } from '../../state/consoleState'
+import { useKeyboardInput } from '../../hooks/useKeyboardInput'
 import { toSentenceCase } from '../../helpers'
+import { useDebugState } from '../../state/debugState'
 
-const initFilters = { error: true, playerEnterState: true, playerLeaveState: true, playerAnimation: true, gunAnimation: true }
+const initFilters = { 
+  error: true, 
+  playerEnterState: false, 
+  playerLeaveState: false, 
+  playerAnimation: false, 
+  gunAnimation: false 
+}
+
 export type ConsoleFilter = keyof typeof initFilters
 
 export function Console() {
   const [active, setActive] = useState(false);
   const [filters, setFilters] = useState(initFilters)
   const keyboard = useKeyboardInput(['`']);
-  const { commands } = useConsoleState();
-  
-  function setFilter(filter: string, value: boolean) {
-    setFilters(filters => ({ ...filters, [filter]: value }))
-  }
+  const { commands } = useDebugState();
+  const filteredAndReversedCommands = commands.filter(command => filters[command.type] === true).reverse();
 
+  // open console if last message is an error and error filter is on
   useEffect(() => {
     if (commands.at(-1)?.type === 'error') {
       if (filters.error) {
@@ -25,27 +30,31 @@ export function Console() {
     }
   }, [commands.length]);
 
+  // open console
   useEffect(() => {
     if (keyboard.tilde) {
       setActive(!active);
     }
   }, [keyboard]);
 
+  function setFilter(filter: string, value: boolean) {
+    setFilters(filters => ({ ...filters, [filter]: value }));
+  }
+
   return active && <Container onClick={e => e.stopPropagation()}>
       <Commands>
-        {commands
-          .filter(command => filters[command.type] === true)
-          .reverse().map((command, i) => <Command key={i} color={command.color} >{command.text}</Command>)}
+        {filteredAndReversedCommands.map((command, i) => <Command key={i} color={command.color} >{command.text}</Command>)}
       </Commands>
       <Filters>
         Filters:
-        {Object.keys(filters).map(filter => <Button
-            $active={filters[filter as keyof typeof filters]}
-            onClick={() => setFilter(filter, !filters[filter as keyof typeof filters])}
+        {Object.keys(filters).map(filter => (
+          <Button
+            $active={filters[filter as ConsoleFilter]}
+            onClick={() => setFilter(filter, !filters[filter as ConsoleFilter])}
           > 
-          {toSentenceCase(filter)}
+            {toSentenceCase(filter)}
           </Button>
-        )}
+        ))}
       </Filters>
     </Container>
 }
@@ -64,15 +73,12 @@ const Button = styled.button<{ $active: boolean }>`
 
 const Container = styled.div`
 
-box-shadow: 0px 10px 10px #00000044;
-
 * {
   font-family: 'Console';
   font-size: 11px;
 }
-filter: blur(0.000001px);
 position: absolute;
-width: 100%;
+width: 500px;
 
 background-color: #4e4e4ecc;
 color: #ddd;
@@ -85,9 +91,11 @@ const Commands = styled.div`
 display: flex;
 height: 200px;
 flex-direction: column-reverse;
-overflow: hidden;
 border-bottom: 1px outset;
 padding: 10px;
+
+overflow-y: auto;
+color-scheme: dark;
 `
 
 const Command = styled.span<{ color?: string, type?: ConsoleFilter }>`

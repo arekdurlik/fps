@@ -1,9 +1,9 @@
 import { easings, useSpring } from '@react-spring/three'
-import { useMouseVelocity } from '../inputs/useMouseVelocity'
+import { useMouseVelocity } from '../../../hooks/useMouseVelocity'
 import { clamp } from 'three/src/math/MathUtils.js'
-import { Debug } from '../../state/consoleState'
-import { NotifyData } from '../../types'
-import { GunState } from '../../state/gunState'
+import { Debug } from '../../../state/debugState'
+import { NotifyData } from '../../../types'
+import { GunState } from '../../../state/gunState'
 
 export function useGunAnimations() {
   const mouseVelocity = useMouseVelocity();
@@ -15,6 +15,7 @@ export function useGunAnimations() {
   const [{ jumpY }, jumpSpring] = useSpring(() => ({ jumpY: 0 }));
   const [{ muzzleflash, knockback }, shootSpring] = useSpring(() => ({ muzzleflash: 0, knockback: 0 }));
   const [{ reloadX, reloadY }, reloadSpring] = useSpring(() => ({ reloadX: 0, reloadY: 0 }));
+
   function idle() {
     Debug.log('Gun animation: Idle', 'gunAnimation');
 
@@ -60,7 +61,7 @@ export function useGunAnimations() {
     });
   }
   
-  function jumpStart() {
+  function jumpBegin() {
     Debug.log('Gun animation: Jump', 'gunAnimation');
     jumpSpring.start({
       to: [
@@ -97,7 +98,7 @@ export function useGunAnimations() {
     })
   }
 
-  function aimStart() {
+  function aimBegin() {
     positionSpring.stop();
     positionSpring.start({ posX: 0, posY: 0 });
     spriteSpring.start({
@@ -157,7 +158,7 @@ export function useGunAnimations() {
     })
   }
 
-  function reloadStart(data: NotifyData) {
+  function reloadBegin(data: NotifyData) {
     const duration = (data?.duration ?? 2000) as number;
 
     reloadSpring.stop();
@@ -181,7 +182,6 @@ export function useGunAnimations() {
       if (result.noop) return;
 
       GunState.reloadEnd();
-      console.log('onresolve', result)
     } });
   }
   
@@ -196,15 +196,15 @@ export function useGunAnimations() {
     idle,
     run,
     shoot,
-    jumpStart,
+    jumpBegin,
     jumpEnd,
     velocity,
-    aimStart,
+    aimBegin,
     aimEnd,
     rollLeft,
     rollRight,
     rollEnd,
-    reloadStart,
+    reloadBegin,
     reloadEnd,
     stopAnimation,
     get posX() { return posX.get() },
@@ -220,5 +220,5 @@ export function useGunAnimations() {
     get swayY() { return swayY.get() },
     get roll() { return roll.get() },
     get sprite() { return sprite.get() },
-  }
+  };
 }

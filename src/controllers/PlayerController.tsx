@@ -1,13 +1,13 @@
 import * as THREE from "three"
 import * as RAPIER from "@dimforge/rapier3d-compat"
-import { MutableRefObject, useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useRapier } from '@react-three/rapier'
-import { useKeyboardInputRef } from '../inputs/useKeyboardInput'
 import { lerp } from 'three/src/math/MathUtils.js'
-import { PlayerState, usePlayerState } from '../../state/playerState'
-import { useMouseInputRef } from '../inputs/useMouseInput'
-import { GunState, useGunState } from '../../state/gunState'
+import { PlayerState, PlayerSubjects, usePlayerState } from '../state/playerState'
+import { GunState } from '../state/gunState'
+import { useMouseInputRef } from '../hooks/useMouseInput'
+import { useKeyboardInputRef } from '../hooks/useKeyboardInput'
 
 const PLAYER_SPEED = 0.2;
 const JUMP_VELOCITY = 4.5;
@@ -20,16 +20,16 @@ const velocity = new THREE.Vector3();
 let jumpStartTimestamp = 0;
 let jumpEndTimestamp = 0;
 
-export function usePlayerController(ref: MutableRefObject<RAPIER.RigidBody | null>) {
+export function PlayerController() {
   const { camera } = useThree();
   const rapier = useRapier();
   const keyboard = useKeyboardInputRef(['w', 's', 'a', 'd', 'r', ' ', 'shift']);
   const mouse = useMouseInputRef();
-  const player = ref.current;
+  const playerRef = usePlayerState(state => state.player);
   const alreadyTriedToFire = useRef(false);
 
-
   useFrame(() => {
+    const player = playerRef?.current;
     if (!player) return;
 
     // read inputs
@@ -71,10 +71,10 @@ export function usePlayerController(ref: MutableRefObject<RAPIER.RigidBody | nul
         if (GunState.ammoInMag === 0) {
           if (!alreadyTriedToFire.current) {
             alreadyTriedToFire.current = true;
-            PlayerState.notify('shotFired');
+            PlayerState.notify(PlayerSubjects.SHOT_FIRED);
           }
         } else {
-          PlayerState.notify('shotFired');
+          PlayerState.notify(PlayerSubjects.SHOT_FIRED);
         }
       }
 
@@ -201,9 +201,11 @@ export function usePlayerController(ref: MutableRefObject<RAPIER.RigidBody | nul
     // end jump
     if (grounded && PlayerState.jumping && (Date.now() - jumpStartTimestamp > 400)) {
       PlayerState.setJumping(false);
-      PlayerState.notify('jumpEnd');
+      PlayerState.notify(PlayerSubjects.JUMP_END);
 
       jumpEndTimestamp = Date.now();
     }
   });
+
+  return null;
 }

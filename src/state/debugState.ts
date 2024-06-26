@@ -1,24 +1,24 @@
 import { create } from 'zustand'
 import { ConsoleFilter } from '../components/debug/Console'
 
-type ConsoleState = {
+type DebugState = {
   commands: { text: string, type: ConsoleFilter, color: string }[]
 }
 
 export const Debug = {
   log(text: string, type = 'default' as ConsoleFilter, color = '#ddd') {
-    const commands = useConsoleState.getState().commands;
+    const commands = useDebugState.getState().commands;
     commands.push({ text, type, color });
-    useConsoleState.setState({ commands });
+    useDebugState.setState({ commands });
   },
   error(text: string) {
-    const commands = useConsoleState.getState().commands;
+    const commands = useDebugState.getState().commands;
     commands.push({ text, type: 'error', color: '#c00' });
-    useConsoleState.setState({ commands });
+    useDebugState.setState({ commands });
   },
-  clear: () => useConsoleState.setState({ commands: [] })
+  clear: () => useDebugState.setState({ commands: [] })
 }
 
-export const useConsoleState = create<ConsoleState>(() => ({
+export const useDebugState = create<DebugState>(() => ({
   commands: []
 }))

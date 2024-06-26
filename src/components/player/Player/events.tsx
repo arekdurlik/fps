@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
-import { PlayerState } from '../../../state/playerState'
-import { usePlayerAnimations } from '../../../hooks/animations/usePlayerAnimations'
-import { playSound } from '../../../hooks/controllers/useAudioController'
-import { GunState } from '../../../state/gunState'
+import { PlayerState, PlayerSubjects } from '../../../state/playerState'
+import { GunState, GunSubjects } from '../../../state/gunState'
 import { NotifyData } from '../../../types'
+import { usePlayerAnimations } from './animations'
+import { playSound } from '../../../utils'
 
 export function usePlayerEvents() {
-  const playerAnimations = usePlayerAnimations();
+  const animations = usePlayerAnimations();
   
   useEffect(() => {
     const jump = (data: NotifyData) => !data.fall && playSound('jump');
@@ -16,38 +16,30 @@ export function usePlayerEvents() {
     const runL = (data: NotifyData) => playSound('walkL', data.firstStep ? 0.2 : 0.4);
     const runR = () => playSound('walkR', 0.4);
     
-    PlayerState.subscribe('walkStepLeft', walkL);
-    PlayerState.subscribe('walkStepRight', walkR);
-    PlayerState.subscribe('runStepLeft', runL);
-    PlayerState.subscribe('runStepRight', runR);
-    
-    PlayerState.subscribe('jumpStart', jump);
-    PlayerState.subscribe('jumpStart', playerAnimations.stopAnimation);
-    
-    PlayerState.subscribe('jumpEnd', land);
-    PlayerState.subscribe('idleStart', playerAnimations.idle);
-    PlayerState.subscribe('walkStart', playerAnimations.walk);
-    PlayerState.subscribe('runStart', playerAnimations.run);
+    const playerUnsubscribe = PlayerState.subscribeMany([
+      [PlayerSubjects.WALK_STEP_LEFT, walkL],
+      [PlayerSubjects.WALK_STEP_RIGHT, walkR],
+      [PlayerSubjects.RUN_STEP_LEFT, runL],
+      [PlayerSubjects.RUN_STEP_RIGHT, runR],
 
-    GunState.subscribe('shotFired', playerAnimations.shoot)
-    PlayerState.subscribe('aimStart', playerAnimations.aimStart)
-    PlayerState.subscribe('aimEnd', playerAnimations.aimEnd)
+      [PlayerSubjects.JUMP_BEGIN, jump],
+      [PlayerSubjects.JUMP_BEGIN, animations.stopAnimation],
+
+      [PlayerSubjects.JUMP_END, land],
+      [PlayerSubjects.IDLE_BEGIN, animations.idle],
+      [PlayerSubjects.WALK_BEGIN, animations.walk],
+      [PlayerSubjects.RUN_BEGIN, animations.run],
+
+      [PlayerSubjects.AIM_BEGIN, animations.aimBegin],
+      [PlayerSubjects.AIM_END, animations.aimEnd],
+    ])
+    const gunUnsubscribe = GunState.subscribe(GunSubjects.SHOT_FIRED, animations.shoot)
     
     return () => {
-      PlayerState.unsubscribe('walkStepLeft', walkL);
-      PlayerState.unsubscribe('walkStepRight', walkR);
-      PlayerState.unsubscribe('runStepLeft', runL);
-      PlayerState.unsubscribe('runStepRight', runR);
-
-      PlayerState.unsubscribe('jumpStart', jump);
-      PlayerState.unsubscribe('jumpStart', playerAnimations.stopAnimation);
-
-      PlayerState.unsubscribe('jumpEnd', land);
-      PlayerState.unsubscribe('idleStart', playerAnimations.idle);
-      PlayerState.unsubscribe('walkStart', playerAnimations.walk);
-      PlayerState.unsubscribe('runStart', playerAnimations.run);
+      playerUnsubscribe();
+      gunUnsubscribe();
     }
   }, []);
 
-  return { playerAnimations }
+  return { animations }
 }

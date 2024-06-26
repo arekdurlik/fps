@@ -1,7 +1,7 @@
 import { useSpring } from '@react-spring/three'
-import { Debug } from '../../state/consoleState'
-import { PlayerState } from '../../state/playerState'
-import { NotifyData } from '../../types'
+import { Debug } from '../../../state/debugState'
+import { PlayerState, PlayerSubjects } from '../../../state/playerState'
+import { NotifyData } from '../../../types'
 
 export function usePlayerAnimations() {
   const [{ x, y }, spring] = useSpring(() => ({ x: 0, y: 0, zoom: 0, knockback: 0 }));
@@ -22,13 +22,13 @@ export function usePlayerAnimations() {
       to: [
         { x: -0.0125, y: -0.03, 
           onResolve({ finished }) {
-            finished && PlayerState.notify('walkStepLeft');
+            finished && PlayerState.notify(PlayerSubjects.WALK_STEP_LEFT);
           }  
         },
         { x: 0, y: 0 },
         { x: 0.0125, y: -0.03, 
           onResolve({ finished }) {
-            finished && PlayerState.notify('walkStepRight');
+            finished && PlayerState.notify(PlayerSubjects.WALK_STEP_RIGHT);
           } 
         },
         { x: 0, y: 0 }
@@ -48,14 +48,14 @@ export function usePlayerAnimations() {
       to: [
         { x: -0.05, y: -0.1, 
           onResolve({ finished }) {
-            finished && PlayerState.notify('runStepLeft', { firstStep });
+            finished && PlayerState.notify(PlayerSubjects.RUN_STEP_LEFT, { firstStep });
             firstStep = false;
           }  
         },
         { x: 0, y: 0 },
         { x: 0.05, y: -0.1, 
           onResolve({ finished }) {
-            finished && PlayerState.notify('runStepRight'); 
+            finished && PlayerState.notify(PlayerSubjects.RUN_STEP_RIGHT); 
           } 
         },
         { x: 0, y: 0 }
@@ -65,7 +65,7 @@ export function usePlayerAnimations() {
     });
   }
 
-  function aimStart() {
+  function aimBegin() {
     zoomSpring.stop();
     zoomSpring.start({ zoom: 5, config: { mass: 2, friction: 25 } });
   }
@@ -96,12 +96,12 @@ export function usePlayerAnimations() {
     walk,
     run,
     shoot,
-    aimStart,
+    aimBegin,
     aimEnd,
     stopAnimation,
     get x() { return x.get() },
     get y() { return y.get() },
     get zoom() { return zoom.get() },
     get knockback() { return knockback.get() },
-  }
+  };
 }
