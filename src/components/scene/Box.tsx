@@ -12,7 +12,7 @@ export function Box({ position = [0, 0, 0], rotation = [0, 0, 0], scale = 1 }: {
 
   return (
     <RigidBody type="fixed" colliders={false}>
-      <mesh position={position} rotation={rotation} scale={scale} name='box' receiveShadow castShadow>
+      <mesh position={position} rotation={rotation} scale={scale} name='box' receiveShadow castShadow userData={{ material: 'concrete' }}>
         <boxGeometry args={[1, 1]} />
         <meshStandardMaterial color="#fff" map={grid}/>
       </mesh>

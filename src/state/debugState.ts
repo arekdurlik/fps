@@ -4,6 +4,7 @@ type DebugState = {
   filters: Filters
   setFilter: (filter: Filter, value: boolean) => void
   commands: { text: string, type: Filter, color: string }[]
+  clearCommands: () => void
 };
 
 type Filters = { [key: string]: boolean };

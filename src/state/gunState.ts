@@ -2,6 +2,8 @@ import { create } from 'zustand'
 import { Debug } from './debugState'
 import { WEAPONS_DATA } from '../data'
 import { playSound } from '../utils'
+import * as THREE from 'three'
+import { DataParameter, ObserversUnknownData } from './types'
 
 export enum GunSubject {
   SHOT_FIRED = 'SHOT_FIRED',
@@ -10,13 +12,30 @@ export enum GunSubject {
   RELOAD_END = 'RELOAD_END',
 }
 
-type Observers = { [key:string]: Function[] }
+export type ShotFiredData = { position: THREE.Vector3, damage: number, recoilZ?: number, recoilY?: number };
+
+type Observers = ObserversUnknownData<GunSubject> & { 
+  [GunSubject.SHOT_FIRED]: ((data: ShotFiredData) => void)[] 
+};
+
+//@ts-expect-error Properties from enum WorldSubject missing when they're clearly not
 const initObservers: Observers = Object.fromEntries(
-  Object.keys(GunSubject).map(key => [key, []])
+  Object.values(GunSubject).map(val => [val, []])
 );
 
-// ease of use and getting state values in event callbacks
-export const GunState = {
+type GunState = {
+  observers: Observers
+  subscribe: <S extends keyof Observers>(subject: S, cb: (data: DataParameter<Observers[S][0]>) => void) => Function
+  subscribeMany: <S extends keyof Observers>(subjects: [subject: S, cb: (data: DataParameter<Observers[S][0]>) => void][]) => Function
+  unsubscribe: <S extends keyof Observers>(subject: S, cb: (data: DataParameter<Observers[S][0]>) => void) => void
+  notify: <S extends keyof Observers>(subject: S, data?: DataParameter<Observers[S][1]>) => void
+
+  decreaseAmmoInMag: () => void
+  reloadBegin: () => void
+  reloadEnd: () => void
+} & GunStateStore;
+
+export const GunState: GunState = {
   decreaseAmmoInMag: () => {
     useGunState.setState(({ ammoInMag }) => ({ ammoInMag: ammoInMag - 1 }));
   },
@@ -36,17 +55,18 @@ export const GunState = {
 
   observers: initObservers,
 
-  subscribe(subject: GunSubject, cb: Function) {
+  subscribe(subject, cb) {
       const newObservers = this.observers[subject];
+      //@ts-expect-error Types of parameters 'data' and 'data' are incompatible
       newObservers.push(cb);
 
-      this.observers = { ...this.observers, subject: newObservers };
+      this.observers = { ...this.observers, [subject]: newObservers };
 
       return () => {
         this.unsubscribe(subject, cb);
       };
   },
-  subscribeMany(subjects: [subject: GunSubject, cb: Function][]) {
+  subscribeMany(subjects) {
     subjects.forEach(entry => {
       this.subscribe(entry[0], entry[1]);
     });
@@ -57,12 +77,12 @@ export const GunState = {
       });
     };
   },
-  unsubscribe(subject: GunSubject, cb: Function) {
+  unsubscribe(subject, cb) {
       const newObservers = this.observers[subject].filter(observers => observers !== cb);
       
       this.observers = { ...this.observers, [subject]: newObservers };
   },
-  notify(subject: GunSubject, data?: unknown) {
+  notify(subject, data) {
     try {
       this.observers[subject].forEach(observer => observer(data));
     } catch (e) {
@@ -81,8 +101,7 @@ export const GunState = {
   get reloading() { return useGunState.getState().reloading }
 };
 
-
-type GunState = {
+type GunStateStore = {
   equipped: keyof typeof WEAPONS_DATA
   damage: number
   rateOfFire: number
@@ -96,7 +115,7 @@ type GunState = {
 
 const smg = WEAPONS_DATA.smg;
 
-export const useGunState = create<GunState>(() => ({
+export const useGunState = create<GunStateStore>(() => ({
   equipped: 'smg',
   damage: smg.damage,
   rateOfFire: smg.rateOfFire,

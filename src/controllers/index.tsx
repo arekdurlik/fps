@@ -1,9 +1,14 @@
-import { BulletHolesController } from './BulletHolesController'
+import { BulletHoleController } from './BulletHoleController'
+import { BulletImpactController } from './BulletImpactController'
+import { ParticleController } from './ParticleController'
 import { PlayerController } from './PlayerController'
 
 export function Controllers() {
   return <>
-    <BulletHolesController/>
+    <BulletImpactController/>
+    <BulletHoleController/>
+    
+    <ParticleController/>
     <PlayerController/>
   </>
 }

@@ -9,13 +9,14 @@ import { Scene } from './components/scene'
 import { HUD } from './components/ui/HUD'
 import { Controllers } from './controllers'
 import { Physics } from '@react-three/rapier'
+import { BasicShadowMap } from 'three'
 
 function App() {
   return <>
     <Console/>
     <HUD/>
     <Suspense fallback={null}>
-      <Canvas shadows={{ type: 0 }} gl={{ antialias: false }} dpr={0.5}>  
+      <Canvas shadows={{ type: BasicShadowMap }} gl={{ antialias: false }} dpr={0.5}>  
         <PointerLockControls/>
         <Stats/>
         <Physics gravity={[0, -12.81, 0]}>

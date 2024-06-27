@@ -10,7 +10,7 @@ export function Barrel({ position = [0, 0, 0]}: { position: Triplet }) {
   const texture = useNearestFilterTexture('barrel.png');
 
   return <Billboard position={position}>
-      <mesh position={[0, 0.5, 0]} receiveShadow geometry={plane} type='sprite'>
+      <mesh position={[0, 0.5, 0]} receiveShadow geometry={plane} type='sprite' renderOrder={-2}>
         <meshStandardMaterial map={texture} transparent />
       </mesh>
       <RigidBody type='fixed'>

@@ -63,6 +63,7 @@ export function Gun() {
     } else {
       GunState.decreaseAmmoInMag();
       GunState.notify(GunSubject.SHOT_FIRED, {
+        position: gun.current.position,
         damage: GunState.damage,
         recoilZ: GunState.recoilZ,
         recoilY: GunState.recoilY,

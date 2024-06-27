@@ -122,7 +122,7 @@ export function useGunAnimations() {
   }
 
   function shoot() {
-      shootSpring.start({ muzzleflash: 1, config: { duration: 0 }});
+      shootSpring.start({ muzzleflash: 0.5, config: { duration: 0 }});
       shootSpring.start({
         to: [
           { knockback: 0.1, config: { duration: 50 }},
@@ -158,8 +158,9 @@ export function useGunAnimations() {
     })
   }
 
-  function reloadBegin(data: NotifyData) {
-    const duration = (data?.duration ?? 2000) as number;
+  // TODO: reload duration
+  function reloadBegin() {
+    const duration = 2000 as number;
 
     reloadSpring.stop();
     reloadSpring.start({

@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { Debug } from './debugState'
 import { RefObject } from 'react'
 import { RapierRigidBody } from '@react-three/rapier'
+import { DataParameter, ObserversUnknownData } from './types'
 
 export enum PlayerSubject {
   FALL_BEGIN = 'FALL_BEGIN',
@@ -24,7 +25,28 @@ export enum PlayerSubject {
   STRAFE_RIGHT_END = 'STRAFE_RIGHT_END',
 }
 
-type Observers = { [key:string]: Function[] }
+// specify data for subject
+export type PlayerStateObservers = ObserversUnknownData<PlayerSubject> & {
+}
+
+export type PlayerStateType = { [key: string]: unknown } & {
+  observers: PlayerStateObservers
+  subscribe: <S extends keyof PlayerStateObservers>(subject: S, cb: (data: DataParameter<PlayerStateObservers[S][0]>) => void) => Function
+  subscribeMany: <S extends keyof PlayerStateObservers>(subjects: [subject: S, cb: (data: DataParameter<PlayerStateObservers[S][0]>) => void][]) => Function
+  unsubscribe: <S extends keyof PlayerStateObservers>(subject: S, cb: (data: DataParameter<PlayerStateObservers[S][0]>) => void) => void
+  notify: <S extends keyof PlayerStateObservers>(subject: S, data?: DataParameter<PlayerStateObservers[S][1]>) => void
+
+  setPlayer: (player: RefObject<RapierRigidBody>) => void
+  setStrafingLeft: (value?: boolean, notifyData?: {}) => void
+  setStrafingRight: (value?: boolean, notifyData?: {}) => void
+  setAiming: (value?: boolean, notifyData?: {}) => void
+  setIdling: (value?: boolean, notifyData?: {}) => void
+  setWalking: (value?: boolean, notifyData?: {}) => void
+  setRunning: (value?: boolean, notifyData?: {}) => void
+  setJumping: (value?: boolean, notifyData?: {}) => void
+} & PlayerStateStore;
+
+//@ts-expect-error Properties from enum WorldSubject missing when they're clearly not
 const initObservers: Observers = Object.fromEntries(
   Object.keys(PlayerSubject).map(key => [key, []])
 );
@@ -43,8 +65,8 @@ function resetStates() {
   usePlayerState.setState({ idling: false, walking: false, running: false, jumping: false });
 }
 
-export const PlayerState = {
-  setPlayer(player: RefObject<RapierRigidBody>) {
+export const PlayerState: PlayerStateType = {
+  setPlayer(player) {
     usePlayerState.setState({ player });
   },
   setStrafingLeft(strafingLeft = true, notifyData = {}) {
@@ -125,17 +147,18 @@ export const PlayerState = {
 
   observers: initObservers,
 
-  subscribe(subject: PlayerSubject, cb: Function) {
+  subscribe(subject, cb) {
       const newObservers = this.observers[subject];
+      //@ts-expect-error Types of parameters 'data' and 'data' are incompatible
       newObservers.push(cb);
 
-      this.observers = { ...this.observers, subject: newObservers };
+      this.observers = { ...this.observers, [subject]: newObservers };
 
       return () => {
         this.unsubscribe(subject, cb);
       };
   },
-  subscribeMany(subjects: [subject: PlayerSubject, cb: Function][]) {
+  subscribeMany(subjects) {
     subjects.forEach(entry => {
       this.subscribe(entry[0], entry[1]);
     });
@@ -146,12 +169,12 @@ export const PlayerState = {
       });
     };
   },
-  unsubscribe(subject: PlayerSubject, cb: Function) {
+  unsubscribe(subject, cb) {
       const newObservers = this.observers[subject].filter(observers => observers !== cb);
       
       this.observers = { ...this.observers, [subject]: newObservers };
   },
-  notify(subject: PlayerSubject, data?: unknown) {
+  notify(subject, data) {
     try {
       this.observers[subject].forEach(observer => observer(data));
     } catch (e) {
@@ -159,6 +182,7 @@ export const PlayerState = {
     }
   },
 
+  get player() { return usePlayerState.getState().player },
   get aiming() { return usePlayerState.getState().aiming },
   get idling() { return usePlayerState.getState().idling },
   get walking() { return usePlayerState.getState().walking },
@@ -168,7 +192,7 @@ export const PlayerState = {
   get strafingRight() { return usePlayerState.getState().strafingRight }
 };
 
-type PlayerState = {
+type PlayerStateStore = {
   player: RefObject<RapierRigidBody> | null
   aiming: boolean
   idling: boolean
@@ -179,7 +203,7 @@ type PlayerState = {
   strafingRight: boolean
 };
 
-export const usePlayerState = create<PlayerState>(() => ({
+export const usePlayerState = create<PlayerStateStore>(() => ({
   player: null,
   aiming: false,
   idling: false,

@@ -26,7 +26,7 @@ export function Console() {
     }
   }, [keyboard]);
 
-  return active && <Container onClick={e => e.stopPropagation()}>
+  return active && <Container onClickCapture={e => e.stopPropagation()} onDoubleClick={e => e.stopPropagation()} onMouseDown={e => e.stopPropagation()}>
       <ClearButton onClick={clearCommands}>Clear</ClearButton>
       <Commands>
         {filteredAndReversedCommands.map((command, i) => <Command key={i} color={command.color} >{command.text}</Command>)}

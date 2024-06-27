@@ -27,19 +27,15 @@ export function Scene() {
     <pointLight castShadow
       args={['#ffffff', 4, 15, 1]} 
       position={[3, 5.4, -4]} 
-      shadow-bias={0.0001}
     />
-
-   
-    
       <Ground />
       <Box position={[2.5, 0.25, -2.5]} rotation={[0, Math.PI / 4, 0]} scale={0.5}/>
       <Box position={[2.5, 0.5, -4.5]}/>
       <Box position={[2.5, 0.5, -7.5]}/>
       <Player />
-      <mesh castShadow receiveShadow position={[1, 0, -4]} scale={[2, 2, 2]}>
+      <mesh castShadow receiveShadow position={[1, 0, -4]} scale={[2, 2, 2]} userData={{ material: 'concrete' }}>
         <boxGeometry args={[0.2, 4, 2]}/>
-        <meshStandardMaterial color='#fff'/>
+        <meshStandardMaterial color='#ddd'/>
       </mesh>
       <Barrel position={[-1, 0, -4]}/>
       <Barrel position={[-2, 0, -4]}/>
