@@ -7,12 +7,13 @@ import { PlayerState, PlayerSubject, usePlayerState } from '../../../state/playe
 import { GunState, GunSubject } from '../../../state/gunState'
 import { WEAPONS_DATA } from '../../../data'
 import { playSound } from '../../../utils'
+import { GameState } from '../../../state/gameState'
+import { RenderOrder } from '../../../constants'
 
 export function Gun() {
   const { animations } = useGunEvents();
 
   const texture = useNearestFilterTexture(WEAPONS_DATA[GunState.equipped].renderParams.texture);
-  const muzzleflash = useNearestFilterTexture('muzzleflash.png');
   const reticleTexture = useNearestFilterTexture('reddot.png');
   const spriteAmount = 3;
   
@@ -63,7 +64,8 @@ export function Gun() {
     } else {
       GunState.decreaseAmmoInMag();
       GunState.notify(GunSubject.SHOT_FIRED, {
-        position: gun.current.position,
+        position: muzzleflashMesh.current.getWorldPosition(new THREE.Vector3()),
+        direction: GameState.camera.getWorldDirection(new THREE.Vector3()),
         damage: GunState.damage,
         recoilZ: GunState.recoilZ,
         recoilY: GunState.recoilY,
@@ -75,11 +77,6 @@ export function Gun() {
     playSound('gunshot', 0.3);
     animations.shoot();
     lastShotTimestamp.current = Date.now();
-
-    muzzleflashMesh.current.rotateZ(Math.random());
-    const scale = Math.random() > 0.2 ? (0.3 + Math.random()) : 0;
-    (muzzleflashMesh.current.material as THREE.MeshBasicMaterial).color = new THREE.Color(`#ff${['5', 'a', 'f'][Math.floor(Math.random() * 4)]}`);
-    muzzleflashMesh.current.scale.set(scale, scale, scale);
   }
 
   function handleEmptyShotFired() {
@@ -156,20 +153,18 @@ export function Gun() {
     muzzleflashMesh.current.updateMatrix();
   });
 
-  return <group ref={gun} name='gun' position={[0, -0.035, -0.175]} scale={0.23}>
+  return <group ref={gun} name='gun' position={[0, -0.035, -0.165]} scale={0.23}>
     <pointLight ref={muzzleFlashLight}  args={['#ddac62', 1, 10, 0]} position={[0, 0.2, -1]} castShadow/>
     <mesh ref={reticle} matrixAutoUpdate={false} matrixWorldAutoUpdate={false} userData={{ shootThrough: true }}>
       <planeGeometry args={[1, 1, 1, 1]} />
       <meshBasicMaterial map={reticleTexture} color='#f00' transparent depthTest={false}/>
     </mesh>
     <group ref={gunWrapper} matrixAutoUpdate={false} matrixWorldAutoUpdate={false}>
-      <mesh receiveShadow userData={{ shootThrough: true }}>
+      <mesh receiveShadow userData={{ shootThrough: true }} renderOrder={RenderOrder.GUN}>
         <planeGeometry ref={geom} args={[1, 1, 1, 1]}/>
         <meshLambertMaterial map={texture} transparent depthTest={false}/>
       </mesh>
-      <mesh ref={muzzleflashMesh} position={[0, 0.06, -0.01]} matrixAutoUpdate={false} matrixWorldAutoUpdate={false} userData={{ shootThrough: true }}>
-        <planeGeometry args={[1, 1, 1, 1]}/>
-        <meshBasicMaterial map={muzzleflash} transparent depthTest={false}/>
+      <mesh ref={muzzleflashMesh} position={[0, 0.06, 0]} matrixAutoUpdate={false} matrixWorldAutoUpdate={false} userData={{ shootThrough: true }}>
       </mesh>
     </group>  
   </group>

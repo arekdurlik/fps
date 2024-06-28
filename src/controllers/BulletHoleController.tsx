@@ -4,6 +4,7 @@ import * as THREE from 'three'
 import { invlerp } from '../helpers'
 import { DecalGeometry } from 'three/examples/jsm/Addons.js'
 import { BulletImpactData, WorldState, WorldSubject } from '../state/worldState'
+import { RenderOrder } from '../constants'
 
 const MAX_BULLETHOLES = 50;
 
@@ -42,7 +43,7 @@ export function BulletHoleController() {
     mesh.material.normalMap = normalMap;
     mesh.userData.shootThrough = true;
     mesh.receiveShadow = true;
-    mesh.renderOrder = -1;
+    mesh.renderOrder = RenderOrder.BULLET_HOLE;
     
     object.worldToLocal(mesh.position);
     mesh.scale.divide(object.scale);

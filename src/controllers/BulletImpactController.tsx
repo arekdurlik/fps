@@ -28,8 +28,8 @@ export function BulletImpactController() {
 
     const hit = intersects[0];
     
-    if (hit) {
-      WorldState.notify(WorldSubject.BULLET_IMPACT, { 
+    if (hit.face?.normal && hit.object) {
+      WorldState.notify(WorldSubject.BULLET_IMPACT, {
         position: hit.point,
         normal: hit.face?.normal,
         object: hit.object

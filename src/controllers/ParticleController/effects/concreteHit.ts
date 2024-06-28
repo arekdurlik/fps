@@ -11,7 +11,7 @@ const SMOKE_SHADOW = 0.1;
 const DEBRIS_COLOR = 0.3;
 const DEBRIS_COLOR2 = -0.03;
 
-export const concreteHit = (normal: Vector3) => {
+export const concreteHit = (position: Vector3, normal = new Vector3(0, 1, 0)) => {
   const smoke = new ParticleSystem({
     duration: 0,
     looping: false,
@@ -102,5 +102,14 @@ export const concreteHit = (normal: Vector3) => {
   moreDebris.emitter.name = 'moreDebris';
   moreDebris.emitter.lookAt(normal);
 
-  return [smoke, debris, moreDebris];
+  const particles = []
+  particles.push(smoke);
+  particles.push(debris);
+  particles.push(moreDebris);
+
+  particles.forEach(particle => {
+    particle.emitter.position.add(position);
+  })
+
+  return particles;
 }

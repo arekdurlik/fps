@@ -12,7 +12,7 @@ export enum WorldSubject {
 * @param normal normal direction of the impacted object's face
 * @param object impacted object
 */
-export type BulletImpactData = { position?: THREE.Vector3, normal?: THREE.Vector3, object?: THREE.Object3D };
+export type BulletImpactData = { position: THREE.Vector3, normal: THREE.Vector3, object: THREE.Object3D };
 
 type Observers = ObserversUnknownData<WorldSubject> & { 
   [WorldSubject.BULLET_IMPACT]: ((data: BulletImpactData) => void)[] 

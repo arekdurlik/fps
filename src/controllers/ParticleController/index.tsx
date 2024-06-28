@@ -3,6 +3,9 @@ import { useEffect } from 'react'
 import { BatchedRenderer, ParticleSystem } from 'three.quarks'
 import { BulletImpactData, WorldState, WorldSubject } from '../../state/worldState'
 import { concreteHit } from './effects/concreteHit'
+import { GunState, GunSubject, ShotFiredData } from '../../state/gunState'
+import * as THREE from 'three'
+import { muzzle } from './effects/muzzle'
 
 /* // "PHYSICS" idea
 effect.forEach(particle => {
@@ -16,9 +19,9 @@ effect.forEach(particle => {
   
   setTimeout(() => {
     particle.emitter.position.y += lerp(0, dist * 0.04, 1.7);
-  }, dist * 400);
-}) */
-
+    }, dist * 400);
+    }) */
+   
 const batchSystem = new BatchedRenderer();
 let effect: ParticleSystem[];
 
@@ -27,25 +30,43 @@ export function ParticleController() {
   
   useEffect(() => {
     scene.add(batchSystem);
-    WorldState.subscribe(WorldSubject.BULLET_IMPACT, spawnEffect)
+    const worldUnsubscribe = WorldState.subscribe(WorldSubject.BULLET_IMPACT, handleBulletImpact);
+    const gunUnsubscribe = GunState.subscribe(GunSubject.SHOT_FIRED, handleShotFired);
+    return () => {
+      worldUnsubscribe();
+      gunUnsubscribe();
+    };
   }, []);
 
   useFrame((_, dt) => {
     batchSystem.update(dt);
   });
 
-  function spawnEffect({ position, object, normal }: BulletImpactData) {
-    if (!position || !normal || !object) return;
-
+  function handleBulletImpact({ position, object, normal }: BulletImpactData) {
     const material = object?.userData.material;
-    
+
+    /* raycaster.set(position, down);
+    const intersects = raycaster.intersectObjects(scene.children)
+    if (!intersects) return;
+    const height = intersects[0].distance ** 0.55 */
+
     switch (material) {
-      case 'concrete': effect = concreteHit(normal); break;
+      case 'concrete': 
+        effect = concreteHit(position, normal); 
+        break;
       default: return;
     }
 
+    addToScene(effect);
+  }
+
+  function handleShotFired({ position, direction }: ShotFiredData) {
+    addToScene(muzzle(position, direction));
+  }
+
+  function addToScene(effect: ParticleSystem[]) {
+
     effect.forEach(particle => {
-      particle.emitter.position.add(position);
       batchSystem.addSystem(particle);
       scene.add(particle.emitter);
     });

@@ -2,6 +2,7 @@ import { useFrame } from '@react-three/fiber'
 import { ReactNode, useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { Triplet } from '../../types'
+import { ObjectType, RenderOrder } from '../../constants'
 
 export function Billboard({ children, position = [0, 0, 0] }: { children: ReactNode, position: Triplet }) {
   const inner = useRef<THREE.Group>(null!);
@@ -20,9 +21,10 @@ export function Billboard({ children, position = [0, 0, 0] }: { children: ReactN
             0, 0.5, 0.5, 
             0, 0.5, 0.5
           ]);
-          spritePlane.current = object;
+          object.renderOrder = RenderOrder.SPRITE;
+          
           worldPos.current = object.getWorldPosition(worldPos.current);
-
+          spritePlane.current = object;
         }
       })
   }, []);
