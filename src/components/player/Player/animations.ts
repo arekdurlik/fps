@@ -3,6 +3,8 @@ import { Debug } from '../../../state/debugState'
 import { PlayerState, PlayerSubject } from '../../../state/playerState'
 import { NotifyData } from '../../../types'
 
+let timeoutId: NodeJS.Timeout;
+
 export function usePlayerAnimations() {
   const [{ x, y }, spring] = useSpring(() => ({ x: 0, y: 0, zoom: 0, knockback: 0 }));
   const [{ zoom, knockback }, zoomSpring] = useSpring(() => ({ zoom: 0, knockback: 0 }));
@@ -10,12 +12,20 @@ export function usePlayerAnimations() {
   function idle() {
     Debug.log('Player animation: Idle', 'playerAnimation');
 
+    timeoutId = setTimeout(() => {
+      PlayerState.setCanShoot();
+    }, 200)
+
     spring.stop();
     spring.start({ x: 0, y: 0,  config: { duration: 200 }});
   }
 
   function walk() {
     Debug.log('Player animation: Walk', 'playerAnimation');
+
+    timeoutId = setTimeout(() => {
+      PlayerState.setCanShoot();
+    }, 200)
 
     spring.stop();
     spring.start({
@@ -42,6 +52,9 @@ export function usePlayerAnimations() {
     Debug.log('Player animation: Run', 'playerAnimation');
 
     let firstStep = true;
+
+    clearTimeout(timeoutId);
+    PlayerState.setCanShoot(false);
 
     spring.stop();
     spring.start({

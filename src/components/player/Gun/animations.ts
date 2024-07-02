@@ -4,6 +4,7 @@ import { clamp } from 'three/src/math/MathUtils.js'
 import { Debug } from '../../../state/debugState'
 import { NotifyData } from '../../../types'
 import { GunState } from '../../../state/gunState'
+import { PlayerState } from '../../../state/playerState'
 
 export function useGunAnimations() {
   const mouseVelocity = useMouseVelocity();
@@ -41,7 +42,7 @@ export function useGunAnimations() {
         { swayX: 0.001, swayY: 0 },
       ],
       loop: true,
-      config: { duration: 300 }
+      config: { duration: 300 },
     });
   }
   
@@ -57,7 +58,7 @@ export function useGunAnimations() {
         { swayX: 0.00, swayY: -0.3 }
       ],
       loop: true,
-      config: { duration: 150 }
+      config: { duration: 150 },
     });
   }
   
@@ -122,11 +123,13 @@ export function useGunAnimations() {
   }
 
   function shoot() {
+      const knockback = 0.05 + Math.random() * 0.05
       shootSpring.start({ muzzleflash: 0.5, config: { duration: 0 }});
       shootSpring.start({
         to: [
-          { knockback: 0.1, config: { duration: 50 }},
-          { knockback: 0, muzzleflash: 0 }
+          { knockback: knockback, config: { duration: 20 }},
+          { muzzleflash: 0 },
+          { knockback: 0, config: { duration: 300 }}
         ]
       });
   }
@@ -172,6 +175,7 @@ export function useGunAnimations() {
       onResolve(result) {
         if (result.noop) return;
 
+        PlayerState.setCanShoot(false);
         reloadEnd();
       }
     });
@@ -183,6 +187,7 @@ export function useGunAnimations() {
       if (result.noop) return;
 
       GunState.reloadEnd();
+      PlayerState.setCanShoot();
     } });
   }
   

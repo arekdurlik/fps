@@ -2,7 +2,7 @@ import { useFrame } from '@react-three/fiber'
 import { ReactNode, useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { Triplet } from '../../types'
-import { ObjectType, RenderOrder } from '../../constants'
+import { RenderOrder } from '../../constants'
 
 export function Billboard({ children, position = [0, 0, 0] }: { children: ReactNode, position: Triplet }) {
   const inner = useRef<THREE.Group>(null!);

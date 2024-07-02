@@ -4,6 +4,7 @@ import { WEAPONS_DATA } from '../data'
 import { playSound } from '../utils'
 import * as THREE from 'three'
 import { DataParameter, ObserversUnknownData } from './types'
+import { Vector3Object } from '@react-three/rapier'
 
 export enum GunSubject {
   SHOT_FIRED = 'SHOT_FIRED',
@@ -12,7 +13,7 @@ export enum GunSubject {
   RELOAD_END = 'RELOAD_END',
 }
 
-export type ShotFiredData = { position: THREE.Vector3, direction: THREE.Vector3, damage: number, recoilZ?: number, recoilY?: number };
+export type ShotFiredData = { position: THREE.Vector3, direction: THREE.Vector3, velocity: Vector3Object, damage: number, recoilZ?: number, recoilY?: number };
 
 type Observers = ObserversUnknownData<GunSubject> & { 
   [GunSubject.SHOT_FIRED]: ((data: ShotFiredData) => void)[] 

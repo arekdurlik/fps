@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { useEffect, useRef } from 'react'
 import { useNearestFilterTexture } from '../../../hooks/useNearestFilterTexture'
-import { useFrame } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import { useGunEvents } from './events'
 import { PlayerState, PlayerSubject, usePlayerState } from '../../../state/playerState'
 import { GunState, GunSubject } from '../../../state/gunState'
@@ -25,6 +25,7 @@ export function Gun() {
   const muzzleFlashLight = useRef<THREE.PointLight>(null!);
   
   const lastShotTimestamp = useRef(0);
+  const { camera } = useThree();
   const aiming = usePlayerState(state => state.aiming);
 
   // subscribe to events
@@ -66,6 +67,7 @@ export function Gun() {
       GunState.notify(GunSubject.SHOT_FIRED, {
         position: muzzleflashMesh.current.getWorldPosition(new THREE.Vector3()),
         direction: GameState.camera.getWorldDirection(new THREE.Vector3()),
+        velocity: PlayerState.velocity,
         damage: GunState.damage,
         recoilZ: GunState.recoilZ,
         recoilY: GunState.recoilY,

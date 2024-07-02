@@ -1,6 +1,7 @@
 import * as THREE from 'three'
-import { CuboidCollider, RigidBody } from "@react-three/rapier"
+import { CuboidCollider, interactionGroups, RigidBody } from "@react-three/rapier"
 import { useTexture } from '@react-three/drei'
+import { Collisions } from '../../constants'
 export function Ground() {
   const grid = useTexture('map.jpg', texture => {
     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
@@ -14,7 +15,7 @@ export function Ground() {
         <planeGeometry args={[100, 100]} />
         <meshStandardMaterial color="#fff" map={grid}/>
       </mesh>
-      <CuboidCollider args={[100, 2, 100]} position={[0, -2, 0]}/>
+      <CuboidCollider args={[100, 2, 100]} position={[0, -2, 0]} collisionGroups={interactionGroups(Collisions.WORLD)}/>
     </RigidBody>
   )
 }

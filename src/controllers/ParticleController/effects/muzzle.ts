@@ -1,3 +1,4 @@
+import { Vector3Object } from '@react-three/rapier'
 import { MeshBasicMaterial, NearestFilter, TextureLoader, Vector3 } from 'three'
 import { Bezier, ColorOverLife, ConeEmitter, ConstantValue, Gradient, IntervalValue, ParticleSystem, PiecewiseBezier, PointEmitter, RandomColorBetweenGradient, SizeOverLife } from 'three.quarks'
 
@@ -11,8 +12,13 @@ const muzzleTexture = new TextureLoader().load("muzzleflash.png", texture => {
 
 const SMOKE_COLOR = 0.2;
 const SMOKE_SHADOW = 0;
+const VELOCITY_COMPENSATE = 35;
 
-export const muzzle = (position: Vector3, normal = new Vector3(0, 1, 0)) => {
+const velocityCompensate = new Vector3();
+
+export const muzzle = (position: Vector3, velocity: Vector3Object) => {
+  velocityCompensate.set(velocity!.x / VELOCITY_COMPENSATE, velocity!.y / VELOCITY_COMPENSATE, velocity!.z / VELOCITY_COMPENSATE);
+
   const smoke = new ParticleSystem({
     duration: 0,
     looping: false,
@@ -37,9 +43,9 @@ export const muzzle = (position: Vector3, normal = new Vector3(0, 1, 0)) => {
     new Gradient([[new Vector3(SMOKE_COLOR, SMOKE_COLOR, SMOKE_COLOR), 0]], [[0.05, 0], [0.015, 0.5], [0, 1]]),
     new Gradient([[new Vector3(SMOKE_SHADOW, SMOKE_SHADOW, SMOKE_SHADOW), 0]], [[0.025, 0], [0.015, 0.5], [0, 1]])
   )));
+
   smoke.emitter.name = 'smoke';
-  smoke.emitter.lookAt(normal);
-  smoke.emitter.position.add(position);
+  smoke.emitter.position.add(position).add(velocityCompensate);
 
   const muzzle = new ParticleSystem({
     duration: 0,
@@ -59,6 +65,7 @@ export const muzzle = (position: Vector3, normal = new Vector3(0, 1, 0)) => {
   )));
   
   muzzle.emitter.name = 'muzzle';
-  muzzle.emitter.position.add(position);
+  muzzle.emitter.position.add(position).add(velocityCompensate);
+
   return [smoke, muzzle];
 }

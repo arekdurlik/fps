@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { Debug } from './debugState'
 import { RefObject } from 'react'
-import { RapierRigidBody } from '@react-three/rapier'
+import { RapierRigidBody, Vector3Object } from '@react-three/rapier'
 import { DataParameter, ObserversUnknownData } from './types'
 
 export enum PlayerSubject {
@@ -30,12 +30,14 @@ export type PlayerStateObservers = ObserversUnknownData<PlayerSubject> & {
 }
 
 export type PlayerStateType = { [key: string]: unknown } & {
+  velocity: Vector3Object
   observers: PlayerStateObservers
   subscribe: <S extends keyof PlayerStateObservers>(subject: S, cb: (data: DataParameter<PlayerStateObservers[S][0]>) => void) => Function
   subscribeMany: <S extends keyof PlayerStateObservers>(subjects: [subject: S, cb: (data: DataParameter<PlayerStateObservers[S][0]>) => void][]) => Function
   unsubscribe: <S extends keyof PlayerStateObservers>(subject: S, cb: (data: DataParameter<PlayerStateObservers[S][0]>) => void) => void
   notify: <S extends keyof PlayerStateObservers>(subject: S, data?: DataParameter<PlayerStateObservers[S][1]>) => void
 
+  setVelocity: (velocity: Vector3Object) => void
   setPlayer: (player: RefObject<RapierRigidBody>) => void
   setStrafingLeft: (value?: boolean, notifyData?: {}) => void
   setStrafingRight: (value?: boolean, notifyData?: {}) => void
@@ -44,6 +46,7 @@ export type PlayerStateType = { [key: string]: unknown } & {
   setWalking: (value?: boolean, notifyData?: {}) => void
   setRunning: (value?: boolean, notifyData?: {}) => void
   setJumping: (value?: boolean, notifyData?: {}) => void
+  setCanShoot: (value?: boolean, notifyData?: {}) => void
 } & PlayerStateStore;
 
 //@ts-expect-error Properties from enum WorldSubject missing when they're clearly not
@@ -66,8 +69,13 @@ function resetStates() {
 }
 
 export const PlayerState: PlayerStateType = {
+  velocity: { x: 0, y: 0, z: 0 },
+
   setPlayer(player) {
     usePlayerState.setState({ player });
+  },
+  setVelocity(velocity: Vector3Object) {
+    this.velocity = velocity;
   },
   setStrafingLeft(strafingLeft = true, notifyData = {}) {
 
@@ -144,6 +152,13 @@ export const PlayerState: PlayerStateType = {
 
     usePlayerState.setState({ jumping });
   },
+  setCanShoot(canShoot = true) {
+    if (canShoot) { 
+      Debug.log('Player state: Can shoot', 'playerEnterState');
+    }
+
+    usePlayerState.setState({ canShoot });
+  },
 
   observers: initObservers,
 
@@ -189,7 +204,8 @@ export const PlayerState: PlayerStateType = {
   get running() { return usePlayerState.getState().running },
   get jumping() { return usePlayerState.getState().jumping },
   get strafingLeft() { return usePlayerState.getState().strafingLeft },
-  get strafingRight() { return usePlayerState.getState().strafingRight }
+  get strafingRight() { return usePlayerState.getState().strafingRight },
+  get canShoot() { return usePlayerState.getState().canShoot },
 };
 
 type PlayerStateStore = {
@@ -201,6 +217,7 @@ type PlayerStateStore = {
   jumping: boolean
   strafingLeft: boolean
   strafingRight: boolean
+  canShoot: boolean
 };
 
 export const usePlayerState = create<PlayerStateStore>(() => ({
@@ -212,4 +229,5 @@ export const usePlayerState = create<PlayerStateStore>(() => ({
   jumping: false,
   strafingLeft: false,
   strafingRight: false,
+  canShoot: true
 }));

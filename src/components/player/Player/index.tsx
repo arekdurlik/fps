@@ -2,13 +2,14 @@
 import * as RAPIER from "@dimforge/rapier3d-compat"
 import * as THREE from 'three'
 import { useEffect, useRef } from "react"
-import { CapsuleCollider, RigidBody } from "@react-three/rapier"
+import { CapsuleCollider, interactionGroups, RigidBody } from "@react-three/rapier"
 import { PerspectiveCamera } from '@react-three/drei'
 import { Gun } from '../Gun'
 import { useFrame } from '@react-three/fiber'
 import { usePlayerEvents } from './events'
 import { GameState } from '../../../state/gameState'
 import { PlayerState } from '../../../state/playerState'
+import { Collisions } from '../../../constants'
 
 export function Player() {
   const ref = useRef<RAPIER.RigidBody | null>(null);
@@ -39,7 +40,7 @@ export function Player() {
             <Gun/>
           </PerspectiveCamera>
         </group>
-        <CapsuleCollider args={[1, 0.2]}/>
+        <CapsuleCollider args={[1, 0.2]} collisionGroups={interactionGroups(Collisions.PLAYER, [Collisions.WORLD])}/>
       </RigidBody>
   </>
 }

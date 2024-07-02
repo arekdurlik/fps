@@ -4,6 +4,13 @@ export enum RenderOrder {
   'GUN' = 4
 }
 
+export enum Collisions {
+  'PLAYER' = 0,
+  'WORLD' = 1,
+  'SHELL_CASING' = 2
+}
+
 export const PHYSICS_FPS = 60;
 export const PLAYER_INPUT_FPS = 60;
 export const PARTICLES_FPS = 60;
+

@@ -31,6 +31,12 @@ export function PlayerController() {
   const playerRef = usePlayerState(state => state.player);
   const alreadyTriedToFire = useRef(false);
 
+  useFixedFrame(30, () => {
+    const player = playerRef?.current;
+    if (!player) return;
+    PlayerState.setVelocity(player.linvel())
+  });
+
   useFixedFrame(PLAYER_INPUT_FPS, (_, dt) => {
     const player = playerRef?.current;
     if (!player) return;
@@ -61,7 +67,7 @@ export function PlayerController() {
     
     const grounded = grounded1 || grounded2 || grounded3 || grounded4;
 
-    if (!GunState.reloading) {
+    if (PlayerState.canShoot && !GunState.reloading) {
       // fire gun or empty click
       if (!PlayerState.running && lmb) {
         if (GunState.ammoInMag === 0) {

@@ -6,6 +6,7 @@ const sounds = {
   gunshot: new Audio('ump.wav'),
   emptyGunshot: new Audio('empty-gun.mp3'),
   reload: new Audio('ump-reload.wav'),
+  casing: new Audio('casing.wav'),
 };
 
 export function playSound(name: keyof typeof sounds, volume = 1) {

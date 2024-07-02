@@ -63,8 +63,9 @@ export function ParticleController() {
     addToScene(effect);
   }
 
-  function handleShotFired({ position, direction }: ShotFiredData) {
-    addToScene(muzzle(position, direction));
+  function handleShotFired({ position, direction, velocity }: ShotFiredData) {
+    addToScene(muzzle(position, velocity));
+    addToScene(shellCasing(position, direction, velocity));
   }
 
   function addToScene(effect: ParticleSystem[]) {
