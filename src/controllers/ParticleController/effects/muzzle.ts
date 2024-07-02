@@ -1,67 +1,68 @@
 import { Vector3Object } from '@react-three/rapier'
-import { MeshBasicMaterial, NearestFilter, TextureLoader, Vector3 } from 'three'
-import { Bezier, ColorOverLife, ConeEmitter, ConstantValue, Gradient, IntervalValue, ParticleSystem, PiecewiseBezier, PointEmitter, RandomColorBetweenGradient, SizeOverLife } from 'three.quarks'
+import * as THREE from 'three'
+import { Bezier, ColorOverLife, ConeEmitter, ConstantValue, Gradient, IntervalValue, ParticleSystem, PiecewiseBezier, PointEmitter, RandomColorBetweenGradient, RenderMode, SizeOverLife } from 'three.quarks'
 
-const smokeTexture = new TextureLoader().load("smoke.png", texture => {
-  texture.minFilter = texture.magFilter = NearestFilter;
+const smokeTexture = new THREE.TextureLoader().load("smoke.png", texture => {
+  texture.minFilter = texture.magFilter = THREE.NearestFilter;
 });
 
-const muzzleTexture = new TextureLoader().load("muzzleflash.png", texture => {
-  texture.minFilter = texture.magFilter = NearestFilter;
+const muzzleTexture = new THREE.TextureLoader().load("muzzleflash.png", texture => {
+  texture.minFilter = texture.magFilter = THREE.NearestFilter;
 });
 
-const SMOKE_COLOR = 0.2;
-const SMOKE_SHADOW = 0;
+const SMOKE_COLOR = 1;
 const VELOCITY_COMPENSATE = 35;
 
-const velocityCompensate = new Vector3();
+const velocityCompensate = new THREE.Vector3();
 
-export const muzzle = (position: Vector3, velocity: Vector3Object) => {
+export const muzzle = (position: THREE.Vector3, direction: THREE.Vector3, velocity: Vector3Object) => {
   velocityCompensate.set(velocity!.x / VELOCITY_COMPENSATE, velocity!.y / VELOCITY_COMPENSATE, velocity!.z / VELOCITY_COMPENSATE);
 
   const smoke = new ParticleSystem({
+    prewarm: true,
     duration: 0,
     looping: false,
-    shape: new ConeEmitter({ radius: 0.025, arc: 6.283185307179586, thickness: 0, angle: 0.1}),
+    shape: new ConeEmitter({ radius: 0.025, arc: 6.283185307179586, thickness: 0, angle: 0.1 }),
     startLife: new IntervalValue(0.2, 2),
     startSpeed: new IntervalValue(0, 1.5),
     startRotation: new IntervalValue(0, 6),
     autoDestroy: true,
     emissionBursts: [{
-        time: 0,
-        count: new ConstantValue(5),
-        cycle: 1,
-        interval: 0.01,
-        probability: 0.5,
+      time: 0,
+      count: new ConstantValue(5),
+      cycle: 1,
+      interval: 0.01,
+      probability: 0.5,
     }],
-  
-    material: new MeshBasicMaterial({ map: smokeTexture, transparent: true, alphaTest: 0 }),
+    renderMode: RenderMode.Mesh,
+    material: new THREE.MeshStandardMaterial({ map: smokeTexture, transparent: true, depthWrite: false }),
   });
 
   smoke.addBehavior(new SizeOverLife(new PiecewiseBezier([[new Bezier(0.1, 0.3, 0.7, 1), 0]])));
-  smoke.addBehavior(new ColorOverLife(new RandomColorBetweenGradient(
-    new Gradient([[new Vector3(SMOKE_COLOR, SMOKE_COLOR, SMOKE_COLOR), 0]], [[0.05, 0], [0.015, 0.5], [0, 1]]),
-    new Gradient([[new Vector3(SMOKE_SHADOW, SMOKE_SHADOW, SMOKE_SHADOW), 0]], [[0.025, 0], [0.015, 0.5], [0, 1]])
-  )));
+  smoke.addBehavior(new ColorOverLife(
+    new Gradient([[new THREE.Vector3(SMOKE_COLOR, SMOKE_COLOR, SMOKE_COLOR), 0]], [[0.05, 0], [0.01, 0.5], [0, 1]]),
+  ));
 
   smoke.emitter.name = 'smoke';
+  smoke.emitter.lookAt(direction);
   smoke.emitter.position.add(position).add(velocityCompensate);
 
   const muzzle = new ParticleSystem({
+    prewarm: true,
     duration: 0,
     looping: false,
     shape: new PointEmitter(),
     startLife: new IntervalValue(0, 0.025),
     startRotation: new IntervalValue(0, 6),
-    startSize: new IntervalValue(0.2, 0.4),
+    startSize: new IntervalValue(0.1, 0.3),
     autoDestroy: true,
   
-    material: new MeshBasicMaterial({ map: muzzleTexture, transparent: true, alphaTest: 0 }),
+    material: new THREE.MeshBasicMaterial({ map: muzzleTexture, transparent: true, alphaTest: 0 }),
   });
 
   muzzle.addBehavior(new ColorOverLife(new RandomColorBetweenGradient(
-    new Gradient([[new Vector3(1, 1, 1), 0]], [[0.3, 0], [0, 1]]),
-    new Gradient([[new Vector3(1, 1, 0), 0]], [[0.05, 0], [0, 1]])
+    new Gradient([[new THREE.Vector3(1, 1, 0), 0]], [[1, 0], [0, 1]]),
+    new Gradient([[new THREE.Vector3(1, 0, 0), 0]], [[0.1, 0], [0, 1]])
   )));
   
   muzzle.emitter.name = 'muzzle';

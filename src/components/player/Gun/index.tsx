@@ -25,7 +25,6 @@ export function Gun() {
   const muzzleFlashLight = useRef<THREE.PointLight>(null!);
   
   const lastShotTimestamp = useRef(0);
-  const { camera } = useThree();
   const aiming = usePlayerState(state => state.aiming);
 
   // subscribe to events

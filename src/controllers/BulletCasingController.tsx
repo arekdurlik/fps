@@ -69,7 +69,7 @@ export function BulletCasingController() {
       colliders="cuboid"
       mass={0}
       restitution={0.001}
-      onCollisionEnter={() => playSound('casing', 0.05 + Math.random() * 0.15)}
+      onCollisionEnter={() => playSound('casing', 0.05 + Math.random() * 0.2)}
       collisionGroups={interactionGroups(Collisions.BULLET_CASING, [Collisions.WORLD])}
     >
       <instancedMesh 

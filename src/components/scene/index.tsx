@@ -8,7 +8,6 @@ import { Barrel } from './Barrel'
 
 export function Scene() {
   const light = useRef<THREE.DirectionalLight | null>(null)
-
   return <>
   <Sky sunPosition={[0, -20, 0]}/>
     <directionalLight 
@@ -25,7 +24,7 @@ export function Scene() {
     />
     <ambientLight intensity={0.1}/>
     <pointLight castShadow
-      args={['#ffffff', 4, 15, 1]} 
+      args={['#00f', 14, 7, 1]} 
       position={[3, 5.4, -4]} 
     />
       <Ground />

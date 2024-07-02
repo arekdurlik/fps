@@ -11,6 +11,6 @@ export function Controllers() {
     
     <ParticleController/>
     <PlayerController/>
-    {/* <BulletCasingController/> */}
+    <BulletCasingController/>
   </>
 }

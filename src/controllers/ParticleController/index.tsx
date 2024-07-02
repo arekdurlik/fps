@@ -1,6 +1,5 @@
 import { useThree } from '@react-three/fiber'
 import { useEffect } from 'react'
-import { BatchedRenderer, ParticleSystem } from 'three.quarks'
 import { BulletImpactData, WorldState, WorldSubject } from '../../state/worldState'
 import { concreteHit } from './effects/concreteHit'
 import { GunState, GunSubject, ShotFiredData } from '../../state/gunState'
@@ -8,32 +7,25 @@ import { muzzle } from './effects/muzzle'
 import { useFixedFrame } from '../../hooks/useFixedFrame'
 import { PARTICLES_FPS } from '../../constants'
 import { bulletCasing } from './effects/bulletCasing'
+import { Vector3 } from 'three'
+import { ParticleSystem } from 'three.quarks'
+import { BatchedRenderer } from '../../quarks/BatchedRenderer'
+import { preloadVFX } from './utils'
 
-/* // "PHYSICS" idea
-effect.forEach(particle => {
-  const down = new THREE.Vector3(0, -1, 0);
-  if (!['debris', 'moreDebris'].includes(particle.emitter.name)) return;
-  
-  raycaster.set(particle.emitter.position, down);
-  const intersects = raycaster.intersectObjects(scene.children)
-  if (!intersects) return;
-  const dist = intersects[0].distance ** 0.55
-  
-  setTimeout(() => {
-    particle.emitter.position.y += lerp(0, dist * 0.04, 1.7);
-    }, dist * 400);
-    }) */
-   
+const down = new Vector3(0, -1, 0);
 const batchSystem = new BatchedRenderer();
 let effect: ParticleSystem[];
 
 export function ParticleController() {
-  const { scene } = useThree();
+  const { scene, raycaster } = useThree();
   
   useEffect(() => {
-    scene.add(batchSystem);
     const worldUnsubscribe = WorldState.subscribe(WorldSubject.BULLET_IMPACT, handleBulletImpact);
     const gunUnsubscribe = GunState.subscribe(GunSubject.SHOT_FIRED, handleShotFired);
+    
+    scene.add(batchSystem);
+    preloadVFX(batchSystem, scene);
+
     return () => {
       worldUnsubscribe();
       gunUnsubscribe();
@@ -47,14 +39,17 @@ export function ParticleController() {
   function handleBulletImpact({ position, object, normal }: BulletImpactData) {
     const material = object?.userData.material;
 
-    /* raycaster.set(position, down);
-    const intersects = raycaster.intersectObjects(scene.children)
-    if (!intersects) return;
-    const height = intersects[0].distance ** 0.55 */
+    raycaster.set(position, down);
+    const intersects = raycaster.intersectObjects(scene.children);
+    let height = 100;
 
+    if (intersects[0]?.distance) {
+      height = intersects[0].distance ** 0.55;
+    }
+    
     switch (material) {
       case 'concrete': 
-        effect = concreteHit(position, normal); 
+        effect = concreteHit(position, normal, height); 
         break;
       default: return;
     }
@@ -63,12 +58,11 @@ export function ParticleController() {
   }
 
   function handleShotFired({ position, direction, velocity }: ShotFiredData) {
-    addToScene(muzzle(position, velocity));
+    addToScene(muzzle(position, direction, velocity));
     addToScene(bulletCasing(position, direction, velocity));
   }
 
   function addToScene(effect: ParticleSystem[]) {
-
     effect.forEach(particle => {
       batchSystem.addSystem(particle);
       scene.add(particle.emitter);
