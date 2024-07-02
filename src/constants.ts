@@ -7,7 +7,7 @@ export enum RenderOrder {
 export enum Collisions {
   'PLAYER' = 0,
   'WORLD' = 1,
-  'SHELL_CASING' = 2
+  'BULLET_CASING' = 2
 }
 
 export const PHYSICS_FPS = 60;

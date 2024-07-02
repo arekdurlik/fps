@@ -16,7 +16,7 @@ const cameraUp = new Vector3(0, 1, 0);
 const rightVector = new Vector3();
 const initialPosition = new Vector3();
 
-export const shellCasing = (position: Vector3, normal = new Vector3(0, 1, 0), velocity: Vector3Object) => {
+export const bulletCasing = (position: Vector3, normal = new Vector3(0, 1, 0), velocity: Vector3Object) => {
   velocityCompensate.set(velocity!.x / VELOCITY_COMPENSATE, velocity!.y / VELOCITY_COMPENSATE, velocity!.z / VELOCITY_COMPENSATE);
 
   const muzzle = new ParticleSystem({

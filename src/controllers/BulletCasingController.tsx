@@ -14,10 +14,10 @@ const rightVector = new Vector3();
 const initialPosition = new Vector3();
 
 /**
-* Invisible, physically simulated shell casings that play audio on collision.
+* Invisible, physically simulated bullet casings that play audio on collision.
 * TODO: Add positional audio
 */
-export function ShellCasingController() {
+export function BulletCasingController() {
   const ref = useRef<InstancedMesh>(null!)
   const rigidBodies = useRef<RapierRigidBody[]>(null);
   const instances = useMemo(() => {
@@ -70,7 +70,7 @@ export function ShellCasingController() {
       mass={0}
       restitution={0.001}
       onCollisionEnter={() => playSound('casing', 0.05 + Math.random() * 0.15)}
-      collisionGroups={interactionGroups(Collisions.SHELL_CASING, [Collisions.WORLD])}
+      collisionGroups={interactionGroups(Collisions.BULLET_CASING, [Collisions.WORLD])}
     >
       <instancedMesh 
         ref={ref} 

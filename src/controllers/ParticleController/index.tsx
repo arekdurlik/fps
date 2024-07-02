@@ -1,14 +1,13 @@
-import { useFrame, useThree } from '@react-three/fiber'
+import { useThree } from '@react-three/fiber'
 import { useEffect } from 'react'
 import { BatchedRenderer, ParticleSystem } from 'three.quarks'
 import { BulletImpactData, WorldState, WorldSubject } from '../../state/worldState'
 import { concreteHit } from './effects/concreteHit'
 import { GunState, GunSubject, ShotFiredData } from '../../state/gunState'
-import * as THREE from 'three'
 import { muzzle } from './effects/muzzle'
 import { useFixedFrame } from '../../hooks/useFixedFrame'
 import { PARTICLES_FPS } from '../../constants'
-import { shellCasing } from './effects/shellCasing'
+import { bulletCasing } from './effects/bulletCasing'
 
 /* // "PHYSICS" idea
 effect.forEach(particle => {
@@ -65,7 +64,7 @@ export function ParticleController() {
 
   function handleShotFired({ position, direction, velocity }: ShotFiredData) {
     addToScene(muzzle(position, velocity));
-    addToScene(shellCasing(position, direction, velocity));
+    addToScene(bulletCasing(position, direction, velocity));
   }
 
   function addToScene(effect: ParticleSystem[]) {
