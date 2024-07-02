@@ -6,6 +6,9 @@ import { concreteHit } from './effects/concreteHit'
 import { GunState, GunSubject, ShotFiredData } from '../../state/gunState'
 import * as THREE from 'three'
 import { muzzle } from './effects/muzzle'
+import { useFixedFrame } from '../../hooks/useFixedFrame'
+import { PARTICLES_FPS } from '../../constants'
+import { shellCasing } from './effects/shellCasing'
 
 /* // "PHYSICS" idea
 effect.forEach(particle => {
@@ -38,7 +41,7 @@ export function ParticleController() {
     };
   }, []);
 
-  useFrame((_, dt) => {
+  useFixedFrame(PARTICLES_FPS, (_, dt) => {
     batchSystem.update(dt);
   });
 

@@ -10,6 +10,7 @@ import { HUD } from './components/ui/HUD'
 import { Controllers } from './controllers'
 import { Physics } from '@react-three/rapier'
 import { BasicShadowMap } from 'three'
+import { PHYSICS_FPS } from './constants'
 
 function App() {
   return <>
@@ -19,7 +20,7 @@ function App() {
       <Canvas shadows={{ type: BasicShadowMap }} gl={{ antialias: false }} dpr={0.5}>  
         <PointerLockControls/>
         <Stats/>
-        <Physics gravity={[0, -12.81, 0]}>
+        <Physics gravity={[0, -12.81, 0]} timeStep={1/PHYSICS_FPS} >
           <Controllers/>
           <Scene/>
         </Physics>

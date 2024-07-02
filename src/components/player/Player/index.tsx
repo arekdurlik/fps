@@ -33,13 +33,13 @@ export function Player() {
   });
 
   return <>
-      <group ref={cameraWrapper}>
-        <PerspectiveCamera makeDefault ref={camera}>
-          <Gun/>
-        </PerspectiveCamera>
-      </group>
-      <RigidBody ref={ref} name='player' position={[0, -2, 0]} enabledRotations={[false, false, false]}>
-        <CapsuleCollider args={[0.5, 0.2]}/>
+      <RigidBody  ref={ref} name='player' position={[0, 0, 0]} enabledRotations={[false, false, false]} canSleep={false}>
+        <group ref={cameraWrapper}>
+          <PerspectiveCamera makeDefault ref={camera}>
+            <Gun/>
+          </PerspectiveCamera>
+        </group>
+        <CapsuleCollider args={[1, 0.2]}/>
       </RigidBody>
   </>
 }

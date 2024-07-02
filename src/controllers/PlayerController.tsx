@@ -1,15 +1,18 @@
 import * as THREE from "three"
 import * as RAPIER from "@dimforge/rapier3d-compat"
 import { useRef } from 'react'
-import { useFrame, useThree } from '@react-three/fiber'
+import { useThree } from '@react-three/fiber'
 import { useRapier } from '@react-three/rapier'
 import { lerp } from 'three/src/math/MathUtils.js'
 import { PlayerState, PlayerSubject, usePlayerState } from '../state/playerState'
 import { GunState } from '../state/gunState'
 import { useMouseInputRef } from '../hooks/useMouseInput'
 import { useKeyboardInputRef } from '../hooks/useKeyboardInput'
+import { useFixedFrame } from '../hooks/useFixedFrame'
+import { PLAYER_INPUT_FPS } from '../constants'
 
-const PLAYER_SPEED = 0.2;
+const PLAYER_SPEED = 15;
+const SLOW_DOWN_SPEED = 6;
 const JUMP_VELOCITY = 4.5;
 const JUMP_COOLDOWN = 200;
 
@@ -28,20 +31,13 @@ export function PlayerController() {
   const playerRef = usePlayerState(state => state.player);
   const alreadyTriedToFire = useRef(false);
 
-  useFrame(() => {
+  useFixedFrame(PLAYER_INPUT_FPS, (_, dt) => {
     const player = playerRef?.current;
     if (!player) return;
 
     // read inputs
     const { w, s, a, d, r, shift, space } = keyboard.current;
     const { lmb, rmb } = mouse.current;
-
-    // make camera follow the player
-    camera.position.set(
-      player.translation().x, 
-      player.translation().y + 0.5, 
-      player.translation().z
-    );
 
     // get camera's forward and right direction
     forward.setFromMatrixColumn(camera.matrix, 0);
@@ -53,10 +49,10 @@ export function PlayerController() {
     // ground raycast
     const rayDirection = { x: 0, y: -1, z: 0 };
 
-    const rayOrigin1 = { x: player.translation().x + 0.125, y: player.translation().y - 0.705, z: player.translation().z + 0.125 };
-    const rayOrigin2 = { x: player.translation().x - 0.125, y: player.translation().y - 0.705, z: player.translation().z - 0.125 };
-    const rayOrigin3 = { x: player.translation().x + 0.125, y: player.translation().y - 0.705, z: player.translation().z - 0.125 };
-    const rayOrigin4 = { x: player.translation().x - 0.125, y: player.translation().y - 0.705, z: player.translation().z + 0.125 };
+    const rayOrigin1 = { x: player.translation().x + 0.125, y: player.translation().y - 1.2, z: player.translation().z + 0.125 };
+    const rayOrigin2 = { x: player.translation().x - 0.125, y: player.translation().y - 1.2, z: player.translation().z - 0.125 };
+    const rayOrigin3 = { x: player.translation().x + 0.125, y: player.translation().y - 1.2, z: player.translation().z - 0.125 };
+    const rayOrigin4 = { x: player.translation().x - 0.125, y: player.translation().y - 1.2, z: player.translation().z + 0.125 };
     
     const grounded1 = rapier.world.castRay(new RAPIER.Ray(rayOrigin1, rayDirection), 0, false);
     const grounded2 = rapier.world.castRay(new RAPIER.Ray(rayOrigin2, rayDirection), 0, false);
@@ -100,11 +96,9 @@ export function PlayerController() {
 
     // no moving in air
     if (!PlayerState.jumping) {
-
-      // slow down velocity
-      velocity.set(lerp(velocity.x, 0, 0.1), 0, lerp(velocity.z, 0, 0.1));
-
       
+      // slow down velocity
+      velocity.set(lerp(velocity.x, 0, SLOW_DOWN_SPEED * dt), 0, lerp(velocity.z, 0, SLOW_DOWN_SPEED * dt));
       
       if (w || a || s || d) {
         if (!shift) {
@@ -172,13 +166,14 @@ export function PlayerController() {
       }
 
       // calculate velocity
-      if (w) { vertical += lerp(0, speed, 1); }
-      if (s) { vertical -= lerp(0, speed, 1); }
-      if (a) { horizontal -= lerp(0, PlayerState.running ? speed / 3 : speed, 1); }
-      if (d) { horizontal += lerp(0, PlayerState.running ? speed / 3 : speed, 1); }
+      if (w) { vertical += lerp(0, speed, 0.7 * dt); }
+      if (s) { vertical -= lerp(0, speed, 0.7 * dt); }
+      if (a) { horizontal -= lerp(0, PlayerState.running ? speed / 3 : speed, 0.7 * dt); }
+      if (d) { horizontal += lerp(0, PlayerState.running ? speed / 3 : speed, 0.7 * dt); }
 
-      if (horizontal !== 0) { velocity.add(right.multiplyScalar(horizontal)); }
+
       if (vertical !== 0) { velocity.add(forward.multiplyScalar(vertical)); }
+      if (horizontal !== 0) { velocity.add(right.multiplyScalar(horizontal)); }
 
       player.setLinvel({ x: velocity.x, y: player.linvel().y, z: velocity.z }, true);
     }
@@ -192,7 +187,7 @@ export function PlayerController() {
             PlayerState.setJumping(true);
             
             jumpStartTimestamp = Date.now();
-            player.setLinvel({ x: player.linvel().x, y: JUMP_VELOCITY, z: player.linvel().z }, true);
+            player.setLinvel({ x: velocity.x, y: JUMP_VELOCITY, z: velocity.z }, true);
           }
         } else {
           PlayerState.setJumping(true, { fall: true });
