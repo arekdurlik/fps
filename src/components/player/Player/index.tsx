@@ -9,7 +9,8 @@ import { useFrame } from '@react-three/fiber'
 import { usePlayerEvents } from './events'
 import { GameState } from '../../../state/gameState'
 import { PlayerState } from '../../../state/playerState'
-import { Collisions } from '../../../constants'
+
+const PLAYER_HEIGHT = 0.5;
 
 export function Player() {
   const ref = useRef<RAPIER.RigidBody | null>(null);
@@ -23,10 +24,10 @@ export function Player() {
   }, [ref, camera]);
 
   useFrame(() => {
-    cameraWrapper.current.position.set(0, 0, 0);
+    cameraWrapper.current.position.set(0, PLAYER_HEIGHT, 0);
     cameraWrapper.current.position.set(
       animations.x,
-      animations.y,
+      PLAYER_HEIGHT + animations.y,
       0
     );
     
@@ -34,13 +35,13 @@ export function Player() {
   });
 
   return <>
-      <RigidBody  ref={ref} name='player' position={[0, 0, 0]} enabledRotations={[false, false, false]} canSleep={false}>
+      <RigidBody colliders={false} ref={ref} name='player' enabledRotations={[false, false, false]} canSleep={false}>
         <group ref={cameraWrapper}>
           <PerspectiveCamera makeDefault ref={camera}>
             <Gun/>
           </PerspectiveCamera>
         </group>
-        <CapsuleCollider args={[1, 0.2]} collisionGroups={interactionGroups(Collisions.PLAYER, [Collisions.WORLD])}/>
+        <CapsuleCollider args={[0.5, 0.2]}/>
       </RigidBody>
   </>
 }

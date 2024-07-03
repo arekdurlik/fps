@@ -1,7 +1,9 @@
+
+// BULLETHOLES: -199 - MAX_BULLETHOLES
 export enum RenderOrder {
-  'SPRITE' = -2,
-  'BULLET_HOLE' = -1,
-  'GUN' = 4
+  'SPRITE' = -200,
+  'BULLETHOLES' = -199,
+  'GUN' = 1000
 }
 
 export enum Collisions {

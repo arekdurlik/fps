@@ -11,7 +11,8 @@ import { useKeyboardInputRef } from '../hooks/useKeyboardInput'
 import { useFixedFrame } from '../hooks/useFixedFrame'
 import { PLAYER_INPUT_FPS } from '../constants'
 
-const PLAYER_SPEED = 15;
+const PLAYER_SPEED = 16;
+const RUN_MULTIPLIER = 2.2;
 const SLOW_DOWN_SPEED = 6;
 const JUMP_VELOCITY = 4.5;
 const JUMP_COOLDOWN = 200;
@@ -55,10 +56,10 @@ export function PlayerController() {
     // ground raycast
     const rayDirection = { x: 0, y: -1, z: 0 };
 
-    const rayOrigin1 = { x: player.translation().x + 0.125, y: player.translation().y - 1.2, z: player.translation().z + 0.125 };
-    const rayOrigin2 = { x: player.translation().x - 0.125, y: player.translation().y - 1.2, z: player.translation().z - 0.125 };
-    const rayOrigin3 = { x: player.translation().x + 0.125, y: player.translation().y - 1.2, z: player.translation().z - 0.125 };
-    const rayOrigin4 = { x: player.translation().x - 0.125, y: player.translation().y - 1.2, z: player.translation().z + 0.125 };
+    const rayOrigin1 = { x: player.translation().x + 0.1, y: player.translation().y - 1, z: player.translation().z + 0.1 };
+    const rayOrigin2 = { x: player.translation().x - 0.1, y: player.translation().y - 1, z: player.translation().z - 0.1 };
+    const rayOrigin3 = { x: player.translation().x + 0.1, y: player.translation().y - 1, z: player.translation().z - 0.1 };
+    const rayOrigin4 = { x: player.translation().x - 0.1, y: player.translation().y - 1, z: player.translation().z + 0.1 };
     
     const grounded1 = rapier.world.castRay(new RAPIER.Ray(rayOrigin1, rayDirection), 0, false);
     const grounded2 = rapier.world.castRay(new RAPIER.Ray(rayOrigin2, rayDirection), 0, false);
@@ -123,7 +124,7 @@ export function PlayerController() {
       if (!GunState.reloading) {
         // sprint
         if (!PlayerState.aiming && w && shift) {
-          speed *= 2;
+          speed *= RUN_MULTIPLIER;
     
           if (!PlayerState.running) {
             PlayerState.setRunning();

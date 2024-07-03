@@ -7,6 +7,7 @@ import { BulletImpactData, WorldState, WorldSubject } from '../state/worldState'
 import { RenderOrder } from '../constants'
 
 const MAX_BULLETHOLES = 50;
+let renderOrderIndex = RenderOrder.BULLETHOLES;
 
 const up = new THREE.Vector3(0, 0, 1);
 const quaternion = new THREE.Quaternion();
@@ -43,7 +44,14 @@ export function BulletHoleController() {
     mesh.material.normalMap = normalMap;
     mesh.userData.shootThrough = true;
     mesh.receiveShadow = true;
-    mesh.renderOrder = RenderOrder.BULLET_HOLE;
+
+    mesh.renderOrder = renderOrderIndex;
+    console.log(renderOrderIndex);
+    
+    renderOrderIndex++;
+    if (renderOrderIndex >= RenderOrder.BULLETHOLES + MAX_BULLETHOLES) {
+      renderOrderIndex = RenderOrder.BULLETHOLES;
+    }
     
     object.worldToLocal(mesh.position);
     mesh.scale.divide(object.scale);
