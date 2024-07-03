@@ -12,9 +12,10 @@ const DEBRIS_COLOR = 1;
 const DEBRIS_COLOR2 = 1;
 
 const DEFAULT_NORMAL = new THREE.Vector3(0, 1, 0);
+const DOWN = new THREE.Vector3(0, -1, 0);
 
 export const concreteHit = (position: THREE.Vector3, normal = DEFAULT_NORMAL, height: number) => {
-  const DEBRIS_LIFE = height * 0.85
+  const debrisLife = height * 4;
 
   const smoke = new ParticleSystem({
     prewarm: true,
@@ -41,14 +42,13 @@ export const concreteHit = (position: THREE.Vector3, normal = DEFAULT_NORMAL, he
     new Gradient([[new THREE.Vector3(SMOKE_COLOR, SMOKE_COLOR, SMOKE_COLOR), 0]], [[0.2, 0], [0.05, 0.7], [0, 1]]),
     new Gradient([[new THREE.Vector3(SMOKE_SHADOW, SMOKE_SHADOW, SMOKE_SHADOW), 0]], [[0.2, 0], [0.05, 0.7], [0, 1]])
   )));
-  smoke.emitter.name = 'smoke';
 
   const debris = new ParticleSystem({
     prewarm: true,
     duration: 0,
     looping: false,
     shape: new ConeEmitter({ radius: 0.025, arc: 6.283185307179586, thickness: 0, angle: 0.5 }),
-    startLife: new IntervalValue(DEBRIS_LIFE - 0.2, DEBRIS_LIFE + 0.2),
+    startLife: new IntervalValue(debrisLife - 0.2, debrisLife + 0.2),
     startSize: new IntervalValue(0.01, 0.03),
     startRotation: new IntervalValue(0, 6),
     startSpeed: new IntervalValue(0, 1.5),
@@ -64,14 +64,12 @@ export const concreteHit = (position: THREE.Vector3, normal = DEFAULT_NORMAL, he
     material: new THREE.MeshStandardMaterial({ transparent: true, depthWrite: false }),
   });
 
-  debris.emitter.name = 'debris';
-
   const moreDebris = new ParticleSystem({
     prewarm: true,
     duration: 0,
     looping: false,
     shape: new ConeEmitter({ radius: 0.025, arc: 6.283185307179586, thickness: 0, angle: 0.5 }),
-    startLife: new IntervalValue(DEBRIS_LIFE - 0.2, DEBRIS_LIFE + 0.2),
+    startLife: new IntervalValue(debrisLife - 0.2, debrisLife + 0.2),
     startSize: new IntervalValue(0, 0.01),
     startRotation: new IntervalValue(0, 6),
     startSpeed: new IntervalValue(1, 3),
@@ -87,16 +85,23 @@ export const concreteHit = (position: THREE.Vector3, normal = DEFAULT_NORMAL, he
     material: new THREE.MeshStandardMaterial({ transparent: true, depthWrite: false }),
   });
 
+  smoke.emitter.name = 'smoke';
+  debris.emitter.name = 'debris';
   moreDebris.emitter.name = 'moreDebris';
 
-  const force = new ApplyForce(moreDebris.emitter.worldToLocal(new THREE.Vector3(0, -1, 0)), new ConstantValue(22));
-  debris.addBehavior(force);
-  moreDebris.addBehavior(force);
-  
+  const particles = [smoke, debris, moreDebris];
+
+  // order: look at normal -> apply behaviors -> set positions
+
+  particles.forEach(particle => {
+    particle.emitter.lookAt(normal);
+  });
+
   const debrisColor = new ColorOverLife(new RandomColorBetweenGradient(
     new Gradient([[new THREE.Vector3(DEBRIS_COLOR, DEBRIS_COLOR, DEBRIS_COLOR), 0]], [[0.8, 0], [0.8, 0.7], [0, 1]]),
     new Gradient([[new THREE.Vector3(DEBRIS_COLOR2, DEBRIS_COLOR2, DEBRIS_COLOR2), 0]], [[0, 0], [0, 0.7], [0, 1]]),
   ));
+
   debris.addBehavior(debrisColor);
   moreDebris.addBehavior(debrisColor);
 
@@ -116,13 +121,12 @@ export const concreteHit = (position: THREE.Vector3, normal = DEFAULT_NORMAL, he
   debris.addBehavior(collision);
   moreDebris.addBehavior(collision);
 
-  const particles = [];
-  particles.push(smoke);
-  particles.push(debris);
-  particles.push(moreDebris);
+  const force = new ApplyForce(debris.emitter.worldToLocal(DOWN.clone()), new ConstantValue(22));
+  
+  debris.addBehavior(force);
+  moreDebris.addBehavior(force);
   
   particles.forEach(particle => {
-    particle.emitter.lookAt(normal);
     particle.emitter.position.add(position);
   });
 

@@ -2,9 +2,9 @@ import { easings, useSpring } from '@react-spring/three'
 import { useMouseVelocity } from '../../../hooks/useMouseVelocity'
 import { clamp } from 'three/src/math/MathUtils.js'
 import { Debug } from '../../../state/debugState'
-import { NotifyData } from '../../../types'
 import { GunState } from '../../../state/gunState'
 import { PlayerState } from '../../../state/playerState'
+import { randomNumber } from '../../../helpers'
 
 export function useGunAnimations() {
   const mouseVelocity = useMouseVelocity();
@@ -14,7 +14,8 @@ export function useGunAnimations() {
   const [{ velX, velY }, velocitySpring] = useSpring(() => ({ velX: 0, velY: 0 }));
   const [{ sprite }, spriteSpring] = useSpring(() => ({ sprite: 0 }));
   const [{ jumpY }, jumpSpring] = useSpring(() => ({ jumpY: 0 }));
-  const [{ muzzleflash, knockback }, shootSpring] = useSpring(() => ({ muzzleflash: 0, knockback: 0 }));
+
+  const [{ muzzleflash, knockback, recoilX, recoilY, kickX, kickY, spread }, shootSpring] = useSpring(() => ({ muzzleflash: 0, knockback: 0, recoilX: 0, recoilY: 0, kickX: 0, kickY: 0, spread: 0 }));
   const [{ reloadX, reloadY }, reloadSpring] = useSpring(() => ({ reloadX: 0, reloadY: 0 }));
 
   function idle() {
@@ -90,11 +91,11 @@ export function useGunAnimations() {
 
   function velocity() {
     velocitySpring.start({ 
-      velX: clamp(-mouseVelocity.current.x / 3, -0.1, 0.1), 
-      velY: clamp(-mouseVelocity.current.y / 3, -0.1, 0.1),
+      velX: clamp(-mouseVelocity.current.x / 100, -0.1, 0.1), 
+      velY: clamp(-mouseVelocity.current.y / 100, -0.1, 0.1),
       config: {
-        friction: 100,
-        mass: 5
+        friction: 30,
+        mass: 2,
       }
     })
   }
@@ -123,15 +124,30 @@ export function useGunAnimations() {
   }
 
   function shoot() {
-      const knockback = 0.05 + Math.random() * 0.05
-      shootSpring.start({ muzzleflash: 0.5, config: { duration: 0 }});
-      shootSpring.start({
-        to: [
-          { knockback: knockback, config: { duration: 20 }},
-          { muzzleflash: 0 },
-          { knockback: 0, config: { duration: 300 }}
-        ]
-      });
+    Debug.log('Gun animation: Shoot', 'gunAnimation');
+
+    const aiming = PlayerState.aiming;
+
+    const recoilX = randomNumber(GunState.recoilXMin, GunState.recoilXMax);
+    const recoilY = randomNumber(GunState.recoilYMin, GunState.recoilYMax);
+    const kickX = randomNumber(GunState.kickXMin, GunState.kickXMax);
+    const kickY = randomNumber(GunState.kickYMin, GunState.kickYMax);
+    
+    const spreadMult = aiming ? 1 : 2;
+    const spreadRand = 0.01;
+    const spread = randomNumber(GunState.spread - spreadRand, GunState.spread + spreadRand) * spreadMult;
+    
+    const knockbackMult = aiming ? 1 : 2;
+    const knockback = randomNumber(GunState.knockbackMin, GunState.knockbackMax) * knockbackMult;
+
+    shootSpring.start({
+      to: [
+        { muzzleflash: 0.5, config: { duration: 0 }},
+        { muzzleflash: 0 },
+        { knockback, recoilX, recoilY, kickX, kickY, spread, config: { duration: 20 }},
+        { knockback: 0, recoilX: 0, recoilY: 0, kickX: 0, kickY: 0, spread: 0, config: { duration: 150 }}
+      ]
+    });
   }
 
   function rollLeft() {
@@ -139,7 +155,7 @@ export function useGunAnimations() {
     
     rollSpring.stop();
     rollSpring.start({
-      roll: 0.1, config: { duration: 300, friction: 0 }
+      roll: 0.05, config: { duration: 300, friction: 0 }
     })
   }
   
@@ -148,7 +164,7 @@ export function useGunAnimations() {
     
     rollSpring.stop();
     rollSpring.start({
-      roll: -0.1, config: { duration: 300, friction: 0 }
+      roll: -0.05, config: { duration: 300, friction: 0 }
     })
   }
   
@@ -217,8 +233,15 @@ export function useGunAnimations() {
     get posY() { return posY.get() },
     get reloadX() { return reloadX.get() },
     get reloadY() { return reloadY.get() },
+    
     get knockback() { return knockback.get() },
     get muzzleflash() { return muzzleflash.get() },
+    get recoilX() { return recoilX.get() },
+    get recoilY() { return recoilY.get() },
+    get kickX() { return kickX.get() },
+    get kickY() { return kickY.get() },
+    get spread() { return spread.get() },
+
     get jumpY() { return jumpY.get() },
     get velX() { return velX.get() },
     get velY() { return velY.get() },

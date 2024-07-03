@@ -45,7 +45,7 @@ export function BulletCasingController() {
     rigidBodies.current.forEach(body => body.sleep());
   }, []);
 
-  function spawnCasing({ position, direction }: ShotFiredData) {
+  function spawnCasing({ muzzlePosition, direction }: ShotFiredData) {
     if (!rigidBodies.current) return;
 
     const casing = rigidBodies.current[(casingIndex++) % COUNT];
@@ -54,7 +54,7 @@ export function BulletCasingController() {
     rightVector.crossVectors(direction, cameraUp).normalize();
     
     // position
-    initialPosition.copy(position).add(rightVector.clone().multiplyScalar(RIGHT_OFFSET));
+    initialPosition.copy(muzzlePosition).add(rightVector.clone().multiplyScalar(RIGHT_OFFSET));
     
     casing.setTranslation(initialPosition, true);
     const force = rightVector.clone().multiply({ x: 0.000002, y: 0.000002, z: 0.000002});

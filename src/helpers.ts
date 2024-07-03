@@ -48,3 +48,7 @@ export function invlerp(x: number, y: number, a: number) {
 export function rangeInvlerp(range: number[], value: number) {
   return invlerp(range[0], range[1], value);
 }
+
+export function randomNumber(min: number, max: number) {
+  return Math.random() * (max - min) + min;
+}

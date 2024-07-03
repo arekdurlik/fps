@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { useEffect, useRef } from 'react'
 import { useNearestFilterTexture } from '../../../hooks/useNearestFilterTexture'
-import { useFrame, useThree } from '@react-three/fiber'
+import { useFrame } from '@react-three/fiber'
 import { useGunEvents } from './events'
 import { PlayerState, PlayerSubject, usePlayerState } from '../../../state/playerState'
 import { GunState, GunSubject } from '../../../state/gunState'
@@ -9,6 +9,10 @@ import { WEAPONS_DATA } from '../../../data'
 import { playSound } from '../../../utils'
 import { GameState } from '../../../state/gameState'
 import { RenderOrder } from '../../../constants'
+import { randomNumber } from '../../../helpers'
+
+const up = new THREE.Vector3(0.0, 1.0, 0.0);
+const spreadVec = new THREE.Vector3();
 
 export function Gun() {
   const { animations } = useGunEvents();
@@ -63,13 +67,16 @@ export function Gun() {
       GunState.notify(GunSubject.MAGAZINE_EMPTY);
     } else {
       GunState.decreaseAmmoInMag();
+
+      const spread = randomNumber(-animations.spread, animations.spread);
+      spreadVec.set(spread, 0, spread);
+
       GunState.notify(GunSubject.SHOT_FIRED, {
-        position: muzzleflashMesh.current.getWorldPosition(new THREE.Vector3()),
-        direction: GameState.camera.getWorldDirection(new THREE.Vector3()),
+        eyePosition: GameState.camera.getWorldPosition(new THREE.Vector3()),
+        muzzlePosition: muzzleflashMesh.current.getWorldPosition(new THREE.Vector3()),
+        direction: GameState.camera.getWorldDirection(new THREE.Vector3()).add(spreadVec),
         velocity: PlayerState.velocity,
-        damage: GunState.damage,
-        recoilZ: GunState.recoilZ,
-        recoilY: GunState.recoilY,
+        damage: GunState.damage
       });
     }
   }
@@ -93,6 +100,7 @@ export function Gun() {
   // apply animations
   useFrame(() => {
     // reset
+    
     gunWrapper.current.position.set(0, 0, 0);
     gunWrapper.current.rotation.set(0, 0, 0);
     reticle.current.position.set(0.00025, -0.004, 0);
@@ -149,6 +157,14 @@ export function Gun() {
     muzzleflashMesh.current.position.x -= animations.posX / 1.8;
     muzzleflashMesh.current.position.y += animations.posX * 0.2;
 
+    // kick and recoil
+    gunWrapper.current.position.x += animations.kickX;
+    gunWrapper.current.position.y += animations.kickY;
+    reticle.current.position.x += animations.kickX / 2;
+    reticle.current.position.y += animations.kickY / 2;
+    GameState.camera.rotateX(animations.recoilY);
+    GameState.camera.rotateOnWorldAxis(up, animations.recoilX);
+
     gunWrapper.current.updateMatrix();
     reticle.current.updateMatrix();
     muzzleflashMesh.current.updateMatrix();
@@ -158,7 +174,7 @@ export function Gun() {
     <pointLight ref={muzzleFlashLight}  args={['#ddac62', 1, 10, 0]} position={[0, 0.2, -1]} castShadow/>
     <mesh ref={reticle} matrixAutoUpdate={false} matrixWorldAutoUpdate={false} userData={{ shootThrough: true }}>
       <planeGeometry args={[1, 1, 1, 1]} />
-      <meshBasicMaterial map={reticleTexture} color='#f00' transparent depthTest={false}/>
+      <meshBasicMaterial map={reticleTexture} color='#f0f' transparent depthTest={false}/>
     </mesh>
     <group ref={gunWrapper} matrixAutoUpdate={false} matrixWorldAutoUpdate={false}>
       <mesh receiveShadow userData={{ shootThrough: true }} renderOrder={RenderOrder.GUN}>

@@ -5,9 +5,9 @@ export function HUD() {
   const gunState = useGunState();
 
   return <Wrapper>
-    <Reticle>
+    {/* <Reticle>
       <Dot/>
-    </Reticle>
+    </Reticle> */}
     <GunStats>
       Ammo: {gunState.ammoInMag}/{gunState.magCapacity}
     </GunStats>
@@ -18,7 +18,6 @@ const Wrapper = styled.div`
 position: absolute;
 inset: 0;
 z-index: 1;
-pointer-events: none;
 `
 
 const GunStats = styled.div`

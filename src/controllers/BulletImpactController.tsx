@@ -3,7 +3,7 @@ import { WorldState, WorldSubject } from '../state/worldState'
 import * as THREE from 'three'
 import { useEffect } from 'react'
 import { GameState } from '../state/gameState'
-import { GunState, GunSubject } from '../state/gunState'
+import { GunState, GunSubject, ShotFiredData } from '../state/gunState'
 
 const pos = new THREE.Vector3();
 const dir = new THREE.Vector3();
@@ -16,8 +16,8 @@ export function BulletImpactController() {
     return () => unsubscribe();
   }, []);
 
-  function handleShotFired() {
-    raycaster.set(GameState.camera.getWorldPosition(pos), GameState.camera.getWorldDirection(dir));
+  function handleShotFired({ eyePosition, direction }: ShotFiredData) {
+    raycaster.set(eyePosition, direction);
 
     const intersects = raycaster
       .intersectObjects(scene.children)

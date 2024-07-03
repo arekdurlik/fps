@@ -40,33 +40,39 @@ export const muzzle = (position: THREE.Vector3, direction: THREE.Vector3, veloci
 
   smoke.addBehavior(new SizeOverLife(new PiecewiseBezier([[new Bezier(0.1, 0.3, 0.7, 1), 0]])));
   smoke.addBehavior(new ColorOverLife(
-    new Gradient([[new THREE.Vector3(SMOKE_COLOR, SMOKE_COLOR, SMOKE_COLOR), 0]], [[0.05, 0], [0.01, 0.5], [0, 1]]),
+    new Gradient([[new THREE.Vector3(SMOKE_COLOR, SMOKE_COLOR, SMOKE_COLOR), 0]], [[0.025, 0], [0.01, 0.5], [0, 1]]),
   ));
-
-  smoke.emitter.name = 'smoke';
-  smoke.emitter.lookAt(direction);
-  smoke.emitter.position.add(position).add(velocityCompensate);
 
   const muzzle = new ParticleSystem({
     prewarm: true,
     duration: 0,
     looping: false,
     shape: new PointEmitter(),
-    startLife: new IntervalValue(0, 0.025),
+    startLife: new IntervalValue(0, 0.02),
     startRotation: new IntervalValue(0, 6),
     startSize: new IntervalValue(0.1, 0.3),
     autoDestroy: true,
-  
+    
     material: new THREE.MeshBasicMaterial({ map: muzzleTexture, transparent: true, alphaTest: 0 }),
   });
+  
+  smoke.emitter.name = 'smoke';
+  muzzle.emitter.name = 'muzzle';
+  
+  const particles = [smoke, muzzle];
+
+  // order: look at normal -> apply behaviors -> set positions
+
+  smoke.emitter.lookAt(direction);
 
   muzzle.addBehavior(new ColorOverLife(new RandomColorBetweenGradient(
     new Gradient([[new THREE.Vector3(1, 1, 0), 0]], [[1, 0], [0, 1]]),
     new Gradient([[new THREE.Vector3(1, 0, 0), 0]], [[0.1, 0], [0, 1]])
   )));
-  
-  muzzle.emitter.name = 'muzzle';
-  muzzle.emitter.position.add(position).add(velocityCompensate);
 
-  return [smoke, muzzle];
+  particles.forEach(particle => {
+    particle.emitter.position.add(position).add(velocityCompensate);
+  });
+  
+  return particles;
 }

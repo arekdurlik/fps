@@ -13,7 +13,7 @@ export enum GunSubject {
   RELOAD_END = 'RELOAD_END',
 }
 
-export type ShotFiredData = { position: THREE.Vector3, direction: THREE.Vector3, velocity: Vector3Object, damage: number, recoilZ?: number, recoilY?: number };
+export type ShotFiredData = { eyePosition: THREE.Vector3, muzzlePosition: THREE.Vector3, direction: THREE.Vector3, velocity: Vector3Object, damage: number, recoilZ?: number, recoilY?: number };
 
 type Observers = ObserversUnknownData<GunSubject> & { 
   [GunSubject.SHOT_FIRED]: ((data: ShotFiredData) => void)[] 
@@ -96,10 +96,19 @@ export const GunState: GunState = {
   get rateOfFire() { return useGunState.getState().rateOfFire },
   get magCapacity() { return useGunState.getState().magCapacity },
   get ammoInMag() { return useGunState.getState().ammoInMag },
-  get recoilZ() { return useGunState.getState().recoilZ },
-  get recoilY() { return useGunState.getState().recoilY },
   get weight() { return useGunState.getState().weight },
-  get reloading() { return useGunState.getState().reloading }
+  get reloading() { return useGunState.getState().reloading },
+  get recoilXMin() { return useGunState.getState().recoilXMin },
+  get recoilXMax() { return useGunState.getState().recoilXMax },
+  get recoilYMin() { return useGunState.getState().recoilYMin },
+  get recoilYMax() { return useGunState.getState().recoilYMax },
+  get kickXMin() { return useGunState.getState().kickXMin },
+  get kickXMax() { return useGunState.getState().kickXMax },
+  get kickYMin() { return useGunState.getState().kickYMin },
+  get kickYMax() { return useGunState.getState().kickYMax },
+  get spread() { return useGunState.getState().spread },
+  get knockbackMin() { return useGunState.getState().knockbackMin },
+  get knockbackMax() { return useGunState.getState().knockbackMax },
 };
 
 type GunStateStore = {
@@ -108,22 +117,27 @@ type GunStateStore = {
   rateOfFire: number
   magCapacity: number
   ammoInMag: number
-  recoilZ: number
-  recoilY: number
   weight: number
   reloading: boolean
+  recoilXMin: number,
+  recoilXMax: number,
+  recoilYMin: number,
+  recoilYMax: number,
+  kickXMin: number,
+  kickXMax: number,
+  kickYMin: number,
+  kickYMax: number,
+  spread: number,
+  knockbackMin: number
+  knockbackMax: number
 };
 
 const smg = WEAPONS_DATA.smg;
 
-export const useGunState = create<GunStateStore>(() => ({
+export const useGunState = create<GunStateStore>((set) => ({
   equipped: 'smg',
-  damage: smg.damage,
-  rateOfFire: smg.rateOfFire,
-  magCapacity: smg.magCapacity,
-  ammoInMag: smg.magCapacity,
-  recoilZ: smg.recoilZ,
-  recoilY: smg.recoilY,
-  weight: smg.weight,
   reloading: false,
+  ammoInMag: smg.magCapacity,
+  ...smg,
+  setValue(string: string, value: number) { set({ [string]: value })},
 }));

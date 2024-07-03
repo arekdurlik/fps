@@ -9,10 +9,11 @@ import { Barrel } from './Barrel'
 export function Scene() {
   const light = useRef<THREE.DirectionalLight | null>(null)
   return <>
-  <Sky sunPosition={[0, -20, 0]}/>
+    <Sky sunPosition={[0, -20, 0]} />
     <directionalLight 
       ref={light}
-      intensity={0.1} 
+      intensity={0.15} 
+      castShadow
       position={[50, 100, 0]} 
       shadow-camera-top={30} 
       shadow-camera-bottom={-30}
@@ -24,8 +25,16 @@ export function Scene() {
     />
     <ambientLight intensity={0.1}/>
     <pointLight castShadow
+      args={['#f00', 14, 7, 1]} 
+      position={[3, 5.4, 0]} 
+    />
+    <pointLight castShadow
+      args={['#0f0', 14, 7, 1]} 
+      position={[7, 5.4, -3.5]} 
+    />
+    <pointLight castShadow
       args={['#00f', 14, 7, 1]} 
-      position={[3, 5.4, -4]} 
+      position={[3, 5.4, -7]} 
     />
       <Ground />
       <Box position={[2.5, 0.25, -2.5]} rotation={[0, Math.PI / 4, 0]} scale={0.5}/>
@@ -34,7 +43,7 @@ export function Scene() {
       <Player />
       <mesh castShadow receiveShadow position={[1, 0, -4]} scale={[2, 2, 2]} userData={{ material: 'concrete' }}>
         <boxGeometry args={[0.2, 4, 2]}/>
-        <meshStandardMaterial color='#ddd'/>
+        <meshStandardMaterial color='#fff'/>
       </mesh>
       <Barrel position={[-1, 0, -4]}/>
       <Barrel position={[-2, 0, -4]}/>
