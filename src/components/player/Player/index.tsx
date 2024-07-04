@@ -9,6 +9,7 @@ import { useFrame } from '@react-three/fiber'
 import { usePlayerEvents } from './events'
 import { GameState } from '../../../state/gameState'
 import { PlayerState } from '../../../state/playerState'
+import { Collisions } from '../../../constants'
 
 const PLAYER_HEIGHT = 0.5;
 
@@ -34,14 +35,14 @@ export function Player() {
     camera.current.setFocalLength(15 + animations.zoom + animations.knockback);
   });
 
-  return <>
-      <RigidBody colliders={false} ref={ref} name='player' enabledRotations={[false, false, false]} canSleep={false}>
-        <group ref={cameraWrapper}>
-          <PerspectiveCamera makeDefault ref={camera}>
-            <Gun/>
-          </PerspectiveCamera>
-        </group>
-        <CapsuleCollider args={[0.5, 0.2]}/>
-      </RigidBody>
-  </>
+  return (
+    <RigidBody colliders={false} ref={ref} name='player' enabledRotations={[false, false, false]} canSleep={false}>
+      <group ref={cameraWrapper}>
+        <PerspectiveCamera makeDefault ref={camera}>
+          <Gun/>
+        </PerspectiveCamera>
+      </group>
+      <CapsuleCollider args={[0.5, 0.2]} collisionGroups={interactionGroups(Collisions.PLAYER, [Collisions.WORLD])}/>
+    </RigidBody>
+  )
 }

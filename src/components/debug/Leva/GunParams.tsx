@@ -4,9 +4,10 @@ import { useGunState } from '../../../state/gunState'
 
 const STEP = 0.00001;
 const PAD = 5;
+
 export function GunParams() {
   const gun = useGunState();
-  const values = useControls('Gun parameters', {
+  const params = useControls('Gun parameters', {
     recoilXMin: { value: gun.recoilXMin, step: STEP, pad: PAD },
     recoilXMax: { value: gun.recoilXMax, step: STEP, pad: PAD },
     recoilYMin: { value: gun.recoilYMin, step: STEP, pad: PAD },
@@ -20,12 +21,22 @@ export function GunParams() {
     knockbackMax: { value: gun.knockbackMax, step: STEP, pad: PAD },
   }, { collapsed: true });
 
+  const reticle = useControls('Reticle', {
+    reticle: { value: gun.reticle, step: 1, min: 0, max: 11 },
+    reticleColor: { value: gun.reticleColor }
+  });
+
   useEffect(() => {
-    Object.keys(values).forEach(param => {
+    Object.keys(params).forEach(param => {
       // @ts-expect-error testing only
-      gun.setValue(param, values[param as keyof typeof values]);
+      gun.setValue(param, params[param as keyof typeof params]);
     })
-  }, [values])
+    
+    Object.keys(reticle).forEach(param => {
+      // @ts-expect-error testing only
+      gun.setValue(param, reticle[param as keyof typeof reticle]);
+    })
+  }, [params, reticle])
 
   return null;
 }

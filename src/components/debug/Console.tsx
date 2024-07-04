@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { ChangeEvent, MouseEvent, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { useKeyboardInput } from '../../hooks/useKeyboardInput'
 import { toSentenceCase } from '../../helpers'
@@ -26,17 +26,18 @@ export function Console() {
     }
   }, [keyboard]);
 
-  return active && <Container onClickCapture={e => e.stopPropagation()} onDoubleClick={e => e.stopPropagation()} onMouseDown={e => e.stopPropagation()}>
+  return active && <Container onClickCapture={e => e.stopPropagation()} onMouseDown={e => { e.stopPropagation()}}>
       <ClearButton onClick={clearCommands}>Clear</ClearButton>
       <Commands>
         {filteredAndReversedCommands.map((command, i) => <Command key={i} color={command.color} >{command.text}</Command>)}
       </Commands>
       <Filters>
         Filters:
-        {Object.keys(filters).map(filter => (
+        {Object.keys(filters).map((filter, i) => (
           <FilterOption
+            key={i}
             $active={filters[filter]}
-            onClick={() => setFilter(filter as Filter, !filters[filter])}
+            onMouseDown={() => setFilter(filter as Filter, !filters[filter])}
           > 
             {toSentenceCase(filter)}
           </FilterOption>
@@ -87,7 +88,7 @@ position: absolute;
 background-color: #4e4e4ecc;
 color: #ddd;
 
-z-index: 1;
+z-index: 100;
 flex-direction: column;
 `
 

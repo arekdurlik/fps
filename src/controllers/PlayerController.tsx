@@ -68,7 +68,7 @@ export function PlayerController() {
     
     const grounded = grounded1 || grounded2 || grounded3 || grounded4;
 
-    if (PlayerState.canShoot && !GunState.reloading) {
+    if (PlayerState.canShoot) {
       // fire gun or empty click
       if (!PlayerState.running && lmb) {
         if (GunState.ammoInMag === 0) {

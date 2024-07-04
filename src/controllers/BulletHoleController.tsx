@@ -46,7 +46,6 @@ export function BulletHoleController() {
     mesh.receiveShadow = true;
 
     mesh.renderOrder = renderOrderIndex;
-    console.log(renderOrderIndex);
     
     renderOrderIndex++;
     if (renderOrderIndex >= RenderOrder.BULLETHOLES + MAX_BULLETHOLES) {

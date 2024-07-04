@@ -3,13 +3,13 @@ export const WEAPONS_DATA = {
       {
           damage: 10,
           rateOfFire: 90,
-          magCapacity: 25,
+          magCapacity: 2500,
           weight: 1,
 
           recoilXMin: -0.00075,
           recoilXMax: 0.0015,
-          recoilYMin: 0.0015,
-          recoilYMax: 0.002,
+          recoilYMin: 0.001,
+          recoilYMax: 0.0015,
           kickXMin: -0.005,
           kickXMax: 0.005,
           kickYMin: -0.005,

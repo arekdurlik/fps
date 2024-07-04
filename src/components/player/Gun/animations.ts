@@ -6,13 +6,15 @@ import { GunState } from '../../../state/gunState'
 import { PlayerState } from '../../../state/playerState'
 import { randomNumber } from '../../../helpers'
 
+export type GunAnimations = ReturnType<typeof useGunAnimations>;
+
 export function useGunAnimations() {
   const mouseVelocity = useMouseVelocity();
   const [{ posX, posY }, positionSpring] = useSpring(() => ({ posX: 0.2, posY: 0 }));
   const [{ swayX, swayY }, swaySpring] = useSpring(() => ({ swayX: 0, swayY: 0 }));
   const [{ roll }, rollSpring] = useSpring(() => ({ roll: 0 }));
   const [{ velX, velY }, velocitySpring] = useSpring(() => ({ velX: 0, velY: 0 }));
-  const [{ sprite }, spriteSpring] = useSpring(() => ({ sprite: 0 }));
+  const [{ frame }, spriteSpring] = useSpring(() => ({ frame: 0 }));
   const [{ jumpY }, jumpSpring] = useSpring(() => ({ jumpY: 0 }));
 
   const [{ muzzleflash, knockback, recoilX, recoilY, kickX, kickY, spread }, shootSpring] = useSpring(() => ({ muzzleflash: 0, knockback: 0, recoilX: 0, recoilY: 0, kickX: 0, kickY: 0, spread: 0 }));
@@ -105,8 +107,8 @@ export function useGunAnimations() {
     positionSpring.start({ posX: 0, posY: 0 });
     spriteSpring.start({
       to: [
-        { sprite: 1, config: { duration: 0 }},
-        { sprite: 2, config: { duration: 75, easing: easings.steps(1), round: 1 }},
+        { frame: 1, config: { duration: 0 }},
+        { frame: 2, config: { duration: 75, easing: easings.steps(1), round: 1 }},
       ]
     })
   }
@@ -117,8 +119,8 @@ export function useGunAnimations() {
 
     spriteSpring.start({
       to: [
-        { sprite: 1, config: { duration: 0 }},
-        { sprite: 0, config: { duration: 75, easing: easings.steps(1), round: 1}},
+        { frame: 1, config: { duration: 0 }},
+        { frame: 0, config: { duration: 75, easing: easings.steps(1), round: 1}},
       ]
     })
   }
@@ -191,18 +193,18 @@ export function useGunAnimations() {
       onResolve(result) {
         if (result.noop) return;
 
-        PlayerState.setCanShoot(false);
         reloadEnd();
       }
     });
   }
 
   function reloadEnd() {
+    GunState.reloadEnd();
+    
     reloadSpring.stop();
     reloadSpring.start({ reloadX: 0, reloadY: 0, config: { duration: 200 }, onResolve(result) {
       if (result.noop) return;
 
-      GunState.reloadEnd();
       PlayerState.setCanShoot();
     } });
   }
@@ -248,6 +250,6 @@ export function useGunAnimations() {
     get swayX() { return swayX.get() },
     get swayY() { return swayY.get() },
     get roll() { return roll.get() },
-    get sprite() { return sprite.get() },
+    get frame() { return frame.get() },
   };
 }

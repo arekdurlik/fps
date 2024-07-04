@@ -15,7 +15,8 @@ export function usePlayerEvents() {
     const walkR = () => playSound('walkR', 0.2);
     const runL = (data: NotifyData) => playSound('walkL', data.firstStep ? 0.2 : 0.4);
     const runR = () => playSound('walkR', 0.4);
-    
+    const reloadBegin = () => PlayerState.setCanShoot(false);
+
     const playerUnsubscribe = PlayerState.subscribeMany([
       [PlayerSubject.WALK_STEP_LEFT, walkL],
       [PlayerSubject.WALK_STEP_RIGHT, walkR],
@@ -34,7 +35,10 @@ export function usePlayerEvents() {
       [PlayerSubject.AIM_END, animations.aimEnd],
     ]);
     
-    const gunUnsubscribe = GunState.subscribe(GunSubject.SHOT_FIRED, animations.shoot);
+    const gunUnsubscribe = GunState.subscribeMany([
+      [GunSubject.SHOT_FIRED, animations.shoot],
+      [GunSubject.RELOAD_BEGIN, reloadBegin],
+    ]);
     
     return () => {
       playerUnsubscribe();

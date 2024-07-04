@@ -2,6 +2,7 @@ import { useSpring } from '@react-spring/three'
 import { Debug } from '../../../state/debugState'
 import { PlayerState, PlayerSubject } from '../../../state/playerState'
 import { NotifyData } from '../../../types'
+import { GunState } from '../../../state/gunState'
 
 let timeoutId: NodeJS.Timeout;
 
@@ -13,8 +14,8 @@ export function usePlayerAnimations() {
     Debug.log('Player animation: Idle', 'playerAnimation');
 
     timeoutId = setTimeout(() => {
-      PlayerState.setCanShoot();
-    }, 200)
+      !GunState.reloading && PlayerState.setCanShoot();
+    }, 200);
 
     spring.stop();
     spring.start({ x: 0, y: 0,  config: { duration: 200 }});
@@ -24,7 +25,7 @@ export function usePlayerAnimations() {
     Debug.log('Player animation: Walk', 'playerAnimation');
 
     timeoutId = setTimeout(() => {
-      PlayerState.setCanShoot();
+      !GunState.reloading && PlayerState.setCanShoot();
     }, 200)
 
     spring.stop();
@@ -88,8 +89,8 @@ export function usePlayerAnimations() {
     zoomSpring.start({ zoom: 0, config: { mass: 2, friction: 10, bounce: 0 } });
   }
 
-  function shoot(data: NotifyData) {
-    const knockback = data.knockback ?? 0.5
+  function shoot() {
+    const knockback = 0.5
     zoomSpring.start({
       to: [
         { knockback: -knockback, config: { friction: 0, mass: 0.5, bounce: 0 } },
