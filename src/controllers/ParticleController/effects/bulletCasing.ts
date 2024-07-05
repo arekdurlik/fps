@@ -22,14 +22,14 @@ const initialPosition = new THREE.Vector3();
 
 export const bulletCasing = (position: THREE.Vector3, normal = DEFAULT_NORMAL, velocity: Vector3Object) => {
   velocityCompensate.set(velocity!.x / VELOCITY_COMPENSATE, velocity!.y / VELOCITY_COMPENSATE, velocity!.z / VELOCITY_COMPENSATE);
-  const size = Math.random() * 2.5;
+  const size = 0.2 + Math.random() * 2.5;
 
   const casing = new ParticleSystem({
     prewarm: true,
     duration: 0,
     looping: false,
     shape: new ConeEmitter({ radius: 0, arc: 6.283185307179586, thickness: 0, angle: 0 }),
-    startLife: new ConstantValue(0.1),
+    startLife: new ConstantValue(0.2),
     startSpeed: new IntervalValue(2, 4),
     startRotation: new IntervalValue(0, 6),
     startSize: new ConstantValue(0.0175),

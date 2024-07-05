@@ -103,13 +103,13 @@ export function useGunAnimations() {
   }
 
   function aimBegin() {
-    positionSpring.stop();
     positionSpring.start({ posX: 0, posY: 0 });
     spriteSpring.start({
       to: [
-        { frame: 1, config: { duration: 0 }},
-        { frame: 2, config: { duration: 75, easing: easings.steps(1), round: 1 }},
-      ]
+        { frame: 1 },
+        { frame: 2 },
+      ],
+      config: { duration: 60, easing: easings.steps(1), round: 1 }
     })
   }
 
@@ -119,9 +119,10 @@ export function useGunAnimations() {
 
     spriteSpring.start({
       to: [
-        { frame: 1, config: { duration: 0 }},
-        { frame: 0, config: { duration: 75, easing: easings.steps(1), round: 1}},
-      ]
+        { frame: 1 },
+        { frame: 0 },
+      ],
+      config: { duration: 60, easing: easings.steps(1), round: 1 }
     })
   }
 
@@ -157,7 +158,7 @@ export function useGunAnimations() {
     
     rollSpring.stop();
     rollSpring.start({
-      roll: 0.05, config: { duration: 300, friction: 0 }
+      roll: 0.075, config: { duration: 300, friction: 0 }
     })
   }
   
@@ -166,7 +167,7 @@ export function useGunAnimations() {
     
     rollSpring.stop();
     rollSpring.start({
-      roll: -0.05, config: { duration: 300, friction: 0 }
+      roll: -0.075, config: { duration: 300, friction: 0 }
     })
   }
   

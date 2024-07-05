@@ -1,4 +1,4 @@
-import { ChangeEvent, MouseEvent, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { useKeyboardInput } from '../../hooks/useKeyboardInput'
 import { toSentenceCase } from '../../helpers'

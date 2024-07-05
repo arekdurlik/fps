@@ -1,16 +1,17 @@
 import * as THREE from 'three'
-import { useEffect, useRef } from 'react'
+import { Suspense, useEffect, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useGunEvents } from './events'
 import { PlayerState, PlayerSubject } from '../../../state/playerState'
-import { GunState, GunSubject } from '../../../state/gunState'
-import { WEAPONS_DATA } from '../../../data'
+import { GunState, GunSubject, useGunState } from '../../../state/gunState'
+import { SMG_BODY_SIGHT, SMG_BODY_STOCK, SMG_GLASS_REDDOT, WEAPONS_DATA } from '../../../data'
 import { playSound } from '../../../utils'
 import { GameState } from '../../../state/gameState'
 import { RenderOrder } from '../../../constants'
 import { randomNumber } from '../../../helpers'
 import { Reticle } from './Reticle'
 import { MuzzleFlash } from './MuzzleFlash'
+import { IronSight } from './IronSight'
 import { useSpriteSheet } from '../../../hooks/useSpriteSheet'
 
 const up = new THREE.Vector3(0.0, 1.0, 0.0);
@@ -20,7 +21,10 @@ const normalArray = new Uint8Array([0,1,0, 0,1,0, 0,1,0, 0,1,0]);
 
 export function Gun() {
   const { animations } = useGunEvents();
-  const { texture, setFrame } = useSpriteSheet(WEAPONS_DATA[GunState.equipped].renderParams.texture, 128);
+  const hasReticle = useGunState(state => state.reticle);
+  const { texture: bodyTexture, setFrame: setBodyFrame } = useSpriteSheet(hasReticle ? SMG_BODY_SIGHT : SMG_BODY_STOCK, 128);
+  const { texture: glassTexture, setFrame: setGlassFrame } = useSpriteSheet(SMG_GLASS_REDDOT, 128);
+  const glassColor = useGunState(state => state.glassColor);
   
   const gunRef = useRef<THREE.Group>(null!);
   const bodyRef = useRef<THREE.Group>(null!);
@@ -82,8 +86,8 @@ export function Gun() {
     body.rotation.set(0, 0, 0);
     
     // position
-    body.position.x += animations.posX / (PlayerState.aiming ? 10 : 1);
-    body.position.y += animations.posY / (PlayerState.aiming ? 10 : 1);
+    body.position.x += animations.posX;
+    body.position.y += animations.posY;
     
     // sway
     body.position.x += animations.swayX / (PlayerState.aiming ? 10 : 1);
@@ -99,15 +103,15 @@ export function Gun() {
 
     // reload
     body.position.x += animations.reloadX;
-    body.rotation.z -= animations.reloadY * 1;
+    body.rotation.z -= animations.reloadY;
     body.position.y += animations.reloadY;
 
     // jump
     body.position.y += animations.jumpY;
     
     // sprite
-
-    setFrame(animations.frame);
+    setBodyFrame(animations.frame);
+    setGlassFrame(animations.frame);
 
     // muzzle flash TODO: add to render params
     switch (animations.frame) {
@@ -121,6 +125,7 @@ export function Gun() {
     GameState.camera.rotateOnWorldAxis(up, animations.recoilX * dt * 100);
     body.position.x += animations.kickX;
     body.position.y += animations.kickY;
+    gun.rotation.z += animations.kickX / 2;
     
     body.position.z += animations.knockback;
     
@@ -129,22 +134,30 @@ export function Gun() {
   });
 
   return (
-    <group ref={gunRef} position={[0, -0.035, -0.165]} scale={0.23} matrixAutoUpdate={false} matrixWorldAutoUpdate={false}>
+    <group ref={gunRef} position={[0, -0.035, -0.175]} scale={0.23} matrixAutoUpdate={false} matrixWorldAutoUpdate={false}>
       <group ref={bodyRef} matrixAutoUpdate={false} matrixWorldAutoUpdate={false}>
 
-        <mesh receiveShadow renderOrder={RenderOrder.GUN} userData={{ shootThrough: true }}>
+        <mesh receiveShadow renderOrder={RenderOrder.GUN_BODY} userData={{ shootThrough: true }}>
           <planeGeometry args={[1, 1, 1, 1]}>
             <bufferAttribute attach="attributes-normal" array={normalArray} itemSize={3} />
           </planeGeometry>
-          <meshLambertMaterial map={texture} transparent depthTest={false}/>
+          <meshLambertMaterial map={bodyTexture} transparent depthTest={false}/>
         </mesh>
+
+        {hasReticle && <mesh receiveShadow renderOrder={RenderOrder.GUN_BODY} userData={{ shootThrough: true }}>
+          <planeGeometry args={[1, 1, 1, 1]}>
+            <bufferAttribute attach="attributes-normal" array={normalArray} itemSize={3} />
+          </planeGeometry>
+          <meshLambertMaterial map={glassTexture} color={glassColor} transparent depthTest={false}/>
+        </mesh>}
 
         <group ref={muzzleRef}>
           <MuzzleFlash animations={animations}/>
         </group>
 
       </group>  
-
-      <Reticle animations={animations}/>
+      
+      {hasReticle && <Reticle animations={animations}/>}
+      <IronSight animations={animations}/>
     </group>
 )}

@@ -130,16 +130,22 @@ type GunStateStore = {
   spread: number,
   knockbackMin: number
   knockbackMax: number
-  reticle: number
+  reticle: boolean
+  reticleOpacity: number
+  reticleShape: number
   reticleColor: string
+  glassColor: string
 };
 
 const smg = WEAPONS_DATA.smg;
 
 export const useGunState = create<GunStateStore>((set) => ({
   equipped: 'smg',
-  reticle: 0,
+  reticle: false,
+  reticleOpacity: 1,
+  reticleShape: 0,
   reticleColor: '#f00',
+  glassColor: '#f00',
   reloading: false,
   ammoInMag: smg.magCapacity,
   ...smg,

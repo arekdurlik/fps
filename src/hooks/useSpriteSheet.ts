@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { TextureCallback, useNearestFilterTexture } from './useNearestFilterTexture'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 export function useSpriteSheet(path: string, width: number, height = width, initialFrame = 0, onLoad?: TextureCallback) {
   const texture = useNearestFilterTexture(path, texture => {
@@ -8,21 +8,22 @@ export function useSpriteSheet(path: string, width: number, height = width, init
     texture.repeat.set(width / texture.image.width, height / texture.image.height);
     onLoad?.(texture);
   });
-  const frames: { x: number, y: number }[] = [];
-  let currentFrame = initialFrame;
+  const [frames, setFrames] = useState<{ x: number, y: number }[]>([]);
+  let currentFrame = -1;
   
   useEffect(() => {
     const hFrames = texture.image.width / width;
     const vFrames = texture.image.height / height;
-    
+
     for (let v = 0; v < vFrames; v++) {
       for (let h = 0; h < hFrames; h++) {
         frames.push({ x: h * width, y: v * width });
       }
     }
+    setFrames(frames);
     setFrame(initialFrame);
   }, [texture, initialFrame]);
-
+  
   function setFrame(frame: number) {
     if (frame === currentFrame) return;
     

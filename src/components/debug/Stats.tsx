@@ -5,6 +5,6 @@ export function Stats() {
 
   return <>
     {/* <StatsGl className='stats-box'/> */}
-    {/* <Perf overclock antialias={false} /> */}
+    <Perf overclock antialias={false} position='bottom-right' />
   </>
 }

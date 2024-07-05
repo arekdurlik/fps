@@ -7,7 +7,8 @@ import { Sky } from '@react-three/drei'
 import { Barrel } from './Barrel'
 
 export function Scene() {
-  const light = useRef<THREE.DirectionalLight | null>(null)
+  const light = useRef<THREE.DirectionalLight | null>(null);
+
   return <>
     <Sky sunPosition={[0, -20, 0]} />
     <directionalLight 

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+//@ts-nocheck
 import { useControls } from 'leva'
 import { useEffect } from 'react'
 import { useGunState } from '../../../state/gunState'
@@ -22,9 +24,22 @@ export function GunParams() {
   }, { collapsed: true });
 
   const reticle = useControls('Reticle', {
-    reticle: { value: gun.reticle, step: 1, min: 0, max: 11 },
-    reticleColor: { value: gun.reticleColor }
+    reticle: { value: gun.reticle },
+    reticleOpacity: { value: 1, min: 0, max: 1 },
+    reticleShape: { value: gun.reticleShape, step: 1, min: 0, max: 31 },
+    reticleColor: { value: gun.reticleColor },
+    glassColor: { value: gun.glassColor }
   });
+
+  useEffect(() => {
+    window.addEventListener('wheel', (e: WheelEvent) => {
+      if (e.deltaY < 0) {
+        gun.setValue('reticleOpacity', (useGunState.getState().reticleOpacity + 0.25 > 1 ? 0.25 : useGunState.getState().reticleOpacity + 0.25));
+      } else {
+        gun.setValue('reticleShape', (gun.reticleShape++));
+      }
+    })
+  }, []);
 
   useEffect(() => {
     Object.keys(params).forEach(param => {

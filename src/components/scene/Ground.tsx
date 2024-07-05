@@ -1,9 +1,10 @@
 import * as THREE from 'three'
 import { CuboidCollider, interactionGroups, RigidBody } from "@react-three/rapier"
-import { useTexture } from '@react-three/drei'
 import { Collisions } from '../../constants'
+import { useNextTickTexture } from '../../hooks/useNextTickTexture'
+
 export function Ground() {
-  const grid = useTexture('map.jpg', texture => {
+  const grid = useNextTickTexture('map.jpg', texture => {
     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
     texture.anisotropy = 16;
     texture.repeat = new THREE.Vector2(100, 100);

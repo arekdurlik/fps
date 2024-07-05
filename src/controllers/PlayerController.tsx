@@ -11,9 +11,9 @@ import { useKeyboardInputRef } from '../hooks/useKeyboardInput'
 import { useFixedFrame } from '../hooks/useFixedFrame'
 import { PLAYER_INPUT_FPS } from '../constants'
 
-const PLAYER_SPEED = 16;
+const PLAYER_SPEED =27;
 const RUN_MULTIPLIER = 2.2;
-const SLOW_DOWN_SPEED = 6;
+const SLOW_DOWN_SPEED = 10;
 const JUMP_VELOCITY = 4.5;
 const JUMP_COOLDOWN = 200;
 
@@ -32,7 +32,7 @@ export function PlayerController() {
   const playerRef = usePlayerState(state => state.player);
   const alreadyTriedToFire = useRef(false);
 
-  useFixedFrame(30, () => {
+  useFixedFrame(PLAYER_INPUT_FPS, () => {
     const player = playerRef?.current;
     if (!player) return;
     PlayerState.setVelocity(player.linvel())
@@ -70,7 +70,7 @@ export function PlayerController() {
 
     if (PlayerState.canShoot) {
       // fire gun or empty click
-      if (!PlayerState.running && lmb) {
+      if (lmb) {
         if (GunState.ammoInMag === 0) {
           if (!alreadyTriedToFire.current) {
             alreadyTriedToFire.current = true;
@@ -89,12 +89,16 @@ export function PlayerController() {
       if (!lmb && alreadyTriedToFire.current) {
         alreadyTriedToFire.current = false;
       }
-    
-      // aim
-      if (!PlayerState.running && !PlayerState.aiming && rmb) {
-        PlayerState.setAiming();
+    }
+
+    if (!GunState.reloading) {
+      if (!PlayerState.running && !PlayerState.reloading) {
+        // aim
+        if (rmb && !PlayerState.aiming) {
+          PlayerState.setAiming();
+        }
       }
-      
+
       // stop aiming
       if (PlayerState.aiming && !rmb) {
         PlayerState.setAiming(false);
@@ -123,7 +127,7 @@ export function PlayerController() {
       
       if (!GunState.reloading) {
         // sprint
-        if (!PlayerState.aiming && w && shift) {
+        if (shift && w && !PlayerState.aiming) {
           speed *= RUN_MULTIPLIER;
     
           if (!PlayerState.running) {

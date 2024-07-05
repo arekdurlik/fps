@@ -3,7 +3,8 @@
 export enum RenderOrder {
   'SPRITE' = -200,
   'BULLETHOLES' = -199,
-  'GUN' = 1000
+  'GUN_IRONSIGHT' = 999,
+  'GUN_BODY' = 1000
 }
 
 export enum Collisions {

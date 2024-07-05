@@ -1,11 +1,11 @@
 import * as THREE from 'three'
-import { useTexture } from '@react-three/drei'
 import { CuboidCollider, interactionGroups, RigidBody } from '@react-three/rapier'
 import { Triplet } from '../../types'
 import { Collisions } from '../../constants'
+import { useNextTickTexture } from '../../hooks/useNextTickTexture'
 
 export function Box({ position = [0, 0, 0], rotation = [0, 0, 0], scale = 1 }: { position?: Triplet, rotation?: Triplet, scale?: number }) {
-  const grid = useTexture('map2.jpg', texture => {
+  const grid = useNextTickTexture('map2.jpg', texture => {
     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
     texture.anisotropy = 16;
     texture.repeat = new THREE.Vector2(1, 1);

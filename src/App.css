@@ -35,3 +35,8 @@ canvas {
 .stats-box > canvas {
   position: initial !important;
 }
+
+.leva-c-VuHFz {
+  pointer-events: none !important;
+  cursor: default;
+}

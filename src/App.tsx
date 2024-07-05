@@ -12,23 +12,26 @@ import { Physics } from '@react-three/rapier'
 import { BasicShadowMap } from 'three'
 import { PHYSICS_FPS } from './constants'
 import { LevaParams } from './components/debug/Leva'
+import { LoadingScreen } from './components/ui/LoadingScreen'
+import { PreloadAssets } from './components/PreloadAssets'
 
 function App() {
   return <>
     <Console/>
     <LevaParams/>
     <HUD/>
-    <Suspense fallback={null}>
       <Canvas shadows={{ type: BasicShadowMap }} gl={{ antialias: false }} dpr={0.5}>  
-        <PointerLockControls/>
-        <Stats/>
-        <Physics gravity={[0, -12.81, 0]} timeStep={1/PHYSICS_FPS}>
-          <Controllers/>
-          <Scene/>
-        </Physics>
-        <PostProcessing/>
-      </Canvas>
-    </Suspense>
+        <Suspense fallback={<LoadingScreen/>}>
+          <PreloadAssets/>
+          <PointerLockControls/>
+          <Stats/>
+          <Physics gravity={[0, -12.81, 0]} timeStep={1/PHYSICS_FPS}>
+            <Controllers/>
+            <Scene/>
+          </Physics>
+          <PostProcessing/>
+      </Suspense>
+    </Canvas>
   </>
 }
 

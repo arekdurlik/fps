@@ -81,7 +81,7 @@ export function usePlayerAnimations() {
 
   function aimBegin() {
     zoomSpring.stop();
-    zoomSpring.start({ zoom: 5, config: { mass: 2, friction: 25 } });
+    zoomSpring.start({ zoom: 3, config: { mass: 2, friction: 25 } });
   }
   
   function aimEnd() {
