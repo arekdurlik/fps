@@ -2,9 +2,9 @@ import { easings, useSpring } from '@react-spring/three'
 import { useMouseVelocity } from '../../../hooks/useMouseVelocity'
 import { clamp } from 'three/src/math/MathUtils.js'
 import { Debug } from '../../../state/debugState'
-import { GunState } from '../../../state/gunState'
+import { GunState, ShotFiredData, useGunState } from '../../../state/gunState'
 import { PlayerState } from '../../../state/playerState'
-import { randomNumber } from '../../../helpers'
+import { SMG_IRONSIGHT_ZOOM, SMG_REDDOT_ZOOM } from '../../../data'
 
 export type GunAnimations = ReturnType<typeof useGunAnimations>;
 
@@ -16,8 +16,9 @@ export function useGunAnimations() {
   const [{ velX, velY }, velocitySpring] = useSpring(() => ({ velX: 0, velY: 0 }));
   const [{ frame }, spriteSpring] = useSpring(() => ({ frame: 0 }));
   const [{ jumpY }, jumpSpring] = useSpring(() => ({ jumpY: 0 }));
+  const [{ zoom } , zoomSpring] = useSpring(() => ({ zoom: 0 }));
 
-  const [{ muzzleflash, knockback, recoilX, recoilY, kickX, kickY, spread }, shootSpring] = useSpring(() => ({ muzzleflash: 0, knockback: 0, recoilX: 0, recoilY: 0, kickX: 0, kickY: 0, spread: 0 }));
+  const [{ muzzleflash, knockback, recoilX, recoilY, kickX, kickY }, shootSpring] = useSpring(() => ({ muzzleflash: 0, knockback: 0, recoilX: 0, recoilY: 0, kickX: 0, kickY: 0 }));
   const [{ reloadX, reloadY }, reloadSpring] = useSpring(() => ({ reloadX: 0, reloadY: 0 }));
 
   function idle() {
@@ -109,46 +110,38 @@ export function useGunAnimations() {
         { frame: 1 },
         { frame: 2 },
       ],
-      config: { duration: 60, easing: easings.steps(1), round: 1 }
-    })
+      config: { duration: 70, easing: easings.steps(1), round: 1 }
+    });
+    zoomSpring.start({
+      zoom: useGunState.getState().reticle ? SMG_REDDOT_ZOOM : SMG_IRONSIGHT_ZOOM
+    });
   }
-
+  
   function aimEnd() {
     positionSpring.stop();
     positionSpring.start({ posX: 0.2, posY: 0 });
-
+    
     spriteSpring.start({
       to: [
         { frame: 1 },
         { frame: 0 },
       ],
       config: { duration: 60, easing: easings.steps(1), round: 1 }
-    })
+    });
+    zoomSpring.start({
+      zoom: 0
+    });
   }
-
-  function shoot() {
+  
+  function shoot({ recoilX, recoilY, kickX, kickY, knockback, muzzleFlash }: ShotFiredData) {
     Debug.log('Gun animation: Shoot', 'gunAnimation');
-
-    const aiming = PlayerState.aiming;
-
-    const recoilX = randomNumber(GunState.recoilXMin, GunState.recoilXMax);
-    const recoilY = randomNumber(GunState.recoilYMin, GunState.recoilYMax);
-    const kickX = randomNumber(GunState.kickXMin, GunState.kickXMax);
-    const kickY = randomNumber(GunState.kickYMin, GunState.kickYMax);
     
-    const spreadMult = aiming ? 1 : 2;
-    const spreadRand = 0.01;
-    const spread = randomNumber(GunState.spread - spreadRand, GunState.spread + spreadRand) * spreadMult;
-    
-    const knockbackMult = aiming ? 1 : 2;
-    const knockback = randomNumber(GunState.knockbackMin, GunState.knockbackMax) * knockbackMult;
-
     shootSpring.start({
       to: [
-        { muzzleflash: 0.5, config: { duration: 0 }},
-        { muzzleflash: 0 },
-        { knockback, recoilX, recoilY, kickX, kickY, spread, config: { duration: 20 }},
-        { knockback: 0, recoilX: 0, recoilY: 0, kickX: 0, kickY: 0, spread: 0, config: { duration: 150 }}
+        { ...(muzzleFlash && { muzzleflash: 0.5 + Math.random() * 0.2, config: { duration: 0 }})},
+        { ...(muzzleFlash && { muzzleflash: 0, config: { duration: 25 } })},
+        { knockback, recoilX, recoilY, kickX, kickY, config: { duration: 20 }},
+        { knockback: 0, recoilX: 0, recoilY: 0, kickX: 0, kickY: 0, config: { duration: 150 }}
       ]
     });
   }
@@ -243,7 +236,6 @@ export function useGunAnimations() {
     get recoilY() { return recoilY.get() },
     get kickX() { return kickX.get() },
     get kickY() { return kickY.get() },
-    get spread() { return spread.get() },
 
     get jumpY() { return jumpY.get() },
     get velX() { return velX.get() },
@@ -252,5 +244,6 @@ export function useGunAnimations() {
     get swayY() { return swayY.get() },
     get roll() { return roll.get() },
     get frame() { return frame.get() },
+    get zoom() { return zoom.get() }
   };
 }

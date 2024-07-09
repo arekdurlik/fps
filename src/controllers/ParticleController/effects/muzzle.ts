@@ -15,7 +15,7 @@ const VELOCITY_COMPENSATE = 35;
 
 const velocityCompensate = new THREE.Vector3();
 
-export const muzzle = (position: THREE.Vector3, direction: THREE.Vector3, velocity: Vector3Object) => {
+export const muzzle = (position: THREE.Vector3, direction: THREE.Vector3, velocity: Vector3Object, muzzleFlash: boolean) => {
   velocityCompensate.set(velocity!.x / VELOCITY_COMPENSATE, velocity!.y / VELOCITY_COMPENSATE, velocity!.z / VELOCITY_COMPENSATE);
 
   const smoke = new ParticleSystem({
@@ -43,32 +43,36 @@ export const muzzle = (position: THREE.Vector3, direction: THREE.Vector3, veloci
     new Gradient([[new THREE.Vector3(SMOKE_COLOR, SMOKE_COLOR, SMOKE_COLOR), 0]], [[0.025, 0], [0.01, 0.5], [0, 1]]),
   ));
 
-  const muzzle = new ParticleSystem({
-    prewarm: true,
-    duration: 0,
-    looping: false,
-    shape: new PointEmitter(),
-    startLife: new IntervalValue(0, 0.02),
-    startRotation: new IntervalValue(0, 6),
-    startSize: new IntervalValue(0.1, 0.3),
-    autoDestroy: true,
+  const particles = [smoke];
+
+  if (muzzleFlash) {
+    const muzzle = new ParticleSystem({
+      prewarm: true,
+      duration: 0,
+      looping: false,
+      shape: new PointEmitter(),
+      startLife: new ConstantValue(0.02),
+      startRotation: new IntervalValue(0, 6),
+      startSize: new IntervalValue(0.2, 0.3),
+      autoDestroy: true,
+
+      emissionOverTime: new ConstantValue(1),
+      
+      material: new THREE.MeshBasicMaterial({ map: muzzleTexture, transparent: true, alphaTest: 0 }),
+    });
+
+    muzzle.emitter.name = 'muzzle';
     
-    material: new THREE.MeshBasicMaterial({ map: muzzleTexture, transparent: true, alphaTest: 0 }),
-  });
+    muzzle.addBehavior(new ColorOverLife(new RandomColorBetweenGradient(
+      new Gradient([[new THREE.Vector3(1, 1, 0), 0]], [[1, 0], [0, 1]]),
+      new Gradient([[new THREE.Vector3(1, 0, 0), 0]], [[0.1, 0], [0, 1]])
+    )));
+
+    particles.push(muzzle);
+  }
   
   smoke.emitter.name = 'smoke';
-  muzzle.emitter.name = 'muzzle';
-  
-  const particles = [smoke, muzzle];
-
-  // order: look at normal -> apply behaviors -> set positions
-
   smoke.emitter.lookAt(direction);
-
-  muzzle.addBehavior(new ColorOverLife(new RandomColorBetweenGradient(
-    new Gradient([[new THREE.Vector3(1, 1, 0), 0]], [[1, 0], [0, 1]]),
-    new Gradient([[new THREE.Vector3(1, 0, 0), 0]], [[0.1, 0], [0, 1]])
-  )));
 
   particles.forEach(particle => {
     particle.emitter.position.add(position).add(velocityCompensate);

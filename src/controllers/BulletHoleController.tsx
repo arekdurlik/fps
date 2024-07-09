@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react'
 import { useNearestFilterTexture } from '../hooks/useNearestFilterTexture'
 import * as THREE from 'three'
-import { invlerp } from '../helpers'
+import { invlerp, randomNumber } from '../helpers'
 import { DecalGeometry } from 'three/examples/jsm/Addons.js'
 import { BulletImpactData, WorldState, WorldSubject } from '../state/worldState'
 import { RenderOrder } from '../constants'
 
-const MAX_BULLETHOLES = 50;
+const MAX_BULLETHOLES = 100;
 let renderOrderIndex = RenderOrder.BULLETHOLES;
 
 const up = new THREE.Vector3(0, 0, 1);
@@ -22,7 +22,9 @@ const mat = new THREE.MeshStandardMaterial({
 
 export function BulletHoleController() {
   const map = useNearestFilterTexture('bullethole.png');
+  const map2 = useNearestFilterTexture('bullethole2.png');
   const normalMap = useNearestFilterTexture('bullethole_normal.png');
+  const normalMap2 = useNearestFilterTexture('bullethole2_normal.png');
   const bulletHoles = useRef<{ parent: THREE.Object3D, hole: THREE.Mesh }[]>([])
   
   useEffect(() => {
@@ -37,11 +39,16 @@ export function BulletHoleController() {
     quaternion.setFromUnitVectors(up, normal);
     orientation.setFromQuaternion(quaternion);
 
-    const decalGeometry = new DecalGeometry(object as THREE.Mesh, position, orientation, new THREE.Vector3(0.1, 0.1, 0.1));
+    const scale = randomNumber(0.85, 1.05);
+    const w = randomNumber(0.0975, 0.125) * scale;
+    const h = randomNumber(0.0975, 0.125) * scale;
+    const decalGeometry = new DecalGeometry(object as THREE.Mesh, position, orientation, new THREE.Vector3(w, h, 0.1));
     const mesh = new THREE.Mesh(decalGeometry, mat.clone());
 
-    mesh.material.map = map;
-    mesh.material.normalMap = normalMap;
+    const randomMap = Math.random();
+
+    mesh.material.map = randomMap < 0.75 ? map : map2;
+    mesh.material.normalMap = randomMap < 0.75 ? normalMap: normalMap2;
     mesh.userData.shootThrough = true;
     mesh.receiveShadow = true;
 

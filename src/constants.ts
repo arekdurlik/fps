@@ -16,4 +16,5 @@ export enum Collisions {
 export const PHYSICS_FPS = 60;
 export const PLAYER_INPUT_FPS = 60;
 export const PARTICLES_FPS = 60;
+export const BULLET_SPREAD_FPS = 30;
 

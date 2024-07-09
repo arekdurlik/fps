@@ -13,7 +13,19 @@ export enum GunSubject {
   RELOAD_END = 'RELOAD_END',
 }
 
-export type ShotFiredData = { eyePosition: THREE.Vector3, muzzlePosition: THREE.Vector3, direction: THREE.Vector3, velocity: Vector3Object, damage: number, recoilZ?: number, recoilY?: number };
+export type ShotFiredData = { 
+  eyePosition: THREE.Vector3, 
+  muzzlePosition: THREE.Vector3, 
+  direction: THREE.Vector3, 
+  velocity: Vector3Object, 
+  damage: number, 
+  recoilX: number, 
+  recoilY: number,
+  kickX: number
+  kickY: number
+  knockback: number
+  muzzleFlash: boolean
+};
 
 type Observers = ObserversUnknownData<GunSubject> & { 
   [GunSubject.SHOT_FIRED]: ((data: ShotFiredData) => void)[] 
@@ -85,7 +97,7 @@ export const GunState: GunState = {
   },
   notify(subject, data) {
     try {
-      this.observers[subject].forEach(observer => observer(data));
+      this.observers[subject].forEach(observer => observer(data!));
     } catch (e) {
       Debug.error(`[Gun state] Error notifying "${subject}" observers: ${e}`);
     }
@@ -142,10 +154,10 @@ const smg = WEAPONS_DATA.smg;
 export const useGunState = create<GunStateStore>((set) => ({
   equipped: 'smg',
   reticle: false,
-  reticleOpacity: 1,
+  reticleOpacity: 0.75,
   reticleShape: 0,
   reticleColor: '#f00',
-  glassColor: '#f00',
+  glassColor: '#779955',
   reloading: false,
   ammoInMag: smg.magCapacity,
   ...smg,

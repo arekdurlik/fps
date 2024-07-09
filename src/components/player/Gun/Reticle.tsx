@@ -11,7 +11,7 @@ export function Reticle({ animations }: { animations: GunAnimations } ) {
   const reticleOpacity = useGunState(state => state.reticleOpacity);
   const reticleShape = useGunState(state => state.reticleShape);
   const reticleColor = useGunState(state => state.reticleColor);
-  const { texture } = useSpriteSheet('guns/reticles.png', 20, 20, reticleShape);
+  const { texture } = useSpriteSheet('guns/reticles.png', 40, 40, reticleShape);
   
   useFrame(() => {
     const reticle = ref.current;
@@ -46,7 +46,7 @@ export function Reticle({ animations }: { animations: GunAnimations } ) {
 
 
   return <mesh ref={ref} matrixAutoUpdate={false} matrixWorldAutoUpdate={false} userData={{ shootThrough: true }}>
-    <planeGeometry args={[1/12, 1/12, 1, 1]} />
+    <planeGeometry args={[1/13, 1/13, 1, 1]} />
     <meshBasicMaterial map={texture} color={reticleColor} transparent depthTest={false}/>
   </mesh>
 }

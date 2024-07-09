@@ -31,8 +31,6 @@ export function Player() {
       PLAYER_HEIGHT + animations.y,
       0
     );
-    
-    camera.current.setFocalLength(15 + animations.zoom + animations.knockback);
   });
 
   return (

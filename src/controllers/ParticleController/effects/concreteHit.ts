@@ -15,7 +15,7 @@ const DEFAULT_NORMAL = new THREE.Vector3(0, 1, 0);
 const DOWN = new THREE.Vector3(0, -1, 0);
 
 export const concreteHit = (position: THREE.Vector3, normal = DEFAULT_NORMAL, height: number) => {
-  const debrisLife = height * 4;
+  const debrisLife = height * 5;
 
   const smoke = new ParticleSystem({
     prewarm: true,

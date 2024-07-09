@@ -17,14 +17,11 @@ import { PreloadAssets } from './components/PreloadAssets'
 
 function App() {
   return <>
-    <Console/>
     <LevaParams/>
-    <HUD/>
-      <Canvas shadows={{ type: BasicShadowMap }} gl={{ antialias: false }} dpr={0.5}>  
+      <Canvas shadows={{ type: BasicShadowMap }} gl={{ antialias: false }} dpr={1}>  
         <Suspense fallback={<LoadingScreen/>}>
           <PreloadAssets/>
           <PointerLockControls/>
-          <Stats/>
           <Physics gravity={[0, -12.81, 0]} timeStep={1/PHYSICS_FPS}>
             <Controllers/>
             <Scene/>

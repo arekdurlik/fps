@@ -10,5 +10,5 @@ export function MuzzleFlash({ animations }: { animations: GunAnimations }) {
     light.current.intensity = animations.muzzleflash;
   });
   
-  return <pointLight ref={light} args={['#ddac62', 1, 10, 0]} position={[0, 0.2, -1]} castShadow/>
+  return <pointLight ref={light} args={['#d89c43', 1, 10, 0.7]} position={[0, 0.05, -0.4]}/>
 }

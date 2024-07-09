@@ -43,7 +43,7 @@ export const bulletCasing = (position: THREE.Vector3, normal = DEFAULT_NORMAL, v
     duration: 0,
     looping: false,
     shape: new ConeEmitter({ radius: 0.005, arc: 6.283185307179586, thickness: 0, angle: 0.02 }),
-    startLife: new IntervalValue(0.5, 2),
+    startLife: new IntervalValue(0.5, 0.9),
     startSpeed: new IntervalValue(0.2, 2),
     startRotation: new IntervalValue(0, 6),
     autoDestroy: true,

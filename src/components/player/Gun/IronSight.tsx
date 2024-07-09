@@ -27,15 +27,15 @@ export function IronSight({ animations }: { animations: GunAnimations } ) {
     sight.rotation.set(0, 0, 0);
     
     sight.position.x += animations.posX;
+    sight.position.y += animations.jumpY / 2;
 
     sight.position.x += animations.roll / 15;
-    sight.position.x += animations.velX / 2.25;
 
     sight.position.setZ(animations.frame === 0 ? 5 : 0);
     sight.material.opacity = animations.frame === 2 ? 1: 0;
 
-    sight.position.x += animations.velX / 20;
-    sight.position.y += animations.velY / 20;
+    sight.position.x += animations.velX / 3.25;
+    sight.position.y += animations.velY / 5;
     sight.position.x += animations.frame === 1 ? 0.03  : 0;
     sight.position.y += animations.frame === 1 ? -0.02 : 0;
 

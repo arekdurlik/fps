@@ -1,12 +1,7 @@
 import { useThree } from '@react-three/fiber'
 import { WorldState, WorldSubject } from '../state/worldState'
-import * as THREE from 'three'
 import { useEffect } from 'react'
-import { GameState } from '../state/gameState'
 import { GunState, GunSubject, ShotFiredData } from '../state/gunState'
-
-const pos = new THREE.Vector3();
-const dir = new THREE.Vector3();
 
 export function BulletImpactController() {
   const { raycaster, scene } = useThree();

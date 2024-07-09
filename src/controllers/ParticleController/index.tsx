@@ -7,14 +7,19 @@ import { muzzle } from './effects/muzzle'
 import { useFixedFrame } from '../../hooks/useFixedFrame'
 import { PARTICLES_FPS } from '../../constants'
 import { bulletCasing } from './effects/bulletCasing'
-import { Vector3 } from 'three'
+import { PointLight, Vector3 } from 'three'
 import { ParticleSystem } from 'three.quarks'
 import { BatchedRenderer } from '../../quarks/BatchedRenderer'
 import { preloadVFX } from './utils'
+import { metalHit } from './effects/metalHit'
 
 const down = new Vector3(0, -1, 0);
 const batchSystem = new BatchedRenderer();
 let effect: ParticleSystem[];
+
+const SPARKLIGHT_AMOUNT = 2;
+const sparkLights = new Array(SPARKLIGHT_AMOUNT).fill(null).map(() => new PointLight('#cea568', 0, 1));
+let sparkLightIndex = 0;
 
 export function ParticleController() {
   const { scene, raycaster } = useThree();
@@ -26,6 +31,10 @@ export function ParticleController() {
     scene.add(batchSystem);
     preloadVFX(batchSystem, scene);
 
+    sparkLights.forEach(light => {
+      scene.add(light);
+    });
+
     return () => {
       worldUnsubscribe();
       gunUnsubscribe();
@@ -34,6 +43,12 @@ export function ParticleController() {
 
   useFixedFrame(PARTICLES_FPS, (_, dt) => {
     batchSystem.update(dt);
+
+    sparkLights.forEach(light => {
+      if (light.intensity > 0) {
+        light.intensity = Math.max(0, light.intensity - 0.05);
+      }
+    })
   });
 
   function handleBulletImpact({ position, object, normal }: BulletImpactData) {
@@ -51,14 +66,26 @@ export function ParticleController() {
       case 'concrete': 
         effect = concreteHit(position, normal, height); 
         break;
+      case 'metal':
+        effect = metalHit(position, normal);
+        makeSpark(position, normal);
+        break;
       default: return;
     }
 
     addToScene(effect);
   }
 
-  function handleShotFired({ muzzlePosition, direction, velocity }: ShotFiredData) {
-    addToScene(muzzle(muzzlePosition, direction, velocity));
+  function makeSpark(position: Vector3, normal: Vector3) {
+    const light = sparkLights[sparkLightIndex];
+    light.intensity = 0.025 + Math.random() * 0.1;
+    light.position.copy(position);
+    light.translateOnAxis(normal, 0.2);
+    sparkLightIndex = (sparkLightIndex + 1) % SPARKLIGHT_AMOUNT;
+  }
+
+  function handleShotFired({ muzzlePosition, direction, velocity, muzzleFlash }: ShotFiredData) {
+    addToScene(muzzle(muzzlePosition, direction, velocity, muzzleFlash));
     addToScene(bulletCasing(muzzlePosition, direction, velocity));
   }
 
