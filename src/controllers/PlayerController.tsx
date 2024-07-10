@@ -5,15 +5,15 @@ import { useThree } from '@react-three/fiber'
 import { useRapier } from '@react-three/rapier'
 import { lerp } from 'three/src/math/MathUtils.js'
 import { PlayerState, PlayerSubject, usePlayerState } from '../state/playerState'
-import { GunState } from '../state/gunState'
 import { useMouseInputRef } from '../hooks/useMouseInput'
 import { useKeyboardInputRef } from '../hooks/useKeyboardInput'
 import { useFixedFrame } from '../hooks/useFixedFrame'
-import { PLAYER_INPUT_FPS } from '../constants'
+import { EquipmentType, PLAYER_INPUT_FPS } from '../constants'
+import { EquipmentState } from '../state/equipmentState'
 
-const PLAYER_SPEED =27;
+const PLAYER_SPEED = 40;
 const RUN_MULTIPLIER = 2.2;
-const SLOW_DOWN_SPEED = 10;
+const SLOW_DOWN_SPEED = 15;
 const JUMP_VELOCITY = 4.5;
 const JUMP_COOLDOWN = 200;
 
@@ -68,21 +68,21 @@ export function PlayerController() {
     
     const grounded = grounded1 || grounded2 || grounded3 || grounded4;
 
-    if (PlayerState.canShoot) {
+    if (PlayerState.canShoot && EquipmentState.equipped?.type !== EquipmentType.NONE) {
       // fire gun or empty click
       if (lmb) {
-        if (GunState.ammoInMag === 0) {
+        if (EquipmentState.equipped?.roundsLeft === 0) {
           if (!alreadyTriedToFire.current) {
             alreadyTriedToFire.current = true;
-            PlayerState.notify(PlayerSubject.SHOT_FIRED);
+            PlayerState.notify(PlayerSubject.USE_EQUIPMENT);
           }
         } else {
-          PlayerState.notify(PlayerSubject.SHOT_FIRED);
+          PlayerState.notify(PlayerSubject.USE_EQUIPMENT);
         }
       }
 
       if (r && !shift && !lmb && !rmb) {
-        GunState.reloadBegin();
+        EquipmentState.reloadBegin();
       }
 
       // reset single click on empty mag
@@ -91,7 +91,7 @@ export function PlayerController() {
       }
     }
 
-    if (!GunState.reloading) {
+    if (!EquipmentState.reloading) {
       if (!PlayerState.running && !PlayerState.reloading) {
         // aim
         if (rmb && !PlayerState.aiming) {
@@ -125,7 +125,7 @@ export function PlayerController() {
 
       let speed = PLAYER_SPEED;
       
-      if (!GunState.reloading) {
+      if (!EquipmentState.reloading) {
         // sprint
         if (shift && w && !PlayerState.aiming) {
           speed *= RUN_MULTIPLIER;
@@ -194,7 +194,7 @@ export function PlayerController() {
       || (!PlayerState.jumping && !grounded)) { 
         
         if (space) {
-          if (!GunState.reloading) {
+          if (!EquipmentState.reloading) {
             PlayerState.setJumping(true);
             
             jumpStartTimestamp = Date.now();

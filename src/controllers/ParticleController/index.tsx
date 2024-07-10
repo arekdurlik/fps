@@ -1,50 +1,46 @@
 import { useThree } from '@react-three/fiber'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { BulletImpactData, WorldState, WorldSubject } from '../../state/worldState'
 import { concreteHit } from './effects/concreteHit'
-import { GunState, GunSubject, ShotFiredData } from '../../state/gunState'
 import { muzzle } from './effects/muzzle'
 import { useFixedFrame } from '../../hooks/useFixedFrame'
 import { PARTICLES_FPS } from '../../constants'
 import { bulletCasing } from './effects/bulletCasing'
-import { PointLight, Vector3 } from 'three'
+import { Vector3 } from 'three'
 import { ParticleSystem } from 'three.quarks'
 import { BatchedRenderer } from '../../quarks/BatchedRenderer'
 import { preloadVFX } from './utils'
 import { metalHit } from './effects/metalHit'
+import { randomFloat } from '../../helpers'
+import { EquipmentState, EquipmentSubject, ShotFiredData } from '../../state/equipmentState'
+import { useLightsContext } from '../../contexts/LightsContext'
 
 const down = new Vector3(0, -1, 0);
 const batchSystem = new BatchedRenderer();
 let effect: ParticleSystem[];
 
-const SPARKLIGHT_AMOUNT = 2;
-const sparkLights = new Array(SPARKLIGHT_AMOUNT).fill(null).map(() => new PointLight('#cea568', 0, 1));
-let sparkLightIndex = 0;
-
 export function ParticleController() {
+  const { metalHitLights } = useLightsContext();
   const { scene, raycaster } = useThree();
-  
+  const lightIndex = useRef(0);
+
   useEffect(() => {
     const worldUnsubscribe = WorldState.subscribe(WorldSubject.BULLET_IMPACT, handleBulletImpact);
-    const gunUnsubscribe = GunState.subscribe(GunSubject.SHOT_FIRED, handleShotFired);
+    const eqUnsubscribe = EquipmentState.subscribe(EquipmentSubject.SHOT_FIRED, handleShotFired);
     
     scene.add(batchSystem);
     preloadVFX(batchSystem, scene);
 
-    sparkLights.forEach(light => {
-      scene.add(light);
-    });
-
     return () => {
       worldUnsubscribe();
-      gunUnsubscribe();
+      eqUnsubscribe();
     };
   }, []);
 
   useFixedFrame(PARTICLES_FPS, (_, dt) => {
     batchSystem.update(dt);
 
-    sparkLights.forEach(light => {
+    metalHitLights.forEach(light => {
       if (light.intensity > 0) {
         light.intensity = Math.max(0, light.intensity - 0.05);
       }
@@ -77,11 +73,11 @@ export function ParticleController() {
   }
 
   function makeSpark(position: Vector3, normal: Vector3) {
-    const light = sparkLights[sparkLightIndex];
-    light.intensity = 0.025 + Math.random() * 0.1;
+    const light = metalHitLights[lightIndex.current];
+    light.intensity = randomFloat(0.025, 0.125);
     light.position.copy(position);
     light.translateOnAxis(normal, 0.2);
-    sparkLightIndex = (sparkLightIndex + 1) % SPARKLIGHT_AMOUNT;
+    lightIndex.current = (lightIndex.current + 1) % metalHitLights.length;
   }
 
   function handleShotFired({ muzzlePosition, direction, velocity, muzzleFlash }: ShotFiredData) {

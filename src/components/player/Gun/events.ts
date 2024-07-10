@@ -2,13 +2,14 @@ import * as THREE from 'three'
 import { RefObject, useEffect, useRef } from 'react'
 import { PlayerState, PlayerSubject } from '../../../state/playerState'
 import { useGunAnimations } from './animations'
-import { GunState, GunSubject } from '../../../state/gunState'
 import { playSound } from '../../../utils'
 import { BULLET_SPREAD_FPS } from '../../../constants'
 import { useFixedFrame } from '../../../hooks/useFixedFrame'
 import { lerp } from 'three/src/math/MathUtils.js'
-import { randomNumber } from '../../../helpers'
+import { randomFloat } from '../../../helpers'
 import { GameState } from '../../../state/gameState'
+import { EquipmentState, EquipmentSubject, useEquipmentState } from '../../../state/equipmentState'
+import { WEAPONS_DATA } from '../../../data'
 
 const MAX_SPREAD = 0.4;
 const HIP_BASE_SPREAD = 0.01;
@@ -16,6 +17,8 @@ const HIP_SPREAD_MULT = 2;
 const spreadVec = new THREE.Vector3();
 
 export function useGunEvents(muzzleRef: RefObject<THREE.Group>) {
+  const { computed } = useEquipmentState();
+  const gunData = WEAPONS_DATA[computed.equipped.item];
   const animations = useGunAnimations();
   const lastShotTimestamp = useRef(0);
   const spreadMult = useRef(0);
@@ -40,12 +43,12 @@ export function useGunEvents(muzzleRef: RefObject<THREE.Group>) {
       [PlayerSubject.STRAFE_RIGHT_BEGIN, animations.rollRight],
       [PlayerSubject.STRAFE_RIGHT_END, animations.rollEnd],
 
-      [PlayerSubject.SHOT_FIRED, tryShoot],
+      [PlayerSubject.USE_EQUIPMENT, tryShoot],
     ]);
     
-    const gunUnsubscribe = GunState.subscribeMany([
-      [GunSubject.RELOAD_BEGIN, animations.reloadBegin],
-      [GunSubject.MAGAZINE_EMPTY, handleEmptyShotFired]
+    const gunUnsubscribe = EquipmentState.subscribeMany([
+      [EquipmentSubject.RELOAD_BEGIN, animations.reloadBegin],
+      [EquipmentSubject.MAGAZINE_EMPTY, handleEmptyShotFired]
     ]);
     
     return () => {
@@ -55,7 +58,7 @@ export function useGunEvents(muzzleRef: RefObject<THREE.Group>) {
   }, []);
 
   useFixedFrame(BULLET_SPREAD_FPS, () => {
-    if (Date.now() - lastShotTimestamp.current < GunState.rateOfFire + 0.1) {
+    if (Date.now() - lastShotTimestamp.current < gunData.rateOfFire + 0.1) {
       spreadMult.current = lerp(spreadMult.current, MAX_SPREAD, 0.055);
     } else {
       spreadMult.current = lerp(spreadMult.current, 0, 0.3);
@@ -63,10 +66,10 @@ export function useGunEvents(muzzleRef: RefObject<THREE.Group>) {
   });
 
   function tryShoot() {
-    if (Date.now() - lastShotTimestamp.current < GunState.rateOfFire) return;
+    if (Date.now() - lastShotTimestamp.current < gunData.rateOfFire) return;
 
-    if (GunState.ammoInMag === 0) {
-      GunState.notify(GunSubject.MAGAZINE_EMPTY);
+    if (computed.equipped.roundsLeft && computed.equipped.roundsLeft === 0) {
+      EquipmentState.notify(EquipmentSubject.MAGAZINE_EMPTY);
     } else {
       handleShotFired();
     }
@@ -74,25 +77,25 @@ export function useGunEvents(muzzleRef: RefObject<THREE.Group>) {
   
   function handleShotFired() {
     lastShotTimestamp.current = Date.now();
-    GunState.decreaseAmmoInMag();
+    EquipmentState.decreaseAmmoInMag();
 
     const aiming = PlayerState.aiming;
     
-    const recoilX = randomNumber(GunState.recoilXMin, GunState.recoilXMax);
-    const recoilY = randomNumber(GunState.recoilYMin, GunState.recoilYMax);
-    const kickX = randomNumber(GunState.kickXMin, GunState.kickXMax);
-    const kickY = randomNumber(GunState.kickYMin, GunState.kickYMax);
+    const recoilX = randomFloat(gunData.recoilXMin, gunData.recoilXMax);
+    const recoilY = randomFloat(gunData.recoilYMin, gunData.recoilYMax);
+    const kickX = randomFloat(gunData.kickXMin, gunData.kickXMax);
+    const kickY = randomFloat(gunData.kickYMin, gunData.kickYMax);
     
     const baseSpread = aiming ? 0 : HIP_BASE_SPREAD;
     const mult = aiming ? spreadMult.current : spreadMult.current * HIP_SPREAD_MULT;
-    const spread = GunState.spread * mult;
-    const spreadX = randomNumber(-baseSpread -spread, baseSpread + spread);
-    const spreadY = randomNumber(-baseSpread -spread, baseSpread + spread);
-    const spreadZ = randomNumber(-baseSpread -spread, baseSpread + spread);
+    const spread = gunData.spread * mult;
+    const spreadX = randomFloat(-baseSpread -spread, baseSpread + spread);
+    const spreadY = randomFloat(-baseSpread -spread, baseSpread + spread);
+    const spreadZ = randomFloat(-baseSpread -spread, baseSpread + spread);
     spreadVec.set(spreadX, spreadY, spreadZ);
 
     const knockbackMult = aiming ? 0.5 : 1;
-    const knockback = randomNumber(GunState.knockbackMin, GunState.knockbackMax) * knockbackMult;
+    const knockback = randomFloat(gunData.knockbackMin, gunData.knockbackMax) * knockbackMult;
 
     const muzzleFlash = Math.random() > 0.75;
 
@@ -102,7 +105,7 @@ export function useGunEvents(muzzleRef: RefObject<THREE.Group>) {
       direction: GameState.camera.getWorldDirection(new THREE.Vector3()).add(spreadVec),
       velocity: PlayerState.velocity,
 
-      damage: GunState.damage,
+      damage: gunData.damage,
       recoilX,
       recoilY,
       kickX,
@@ -113,7 +116,7 @@ export function useGunEvents(muzzleRef: RefObject<THREE.Group>) {
 
     playSound('gunshot', 0.3);
     animations.shoot(data);
-    GunState.notify(GunSubject.SHOT_FIRED, data);
+    EquipmentState.notify(EquipmentSubject.SHOT_FIRED, data);
   }
 
   function handleEmptyShotFired() {

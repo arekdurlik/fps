@@ -1,15 +1,16 @@
 import styled from 'styled-components'
-import { useGunState } from '../../state/gunState'
+import { useEquipmentState } from '../../state/equipmentState'
+import { EquipmentType } from '../../constants'
 
 export function HUD() {
-  const gunState = useGunState();
+  const { computed: { equipped } } = useEquipmentState();
 
   return <Wrapper>
     {/* <Crosshair>
       <Dot/>
     </Crosshair> */}
     <GunStats>
-      Ammo: {gunState.ammoInMag}/{gunState.magCapacity}
+      {equipped?.type === EquipmentType.GUN && `Ammo: ${equipped.roundsLeft}/${equipped.roundsPerMag}`}
     </GunStats>
   </Wrapper>
 }

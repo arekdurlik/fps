@@ -3,7 +3,6 @@ import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useGunEvents } from './events'
 import { PlayerState } from '../../../state/playerState'
-import { useGunState } from '../../../state/gunState'
 import { SMG_BODY_SIGHT, SMG_BODY_STOCK, SMG_GLASS_REDDOT } from '../../../data'
 import { GameState } from '../../../state/gameState'
 import { RenderOrder } from '../../../constants'
@@ -11,21 +10,21 @@ import { Reticle } from './Reticle'
 import { MuzzleFlash } from './MuzzleFlash'
 import { IronSight } from './IronSight'
 import { useSpriteSheet } from '../../../hooks/useSpriteSheet'
+import { Gun as GunType } from '../../../config/guns'
 
 // make gun sprite normal face up so it get's lit up from above
 const normalArray = new Uint8Array([0,1,0, 0,1,0, 0,1,0, 0,1,0]);
 const up = new THREE.Vector3(0, 1, 0);
 
-export function Gun() {
+export function Gun({ optic, attachments }: GunType) {
   const muzzleRef = useRef<THREE.Group>(null!);
   const gunRef = useRef<THREE.Group>(null!);
   const bodyRef = useRef<THREE.Group>(null!);
   const bodyMaterial = useRef<THREE.MeshStandardMaterial>(null!);
 
-  const hasReticle = useGunState(state => state.reticle);
-  const glassColor = useGunState(state => state.glassColor);
-  const { texture: bodyTexture, setFrame: setBodyFrame } = useSpriteSheet(hasReticle ? SMG_BODY_SIGHT : SMG_BODY_STOCK, 128);
-  const { texture: glassTexture, setFrame: setGlassFrame } = useSpriteSheet(SMG_GLASS_REDDOT, 128);
+  const glassColor = optic ? attachments.optics[optic].glassColor : undefined;
+  const { texture: bodyTexture, setFrame: setBodyFrame } = useSpriteSheet(optic ? SMG_BODY_SIGHT : SMG_BODY_STOCK, 3, 1);
+  const { texture: glassTexture, setFrame: setGlassFrame } = useSpriteSheet(SMG_GLASS_REDDOT, 3, 1);
   const { animations } = useGunEvents(muzzleRef);
   
   useFrame((_, dt) => {
@@ -97,11 +96,11 @@ export function Gun() {
           <meshLambertMaterial ref={bodyMaterial} map={bodyTexture} transparent depthTest={false} />
         </mesh>
 
-        {hasReticle && <mesh receiveShadow renderOrder={RenderOrder.GUN_BODY} userData={{ shootThrough: true }}>
+        {optic && <mesh receiveShadow renderOrder={RenderOrder.GUN_BODY} userData={{ shootThrough: true }}>
           <planeGeometry args={[1, 1, 1, 1]}>
             <bufferAttribute attach="attributes-normal" array={normalArray} itemSize={3} />
           </planeGeometry>
-          <meshLambertMaterial  map={glassTexture} color={glassColor} transparent depthTest={false}/>
+          <meshLambertMaterial map={glassTexture} color={glassColor} transparent depthTest={false}/>
         </mesh>}
 
         <group ref={muzzleRef}>
@@ -110,7 +109,7 @@ export function Gun() {
 
       </group>  
       
-      {hasReticle && <Reticle animations={animations}/>}
-      <IronSight animations={animations}/>
+      {optic && <Reticle optic={attachments.optics[optic]} animations={animations}/>}
+      <IronSight hasOptic={optic !== null} animations={animations}/>
     </group>
 )}

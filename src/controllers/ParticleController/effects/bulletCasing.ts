@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { Vector3Object } from '@react-three/rapier'
 import { Bezier, ColorOverLife, ConeEmitter, ConstantValue, Gradient, IntervalValue, ParticleSystem, PiecewiseBezier, RandomColorBetweenGradient, RenderMode, SizeOverLife } from 'three.quarks'
+import { randomFloat } from '../../../helpers'
 
 const muzzleTexture = new THREE.TextureLoader().load("casing.png", texture => {
   texture.minFilter = texture.magFilter = THREE.NearestFilter;
@@ -22,7 +23,7 @@ const initialPosition = new THREE.Vector3();
 
 export const bulletCasing = (position: THREE.Vector3, normal = DEFAULT_NORMAL, velocity: Vector3Object) => {
   velocityCompensate.set(velocity!.x / VELOCITY_COMPENSATE, velocity!.y / VELOCITY_COMPENSATE, velocity!.z / VELOCITY_COMPENSATE);
-  const size = 0.2 + Math.random() * 2.5;
+  const size = randomFloat(0.2, 2.7);
 
   const casing = new ParticleSystem({
     prewarm: true,

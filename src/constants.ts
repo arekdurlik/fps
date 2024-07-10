@@ -1,3 +1,4 @@
+import { PointLight } from 'three'
 
 // BULLETHOLES: -199 - MAX_BULLETHOLES
 export enum RenderOrder {
@@ -18,3 +19,7 @@ export const PLAYER_INPUT_FPS = 60;
 export const PARTICLES_FPS = 60;
 export const BULLET_SPREAD_FPS = 30;
 
+export enum EquipmentType {
+  NONE = 'NONE',
+  GUN = 'GUN'
+}

@@ -1,9 +1,16 @@
 export const WEAPONS_DATA = {
-  'smg':  {
+  'NONE': {
+    equipTime: 200,
+    unequipTime: 200
+  },
+  'SMG':  {
     damage: 10,
     rateOfFire: 95,
     magCapacity: 2500,
     weight: 1,
+
+    equipTime: 500,
+    unequipTime: 500,
 
     recoilXMin: -0.00055,
     recoilXMax: 0.0005,
@@ -35,7 +42,7 @@ export const WEAPONS_DATA = {
   },
 }
 
-export const SMG_PARAMS = WEAPONS_DATA.smg.renderParams;
+export const SMG_PARAMS = WEAPONS_DATA.SMG.renderParams;
 
 export const SMG_BODY_STOCK = SMG_PARAMS.stock.body;
 export const SMG_BODY_SIGHT = SMG_PARAMS.reddot.body;

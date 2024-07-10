@@ -4,12 +4,12 @@ import * as THREE from 'three'
 import { useEffect, useRef } from "react"
 import { CapsuleCollider, interactionGroups, RigidBody } from "@react-three/rapier"
 import { PerspectiveCamera } from '@react-three/drei'
-import { Gun } from '../Gun'
 import { useFrame } from '@react-three/fiber'
 import { usePlayerEvents } from './events'
 import { GameState } from '../../../state/gameState'
 import { PlayerState } from '../../../state/playerState'
 import { Collisions } from '../../../constants'
+import { Equipment } from '../Equipment'
 
 const PLAYER_HEIGHT = 0.5;
 
@@ -21,6 +21,7 @@ export function Player() {
 
   useEffect(() => {
     GameState.setCamera(camera.current);
+    camera.current.setFocalLength(15);
     PlayerState.setPlayer(ref);
   }, [ref, camera]);
 
@@ -37,7 +38,7 @@ export function Player() {
     <RigidBody colliders={false} ref={ref} name='player' enabledRotations={[false, false, false]} canSleep={false}>
       <group ref={cameraWrapper}>
         <PerspectiveCamera makeDefault ref={camera}>
-          <Gun/>
+          <Equipment/>
         </PerspectiveCamera>
       </group>
       <CapsuleCollider args={[0.5, 0.2]} collisionGroups={interactionGroups(Collisions.PLAYER, [Collisions.WORLD])}/>

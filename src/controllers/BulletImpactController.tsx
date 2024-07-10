@@ -1,13 +1,13 @@
 import { useThree } from '@react-three/fiber'
 import { WorldState, WorldSubject } from '../state/worldState'
 import { useEffect } from 'react'
-import { GunState, GunSubject, ShotFiredData } from '../state/gunState'
+import { EquipmentState, EquipmentSubject, ShotFiredData } from '../state/equipmentState'
 
 export function BulletImpactController() {
   const { raycaster, scene } = useThree();
 
   useEffect(() => {
-    const unsubscribe = GunState.subscribe(GunSubject.SHOT_FIRED, handleShotFired)
+    const unsubscribe = EquipmentState.subscribe(EquipmentSubject.SHOT_FIRED, handleShotFired)
     return () => unsubscribe();
   }, []);
 

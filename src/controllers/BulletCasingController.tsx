@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef } from 'react'
-import { GunState, GunSubject, ShotFiredData } from '../state/gunState'
 import { InstancedRigidBodies, InstancedRigidBodyProps, interactionGroups, RapierRigidBody } from '@react-three/rapier'
 import { BoxGeometry, InstancedMesh,  Vector3 } from 'three'
 import { playSound } from '../utils'
 import { Collisions } from '../constants'
+import { EquipmentState, EquipmentSubject, ShotFiredData } from '../state/equipmentState'
 
 const COUNT = 5;
 const RIGHT_OFFSET = 0.15;
@@ -35,7 +35,7 @@ export function BulletCasingController() {
 
   useEffect(() => {
     ref.current.visible = false;
-    const unsubscribe = GunState.subscribe(GunSubject.SHOT_FIRED, spawnCasing);
+    const unsubscribe = EquipmentState.subscribe(EquipmentSubject.SHOT_FIRED, spawnCasing);
     return () => unsubscribe();
   }, []);
 

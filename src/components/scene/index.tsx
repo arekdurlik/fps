@@ -1,15 +1,14 @@
 import * as THREE from 'three'
-import { useRef } from 'react'
 import { Ground } from './Ground'
 import { Box } from './Box'
-import { Player } from '../player/Player'
 import { Sky } from '@react-three/drei'
 import { Barrel } from './Barrel'
 
 export function Scene() {
+  
   return <>
     <Sky sunPosition={[0, -20, 0]} /> 
-    <ambientLight intensity={0.02}/>
+    <ambientLight intensity={0.1}/>
     <fog attach="fog" args={['#181513', 0, 20]}/>
     <mesh>
       <sphereGeometry args={[100, 2, 2]}/>
@@ -23,7 +22,7 @@ export function Scene() {
       <Box position={[2.5, 0.25, -2.5]} rotation={[0, Math.PI / 4, 0]} scale={0.5}/>
       <Box position={[2.5, 0.5, -4.5]}/>
       <Box position={[2.5, 0.5, -7.5]}/>
-      <Player />
+      
       <mesh castShadow receiveShadow position={[1, 0, -4]} scale={[2, 2, 2]} userData={{ material: 'concrete' }}>
         <boxGeometry args={[0.2, 4, 2]}/>
         <meshStandardMaterial color='#fff'/>

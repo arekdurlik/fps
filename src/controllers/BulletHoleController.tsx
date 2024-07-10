@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react'
 import { useNearestFilterTexture } from '../hooks/useNearestFilterTexture'
 import * as THREE from 'three'
-import { invlerp, randomNumber } from '../helpers'
+import { invlerp, randomFloat } from '../helpers'
 import { DecalGeometry } from 'three/examples/jsm/Addons.js'
 import { BulletImpactData, WorldState, WorldSubject } from '../state/worldState'
 import { RenderOrder } from '../constants'
 
-const MAX_BULLETHOLES = 100;
+const MAX_BULLETHOLES = 50;
 let renderOrderIndex = RenderOrder.BULLETHOLES;
 
 const up = new THREE.Vector3(0, 0, 1);
@@ -39,9 +39,9 @@ export function BulletHoleController() {
     quaternion.setFromUnitVectors(up, normal);
     orientation.setFromQuaternion(quaternion);
 
-    const scale = randomNumber(0.85, 1.05);
-    const w = randomNumber(0.0975, 0.125) * scale;
-    const h = randomNumber(0.0975, 0.125) * scale;
+    const scale = randomFloat(0.85, 1.05);
+    const w = randomFloat(0.0975, 0.125) * scale;
+    const h = randomFloat(0.0975, 0.125) * scale;
     const decalGeometry = new DecalGeometry(object as THREE.Mesh, position, orientation, new THREE.Vector3(w, h, 0.1));
     const mesh = new THREE.Mesh(decalGeometry, mat.clone());
 

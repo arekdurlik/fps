@@ -2,9 +2,10 @@ import { easings, useSpring } from '@react-spring/three'
 import { useMouseVelocity } from '../../../hooks/useMouseVelocity'
 import { clamp } from 'three/src/math/MathUtils.js'
 import { Debug } from '../../../state/debugState'
-import { GunState, ShotFiredData, useGunState } from '../../../state/gunState'
 import { PlayerState } from '../../../state/playerState'
 import { SMG_IRONSIGHT_ZOOM, SMG_REDDOT_ZOOM } from '../../../data'
+import { randomFloat } from '../../../helpers'
+import { EquipmentState, ShotFiredData } from '../../../state/equipmentState'
 
 export type GunAnimations = ReturnType<typeof useGunAnimations>;
 
@@ -113,7 +114,7 @@ export function useGunAnimations() {
       config: { duration: 70, easing: easings.steps(1), round: 1 }
     });
     zoomSpring.start({
-      zoom: useGunState.getState().reticle ? SMG_REDDOT_ZOOM : SMG_IRONSIGHT_ZOOM
+      zoom: EquipmentState.equipped.optic ? SMG_REDDOT_ZOOM : SMG_IRONSIGHT_ZOOM
     });
   }
   
@@ -138,7 +139,7 @@ export function useGunAnimations() {
     
     shootSpring.start({
       to: [
-        { ...(muzzleFlash && { muzzleflash: 0.5 + Math.random() * 0.2, config: { duration: 0 }})},
+        { ...(muzzleFlash && { muzzleflash: randomFloat(0.5, 0.7), config: { duration: 0 }})},
         { ...(muzzleFlash && { muzzleflash: 0, config: { duration: 25 } })},
         { knockback, recoilX, recoilY, kickX, kickY, config: { duration: 20 }},
         { knockback: 0, recoilX: 0, recoilY: 0, kickX: 0, kickY: 0, config: { duration: 150 }}
@@ -193,7 +194,7 @@ export function useGunAnimations() {
   }
 
   function reloadEnd() {
-    GunState.reloadEnd();
+    EquipmentState.reloadEnd();
     
     reloadSpring.stop();
     reloadSpring.start({ reloadX: 0, reloadY: 0, config: { duration: 200 }, onResolve(result) {

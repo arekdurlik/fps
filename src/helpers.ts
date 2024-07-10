@@ -49,6 +49,10 @@ export function rangeInvlerp(range: number[], value: number) {
   return invlerp(range[0], range[1], value);
 }
 
-export function randomNumber(min: number, max: number) {
+export function randomFloat(min: number, max: number) {
   return Math.random() * (max - min) + min;
+}
+
+export function randomInt(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
 }

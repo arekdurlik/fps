@@ -2,18 +2,16 @@ import * as THREE from 'three'
 import { GunAnimations } from './animations'
 import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { useSpriteSheet } from '../../../hooks/useSpriteSheet'
-import { useGunState } from '../../../state/gunState'
 import { SMG_PARAMS } from '../../../data'
 import { RenderOrder } from '../../../constants'
 import { PlayerState } from '../../../state/playerState'
+import { useNearestFilterTexture } from '../../../hooks/useNearestFilterTexture'
 const normalArray = new Uint8Array([0,1,0, 0,1,0, 0,1,0, 0,1,0]); 
 
-export function IronSight({ animations }: { animations: GunAnimations } ) {
+export function IronSight({ animations, hasOptic }: { animations: GunAnimations, hasOptic: boolean } ) {
   const ref = useRef<THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>>(null!);
-  const hasReticle = useGunState(state => state.reticle);
-  const renderParams = hasReticle ? SMG_PARAMS.reddot : SMG_PARAMS.stock;
-  const { texture } = useSpriteSheet(renderParams.ironsight, 64, 64, 0);
+  const renderParams = hasOptic ? SMG_PARAMS.reddot : SMG_PARAMS.stock;
+  const texture = useNearestFilterTexture(renderParams.ironsight);
   
   useFrame(() => {
     const sight = ref.current;

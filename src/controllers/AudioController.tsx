@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import * as THREE from 'three'
 import { BulletImpactData, WorldState, WorldSubject } from '../state/worldState'
 import { GameState } from '../state/gameState'
+import { randomFloat } from '../helpers'
 
 const listener = new THREE.AudioListener();
 const audioLoader = new THREE.AudioLoader();
@@ -11,18 +12,14 @@ export function AudioController() {
   const { scene } = useThree();
 
   useEffect(() => {
-    if (!GameState.camera) return;
-
     GameState.camera.add(listener);
-
 
     const unsubscribe = WorldState.subscribe(WorldSubject.BULLET_IMPACT, handleImpact)
     return () => unsubscribe();
-  }, [GameState.camera]);
+  }, []);
 
   function handleImpact({ object, position }: BulletImpactData) {
     
-
     const material = object?.userData.material;
     
     switch (material) {
@@ -47,7 +44,7 @@ export function AudioController() {
       sound.setBuffer(buffer);
       sound.setVolume(volume);
       sound.setRefDistance(3);
-      sound.playbackRate = playbackRate + Math.random() * 0.1;
+      sound.playbackRate = randomFloat(playbackRate, playbackRate + 0.1); 
       sound.play();
     });
     

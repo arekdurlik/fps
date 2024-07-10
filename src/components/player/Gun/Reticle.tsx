@@ -2,16 +2,13 @@ import * as THREE from 'three'
 import { GunAnimations } from './animations'
 import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { useGunState } from '../../../state/gunState'
 import { useSpriteSheet } from '../../../hooks/useSpriteSheet'
 import { PlayerState } from '../../../state/playerState'
+import { GunOpticObject } from '../../../config/gunAttachments'
 
-export function Reticle({ animations }: { animations: GunAnimations } ) {
+export function Reticle({ animations, optic }: { animations: GunAnimations, optic: GunOpticObject } ) {
   const ref = useRef<THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>>(null!);
-  const reticleOpacity = useGunState(state => state.reticleOpacity);
-  const reticleShape = useGunState(state => state.reticleShape);
-  const reticleColor = useGunState(state => state.reticleColor);
-  const { texture } = useSpriteSheet('guns/reticles.png', 40, 40, reticleShape);
+  const { texture } = useSpriteSheet('guns/reticles.png', 4, 8, optic.reticleShape);
   
   useFrame(() => {
     const reticle = ref.current;
@@ -38,7 +35,7 @@ export function Reticle({ animations }: { animations: GunAnimations } ) {
     
     const scale = animations.frame === 1 ? 0.6 : 1;
     reticle.scale.set(scale, scale, scale);
-    reticle.material.opacity = animations.frame === 1 ? reticleOpacity * 0.2 : reticleOpacity;
+    reticle.material.opacity = animations.frame === 1 ? optic.reticleOpacity * 0.2 : optic.reticleOpacity;
 
     reticle.updateMatrix();
   });
@@ -47,6 +44,6 @@ export function Reticle({ animations }: { animations: GunAnimations } ) {
 
   return <mesh ref={ref} matrixAutoUpdate={false} matrixWorldAutoUpdate={false} userData={{ shootThrough: true }}>
     <planeGeometry args={[1/13, 1/13, 1, 1]} />
-    <meshBasicMaterial map={texture} color={reticleColor} transparent depthTest={false}/>
+    <meshBasicMaterial map={texture} color={optic.reticleColor} transparent depthTest={false}/>
   </mesh>
 }

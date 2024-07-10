@@ -9,6 +9,7 @@ export function LoadingScreen() {
   useEffect(() => {
     setItems(items => [ ...items, item ]);
   }, [item]);
+  
   return <Html center>
     <Text>{items.map((item, i) => <Line key={i}>{item}</Line>)}</Text>
   </Html>

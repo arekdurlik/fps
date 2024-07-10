@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
 import { PlayerState, PlayerSubject } from '../../../state/playerState'
-import { GunState, GunSubject } from '../../../state/gunState'
 import { NotifyData } from '../../../types'
 import { usePlayerAnimations } from './animations'
 import { playSound } from '../../../utils'
+import { EquipmentState, EquipmentSubject } from '../../../state/equipmentState'
 
 export function usePlayerEvents() {
   const animations = usePlayerAnimations();
@@ -15,7 +15,8 @@ export function usePlayerEvents() {
     const walkR = () => playSound('walkR', 0.2);
     const runL = (data: NotifyData) => playSound('walkL', data.firstStep ? 0.2 : 0.4);
     const runR = () => playSound('walkR', 0.4);
-    const reloadBegin = () => PlayerState.setCanShoot(false);
+    const canShoot = () => PlayerState.setCanShoot(true);
+    const cantShoot = () => PlayerState.setCanShoot(false);
 
     const playerUnsubscribe = PlayerState.subscribeMany([
       [PlayerSubject.WALK_STEP_LEFT, walkL],
@@ -35,9 +36,11 @@ export function usePlayerEvents() {
       [PlayerSubject.AIM_END, animations.aimEnd],
     ]);
     
-    const gunUnsubscribe = GunState.subscribeMany([
-      [GunSubject.SHOT_FIRED, animations.shoot],
-      [GunSubject.RELOAD_BEGIN, reloadBegin],
+    const gunUnsubscribe = EquipmentState.subscribeMany([
+      [EquipmentSubject.SHOT_FIRED, animations.shoot],
+      [EquipmentSubject.RELOAD_BEGIN, cantShoot],
+      [EquipmentSubject.EQUIP_BEGIN, cantShoot],
+      [EquipmentSubject.EQUIP_END, canShoot],
     ]);
     
     return () => {
