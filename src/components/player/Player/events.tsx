@@ -1,19 +1,20 @@
 import { useEffect } from 'react'
-import { PlayerState, PlayerSubject } from '../../../state/playerState'
-import { NotifyData } from '../../../types'
 import { usePlayerAnimations } from './animations'
 import { playSound } from '../../../utils'
-import { EquipmentState, EquipmentSubject } from '../../../state/equipmentState'
+import { EquipmentState } from '../../../state/equipmentState'
+import { EquipmentSubject } from '../../../state/equipmentState/types'
+import { JumpBeginData, PlayerSubject, RunStepLeftData } from '../../../state/playerState/types'
+import { PlayerState } from '../../../state/playerState'
 
 export function usePlayerEvents() {
   const animations = usePlayerAnimations();
   
   useEffect(() => {
-    const jump = (data: NotifyData) => !data.fall && playSound('jump');
+    const jump = (data: JumpBeginData) => !data?.fall && playSound('jump');
     const land = () => playSound('land', 0.7);
     const walkL = () => playSound('walkL', 0.2);
     const walkR = () => playSound('walkR', 0.2);
-    const runL = (data: NotifyData) => playSound('walkL', data.firstStep ? 0.2 : 0.4);
+    const runL = ({ firstStep }: RunStepLeftData) => { playSound('walkL', firstStep ? 0.2 : 0.4) };
     const runR = () => playSound('walkR', 0.4);
     const canShoot = () => PlayerState.setCanShoot(true);
     const cantShoot = () => PlayerState.setCanShoot(false);
@@ -36,7 +37,7 @@ export function usePlayerEvents() {
       [PlayerSubject.AIM_END, animations.aimEnd],
     ]);
     
-    const gunUnsubscribe = EquipmentState.subscribeMany([
+    const eqUnsubscribe = EquipmentState.subscribeMany([
       [EquipmentSubject.SHOT_FIRED, animations.shoot],
       [EquipmentSubject.RELOAD_BEGIN, cantShoot],
       [EquipmentSubject.EQUIP_BEGIN, cantShoot],
@@ -45,7 +46,7 @@ export function usePlayerEvents() {
     
     return () => {
       playerUnsubscribe();
-      gunUnsubscribe();
+      eqUnsubscribe();
     }
   }, []);
 

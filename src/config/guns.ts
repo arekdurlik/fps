@@ -1,14 +1,14 @@
 import { EquipmentType } from '../constants'
 import { defaultReflex, GunOptic, GunOptics } from './gunAttachments'
 
-export enum GunType {
+export enum GunName {
   NONE = 'NONE',
   SMG = 'SMG'
 }
 
 export type Gun = {
-  item: GunType,
   type: EquipmentType.GUN,
+  itemName: GunName,
   roundsLeft: number,
   roundsPerMag: number,
   ammo: number,
@@ -18,13 +18,19 @@ export type Gun = {
   attachments: {
     optics: GunOptics
   }
-}
+} 
 
-export type EquipmentItem = { type: EquipmentType.NONE, item: GunType.NONE } | Gun;
+export type None = { 
+  type: EquipmentType.NONE,
+  itemName: GunName.NONE 
+};
+
+export type EquipmentItem = None | Gun;
 
 export const defaultSmg: Gun = {
   type: EquipmentType.GUN,
-  item: GunType.SMG,
+  itemName: GunName.SMG,
+  
   roundsPerMag: 25,
   roundsLeft: 25,
   ammo: 25 * 4,

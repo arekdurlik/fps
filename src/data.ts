@@ -1,7 +1,9 @@
+export type GunData = typeof WEAPONS_DATA.SMG;
+
 export const WEAPONS_DATA = {
   'NONE': {
-    equipTime: 200,
-    unequipTime: 200
+    equipTime: 0,
+    unequipTime: 0
   },
   'SMG':  {
     damage: 10,

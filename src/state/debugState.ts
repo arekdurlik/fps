@@ -1,22 +1,7 @@
 import { create } from 'zustand'
 
-type DebugState = {
-  filters: Filters
-  setFilter: (filter: Filter, value: boolean) => void
-  commands: { text: string, type: Filter, color: string }[]
-  clearCommands: () => void
-};
-
 type Filters = { [key: string]: boolean };
 export type Filter = keyof typeof initialFilters;
-
-const initialFilters = {
-  error: true, 
-  playerEnterState: false, 
-  playerLeaveState: false, 
-  playerAnimation: false, 
-  gunAnimation: false 
-};
 
 export const Debug = {
   log(text: string, type = 'default' as Filter, color = '#ddd') {
@@ -32,6 +17,21 @@ export const Debug = {
     useDebugState.setState({ commands });
   },
   clear: () => useDebugState.setState({ commands: [] })
+};
+
+type DebugState = {
+  filters: Filters
+  setFilter: (filter: Filter, value: boolean) => void
+  commands: { text: string, type: Filter, color: string }[]
+  clearCommands: () => void
+};
+
+const initialFilters = {
+  error: true, 
+  playerEnterState: false, 
+  playerLeaveState: false, 
+  playerAnimation: false, 
+  gunAnimation: false 
 };
 
 export const useDebugState = create<DebugState>((set, get) => ({

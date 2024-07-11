@@ -1,43 +1,33 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-//@ts-nocheck
 import { useControls } from 'leva'
+import { GunState } from '../../../state/equipmentState/gunState'
 import { useEffect } from 'react'
-import { useGunState } from '../../../state/gunState'
-
-const STEP = 0.00001;
-const PAD = 5;
 
 export function GunParams() {
-  /* const gun = useGunState();
-
   const reticle = useControls('Reticle', {
     reticleOpacity: { value: 1, min: 0, max: 1 },
-    reticleShape: { value: gun.reticleShape, step: 1, min: 0, max: 31 },
-    reticleColor: { value: gun.reticleColor },
-    glassColor: { value: gun.glassColor }
+    reticleShape: { value: 0, step: 1, min: 0, max: 31 },
+    reticleColor: { value: '#ff0000' },
+    glassColor: { value: '#779955' }
   });
+
 
   useEffect(() => {
     window.addEventListener('wheel', (e: WheelEvent) => {
+      const current = GunState.getActiveOpticParameters();
+
+      if (!current) return;
+
       if (e.deltaY < 0) {
-        gun.setValue('reticleOpacity', (useGunState.getState().reticleOpacity + 0.25 > 1 ? 0.25 : useGunState.getState().reticleOpacity + 0.25));
+        GunState.setActiveOpticParameters({ ...current, reticleOpacity: current.reticleOpacity + 0.25 > 1 ? 0.25 : current.reticleOpacity + 0.25 });
       } else {
-        gun.setValue('reticleShape', (gun.reticleShape++));
+        GunState.setActiveOpticParameters({ ...current, reticleShape: current.reticleShape + 1 });
       }
     })
   }, []);
 
   useEffect(() => {
-    Object.keys(params).forEach(param => {
-      // @ts-expect-error testing only
-      gun.setValue(param, params[param as keyof typeof params]);
-    })
-    
-    Object.keys(reticle).forEach(param => {
-      // @ts-expect-error testing only
-      gun.setValue(param, reticle[param as keyof typeof reticle]);
-    })
-  }, [params, reticle]) */
+    GunState.setActiveOpticParameters(reticle);
+  }, [reticle])
 
   return null;
 }

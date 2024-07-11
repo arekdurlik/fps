@@ -40,8 +40,6 @@ export function Reticle({ animations, optic }: { animations: GunAnimations, opti
     reticle.updateMatrix();
   });
 
-
-
   return <mesh ref={ref} matrixAutoUpdate={false} matrixWorldAutoUpdate={false} userData={{ shootThrough: true }}>
     <planeGeometry args={[1/13, 1/13, 1, 1]} />
     <meshBasicMaterial map={texture} color={optic.reticleColor} transparent depthTest={false}/>

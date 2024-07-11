@@ -9,10 +9,9 @@ export function Controllers() {
   return <>
     <BulletImpactController/>
     <BulletHoleController/>
-    
+    <BulletCasingController/>
     <ParticleController/>
     <PlayerController/>
-    <BulletCasingController/>
     <AudioController/>
   </>
 }

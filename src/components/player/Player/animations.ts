@@ -1,7 +1,8 @@
 import { useSpring } from '@react-spring/three'
 import { Debug } from '../../../state/debugState'
-import { PlayerState, PlayerSubject } from '../../../state/playerState'
-import { EquipmentState } from '../../../state/equipmentState'
+import { PlayerState } from '../../../state/playerState'
+import { GunState } from '../../../state/equipmentState/gunState'
+import { PlayerSubject } from '../../../state/playerState/types'
 
 let timeoutId: NodeJS.Timeout;
 
@@ -13,7 +14,7 @@ export function usePlayerAnimations() {
     Debug.log('Player animation: Idle', 'playerAnimation');
 
     timeoutId = setTimeout(() => {
-      !EquipmentState.reloading && PlayerState.setCanShoot();
+      !GunState.reloading && PlayerState.setCanShoot();
     }, 200);
 
     spring.stop();
@@ -24,7 +25,7 @@ export function usePlayerAnimations() {
     Debug.log('Player animation: Walk', 'playerAnimation');
 
     timeoutId = setTimeout(() => {
-      !EquipmentState.reloading && PlayerState.setCanShoot();
+      !GunState.reloading && PlayerState.setCanShoot();
     }, 200)
 
     spring.stop();

@@ -3,7 +3,7 @@ import { GunAnimations } from './animations'
 import { useLightsContext } from '../../../contexts/LightsContext'
 
 export function MuzzleFlash({ animations }: { animations: GunAnimations }) {
-  const { muzzleFlashLight } = useLightsContext()
+  const { muzzleFlashLight } = useLightsContext();
 
   useFrame(() => {
     muzzleFlashLight.intensity = animations.muzzleflash;

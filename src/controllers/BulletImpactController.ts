@@ -1,7 +1,9 @@
 import { useThree } from '@react-three/fiber'
-import { WorldState, WorldSubject } from '../state/worldState'
 import { useEffect } from 'react'
-import { EquipmentState, EquipmentSubject, ShotFiredData } from '../state/equipmentState'
+import { EquipmentSubject, ShotFiredData } from '../state/equipmentState/types'
+import { EquipmentState } from '../state/equipmentState'
+import { WorldSubject } from '../state/worldState/types'
+import { WorldState } from '../state/worldState'
 
 export function BulletImpactController() {
   const { raycaster, scene } = useThree();
@@ -32,5 +34,5 @@ export function BulletImpactController() {
     }
   }
 
-  return <></>
+  return null;
 }

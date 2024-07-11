@@ -50,13 +50,13 @@ export const bulletCasing = (position: THREE.Vector3, normal = DEFAULT_NORMAL, v
     autoDestroy: true,
     emissionBursts: [{
       time: 0,
-      count: new ConstantValue(25),
+      count: new ConstantValue(4),
       cycle: 1,
       interval: 0.01,
       probability: 0.75,
     }],
     renderMode: RenderMode.Mesh,
-    material: new THREE.MeshStandardMaterial({ map: smokeTexture, transparent: true, depthWrite: false }),
+    material: new THREE.MeshStandardMaterial({ map: smokeTexture, emissive: '#777', emissiveIntensity: 0.05, transparent: true, depthWrite: false }),
   });
 
   smoke.addBehavior(new SizeOverLife(new PiecewiseBezier([[new Bezier(0.005, 0.03, 0.1, 0.5), 0]])));

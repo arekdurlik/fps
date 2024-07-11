@@ -1,22 +1,7 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-import { Debug } from './debugState'
-import * as THREE from 'three'
-import { DataParameter, ObserversUnknownData } from './types'
-
-export enum WorldSubject {
-  BULLET_IMPACT = 'BULLET_IMPACT',
-}
-
-/**
-* @param position position of the impact
-* @param normal normal direction of the impacted object's face
-* @param object impacted object
-*/
-export type BulletImpactData = { position: THREE.Vector3, normal: THREE.Vector3, object: THREE.Object3D };
-
-type Observers = ObserversUnknownData<WorldSubject> & { 
-  [WorldSubject.BULLET_IMPACT]: ((data: BulletImpactData) => void)[] 
-};
+import { Debug } from '../debugState'
+import { DataParameter } from '../types'
+import { Observers, WorldSubject } from './types'
 
 //@ts-expect-error Properties from enum WorldSubject missing they're clearly not
 const initObservers: Observers = Object.fromEntries(
@@ -60,7 +45,8 @@ export const WorldState: WorldState = {
 
   notify(subject, data) {
     try {
-      this.observers[subject].forEach(observer => observer(data!));
+      //@ts-expect-error expected 0 arguments
+      this.observers[subject].forEach(observer => observer(data));
     } catch (e) {
       Debug.error(`[World state] Error notifying "${subject}" observers: ${e}`);
     }

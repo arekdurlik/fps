@@ -4,12 +4,14 @@ import { useRef } from 'react'
 import { useThree } from '@react-three/fiber'
 import { useRapier } from '@react-three/rapier'
 import { lerp } from 'three/src/math/MathUtils.js'
-import { PlayerState, PlayerSubject, usePlayerState } from '../state/playerState'
+import { PlayerState, usePlayerState } from '../state/playerState'
 import { useMouseInputRef } from '../hooks/useMouseInput'
 import { useKeyboardInputRef } from '../hooks/useKeyboardInput'
 import { useFixedFrame } from '../hooks/useFixedFrame'
 import { EquipmentType, PLAYER_INPUT_FPS } from '../constants'
 import { EquipmentState } from '../state/equipmentState'
+import { GunState } from '../state/equipmentState/gunState'
+import { PlayerSubject } from '../state/playerState/types'
 
 const PLAYER_SPEED = 40;
 const RUN_MULTIPLIER = 2.2;
@@ -68,10 +70,10 @@ export function PlayerController() {
     
     const grounded = grounded1 || grounded2 || grounded3 || grounded4;
 
-    if (PlayerState.canShoot && EquipmentState.equipped?.type !== EquipmentType.NONE) {
+    if (PlayerState.canShoot && EquipmentState.equipped?.type === EquipmentType.GUN) {
       // fire gun or empty click
       if (lmb) {
-        if (EquipmentState.equipped?.roundsLeft === 0) {
+        if (GunState.equipped.roundsLeft === 0) {
           if (!alreadyTriedToFire.current) {
             alreadyTriedToFire.current = true;
             PlayerState.notify(PlayerSubject.USE_EQUIPMENT);
@@ -82,7 +84,7 @@ export function PlayerController() {
       }
 
       if (r && !shift && !lmb && !rmb) {
-        EquipmentState.reloadBegin();
+        GunState.reloadBegin();
       }
 
       // reset single click on empty mag
@@ -91,7 +93,7 @@ export function PlayerController() {
       }
     }
 
-    if (!EquipmentState.reloading) {
+    if (!GunState.reloading) {
       if (!PlayerState.running && !PlayerState.reloading) {
         // aim
         if (rmb && !PlayerState.aiming) {
@@ -125,7 +127,7 @@ export function PlayerController() {
 
       let speed = PLAYER_SPEED;
       
-      if (!EquipmentState.reloading) {
+      if (!GunState.reloading) {
         // sprint
         if (shift && w && !PlayerState.aiming) {
           speed *= RUN_MULTIPLIER;
@@ -194,7 +196,7 @@ export function PlayerController() {
       || (!PlayerState.jumping && !grounded)) { 
         
         if (space) {
-          if (!EquipmentState.reloading) {
+          if (!GunState.reloading) {
             PlayerState.setJumping(true);
             
             jumpStartTimestamp = Date.now();

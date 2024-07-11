@@ -26,7 +26,7 @@ const REMAINING_LIGHTS = TOTAL_LIGHTS - METAL_HIT_LIGHTS - METAL_HIT_LIGHTS;
 export function LightsContextProvider({ children }: { children: ReactNode }) {
   const [muzzleFlashLights] = useState(new Array(MUZZLE_FLASH_LIGHTS).fill(null).map(() => new THREE.PointLight('#d89c43', 0, 10, 0.7)));
   const [metalHitLights] = useState(new Array(METAL_HIT_LIGHTS).fill(null).map(() => new THREE.PointLight('#d89c43', 0, 10, 0.7)));
-  const [lights] = useState<Lights>(new Array(REMAINING_LIGHTS).fill(null).map(() => new THREE.PointLight('000', 0, 1)));
+  const [lights] = useState<Lights>(new Array(REMAINING_LIGHTS).fill(null).map(() => new THREE.PointLight('#000', 0, 1)));
 
   const { scene } = useThree();
 

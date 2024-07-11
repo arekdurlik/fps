@@ -1,6 +1,5 @@
 import { useThree } from '@react-three/fiber'
 import { useEffect, useRef } from 'react'
-import { BulletImpactData, WorldState, WorldSubject } from '../../state/worldState'
 import { concreteHit } from './effects/concreteHit'
 import { muzzle } from './effects/muzzle'
 import { useFixedFrame } from '../../hooks/useFixedFrame'
@@ -12,8 +11,11 @@ import { BatchedRenderer } from '../../quarks/BatchedRenderer'
 import { preloadVFX } from './utils'
 import { metalHit } from './effects/metalHit'
 import { randomFloat } from '../../helpers'
-import { EquipmentState, EquipmentSubject, ShotFiredData } from '../../state/equipmentState'
 import { useLightsContext } from '../../contexts/LightsContext'
+import { BulletImpactData, WorldSubject } from '../../state/worldState/types'
+import { EquipmentSubject, ShotFiredData } from '../../state/equipmentState/types'
+import { WorldState } from '../../state/worldState'
+import { EquipmentState } from '../../state/equipmentState'
 
 const down = new Vector3(0, -1, 0);
 const batchSystem = new BatchedRenderer();

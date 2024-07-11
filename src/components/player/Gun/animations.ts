@@ -5,7 +5,8 @@ import { Debug } from '../../../state/debugState'
 import { PlayerState } from '../../../state/playerState'
 import { SMG_IRONSIGHT_ZOOM, SMG_REDDOT_ZOOM } from '../../../data'
 import { randomFloat } from '../../../helpers'
-import { EquipmentState, ShotFiredData } from '../../../state/equipmentState'
+import { GunState } from '../../../state/equipmentState/gunState'
+import { ShotFiredData } from '../../../state/equipmentState/types'
 
 export type GunAnimations = ReturnType<typeof useGunAnimations>;
 
@@ -114,7 +115,7 @@ export function useGunAnimations() {
       config: { duration: 70, easing: easings.steps(1), round: 1 }
     });
     zoomSpring.start({
-      zoom: EquipmentState.equipped.optic ? SMG_REDDOT_ZOOM : SMG_IRONSIGHT_ZOOM
+      zoom: GunState.equipped.optic ? SMG_REDDOT_ZOOM : SMG_IRONSIGHT_ZOOM
     });
   }
   
@@ -194,7 +195,7 @@ export function useGunAnimations() {
   }
 
   function reloadEnd() {
-    EquipmentState.reloadEnd();
+    GunState.reloadEnd();
     
     reloadSpring.stop();
     reloadSpring.start({ reloadX: 0, reloadY: 0, config: { duration: 200 }, onResolve(result) {

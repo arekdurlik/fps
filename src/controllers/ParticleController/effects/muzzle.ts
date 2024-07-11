@@ -23,22 +23,22 @@ export const muzzle = (position: THREE.Vector3, direction: THREE.Vector3, veloci
     duration: 0,
     looping: false,
     shape: new ConeEmitter({ radius: 0.025, arc: 6.283185307179586, thickness: 0, angle: 0.1 }),
-    startLife: new IntervalValue(0.2, 2),
+    startLife: new IntervalValue(0.2, 1.5),
     startSpeed: new IntervalValue(0, 1.5),
     startRotation: new IntervalValue(0, 6),
     autoDestroy: true,
     emissionBursts: [{
       time: 0,
-      count: new ConstantValue(5),
+      count: new ConstantValue(1),
       cycle: 1,
       interval: 0.01,
       probability: 0.5,
     }],
     renderMode: RenderMode.Mesh,
-    material: new THREE.MeshStandardMaterial({ map: smokeTexture, transparent: true, depthWrite: false }),
+    material: new THREE.MeshStandardMaterial({ map: smokeTexture, emissive: '#777', emissiveIntensity: 0.05, transparent: true, depthWrite: false }),
   });
 
-  smoke.addBehavior(new SizeOverLife(new PiecewiseBezier([[new Bezier(0.1, 0.3, 0.7, 1), 0]])));
+  smoke.addBehavior(new SizeOverLife(new PiecewiseBezier([[new Bezier(0.05, 0.3, 0.7, 1), 0]])));
   smoke.addBehavior(new ColorOverLife(
     new Gradient([[new THREE.Vector3(SMOKE_COLOR, SMOKE_COLOR, SMOKE_COLOR), 0]], [[0.025, 0], [0.01, 0.5], [0, 1]]),
   ));

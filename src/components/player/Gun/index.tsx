@@ -20,7 +20,7 @@ export function Gun({ optic, attachments }: GunType) {
   const muzzleRef = useRef<THREE.Group>(null!);
   const gunRef = useRef<THREE.Group>(null!);
   const bodyRef = useRef<THREE.Group>(null!);
-  const bodyMaterial = useRef<THREE.MeshStandardMaterial>(null!);
+  const bodyMaterial = useRef<THREE.MeshLambertMaterial>(null!);
 
   const glassColor = optic ? attachments.optics[optic].glassColor : undefined;
   const { texture: bodyTexture, setFrame: setBodyFrame } = useSpriteSheet(optic ? SMG_BODY_SIGHT : SMG_BODY_STOCK, 3, 1);
@@ -89,14 +89,14 @@ export function Gun({ optic, attachments }: GunType) {
     <group ref={gunRef} position={[0, -0.035, -0.165]} scale={0.23} matrixAutoUpdate={false} matrixWorldAutoUpdate={false}>
       <group ref={bodyRef} matrixAutoUpdate={false} matrixWorldAutoUpdate={false}>
 
-        <mesh receiveShadow renderOrder={RenderOrder.GUN_BODY} userData={{ shootThrough: true }}>
+        <mesh renderOrder={RenderOrder.GUN_BODY} userData={{ shootThrough: true }}>
           <planeGeometry args={[1, 1, 1, 1]}>
             <bufferAttribute attach="attributes-normal" array={normalArray} itemSize={3} />
           </planeGeometry>
           <meshLambertMaterial ref={bodyMaterial} map={bodyTexture} transparent depthTest={false} />
         </mesh>
 
-        {optic && <mesh receiveShadow renderOrder={RenderOrder.GUN_BODY} userData={{ shootThrough: true }}>
+        {optic && <mesh renderOrder={RenderOrder.GUN_BODY} userData={{ shootThrough: true }}>
           <planeGeometry args={[1, 1, 1, 1]}>
             <bufferAttribute attach="attributes-normal" array={normalArray} itemSize={3} />
           </planeGeometry>

@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { RefObject, useEffect, useRef } from 'react'
-import { PlayerState, PlayerSubject } from '../../../state/playerState'
+import { PlayerState } from '../../../state/playerState'
 import { useGunAnimations } from './animations'
 import { playSound } from '../../../utils'
 import { BULLET_SPREAD_FPS } from '../../../constants'
@@ -8,8 +8,11 @@ import { useFixedFrame } from '../../../hooks/useFixedFrame'
 import { lerp } from 'three/src/math/MathUtils.js'
 import { randomFloat } from '../../../helpers'
 import { GameState } from '../../../state/gameState'
-import { EquipmentState, EquipmentSubject, useEquipmentState } from '../../../state/equipmentState'
-import { WEAPONS_DATA } from '../../../data'
+import { EquipmentState, useEquipmentState} from '../../../state/equipmentState'
+import { GunData, WEAPONS_DATA } from '../../../data'
+import { GunState } from '../../../state/equipmentState/gunState'
+import { PlayerSubject } from '../../../state/playerState/types'
+import { EquipmentSubject } from '../../../state/equipmentState/types'
 
 const MAX_SPREAD = 0.4;
 const HIP_BASE_SPREAD = 0.01;
@@ -17,8 +20,7 @@ const HIP_SPREAD_MULT = 2;
 const spreadVec = new THREE.Vector3();
 
 export function useGunEvents(muzzleRef: RefObject<THREE.Group>) {
-  const { computed } = useEquipmentState();
-  const gunData = WEAPONS_DATA[computed.equipped.item];
+  const gunData = WEAPONS_DATA[GunState.equipped.itemName] as GunData;
   const animations = useGunAnimations();
   const lastShotTimestamp = useRef(0);
   const spreadMult = useRef(0);
@@ -46,14 +48,14 @@ export function useGunEvents(muzzleRef: RefObject<THREE.Group>) {
       [PlayerSubject.USE_EQUIPMENT, tryShoot],
     ]);
     
-    const gunUnsubscribe = EquipmentState.subscribeMany([
+    const eqUnsubscribe = EquipmentState.subscribeMany([
       [EquipmentSubject.RELOAD_BEGIN, animations.reloadBegin],
       [EquipmentSubject.MAGAZINE_EMPTY, handleEmptyShotFired]
     ]);
     
     return () => {
       playerUnsubscribe();
-      gunUnsubscribe();
+      eqUnsubscribe();
     };
   }, []);
 
@@ -68,7 +70,7 @@ export function useGunEvents(muzzleRef: RefObject<THREE.Group>) {
   function tryShoot() {
     if (Date.now() - lastShotTimestamp.current < gunData.rateOfFire) return;
 
-    if (computed.equipped.roundsLeft && computed.equipped.roundsLeft === 0) {
+    if (GunState.equipped.roundsLeft === 0) {
       EquipmentState.notify(EquipmentSubject.MAGAZINE_EMPTY);
     } else {
       handleShotFired();
@@ -77,7 +79,7 @@ export function useGunEvents(muzzleRef: RefObject<THREE.Group>) {
   
   function handleShotFired() {
     lastShotTimestamp.current = Date.now();
-    EquipmentState.decreaseAmmoInMag();
+    GunState.decreaseAmmoInMag();
 
     const aiming = PlayerState.aiming;
     

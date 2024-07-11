@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { InstancedRigidBodies, InstancedRigidBodyProps, interactionGroups, RapierRigidBody } from '@react-three/rapier'
 import { BoxGeometry, InstancedMesh,  Vector3 } from 'three'
-import { playSound } from '../utils'
 import { Collisions } from '../constants'
-import { EquipmentState, EquipmentSubject, ShotFiredData } from '../state/equipmentState'
+import { EquipmentSubject, ShotFiredData } from '../state/equipmentState/types'
+import { EquipmentState } from '../state/equipmentState'
+import { WorldState } from '../state/worldState'
+import { WorldSubject } from '../state/worldState/types'
 
-const COUNT = 5;
+const COUNT = 10;
 const RIGHT_OFFSET = 0.15;
 
 let casingIndex = 0;
@@ -15,7 +17,6 @@ const initialPosition = new Vector3();
 
 /**
 * Invisible, physically simulated bullet casings that play audio on collision.
-* TODO: Add positional audio
 */
 export function BulletCasingController() {
   const ref = useRef<InstancedMesh>(null!)
@@ -69,7 +70,9 @@ export function BulletCasingController() {
       colliders="cuboid"
       mass={0}
       restitution={0.001}
-      onCollisionEnter={() => playSound('casing', 0.05 + Math.random() * 0.2)}
+      onCollisionEnter={(e) => {
+        WorldState.notify(WorldSubject.BULLET_CASING_COLLISION, { position: e.manifold.solverContactPoint(0), id: e.target.colliderObject!.id })
+      }}
       collisionGroups={interactionGroups(Collisions.BULLET_CASING, [Collisions.WORLD])}
     >
       <instancedMesh 

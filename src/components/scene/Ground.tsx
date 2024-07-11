@@ -11,8 +11,8 @@ export function Ground() {
   });
 
   return (
-    <RigidBody type="fixed" colliders={false}>
-      <mesh receiveShadow position={[0, 0, 0]} rotation-x={-Math.PI / 2} userData={{ material: 'concrete' }}>
+    <RigidBody type="fixed" colliders={false} userData={{ material: 'concrete' }}>
+      <mesh position={[0, 0, 0]} rotation-x={-Math.PI / 2} userData={{ material: 'concrete' }}>
         <planeGeometry args={[100, 100]} />
         <meshStandardMaterial color="#fff" map={grid}/>
       </mesh>
