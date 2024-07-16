@@ -11,9 +11,11 @@ export function PreloadAssets() {
   useNextTickTexture('guns/reticles.png');
   useNextTickTexture('guns/smg/body_stock.png');
   useNextTickTexture('guns/smg/body_reddot.png');
+  useNextTickTexture('guns/smg/body_acog.png');
   useNextTickTexture('guns/smg/ironsight_stock.png');
-  useNextTickTexture('guns/smg/ironsight_reddot.png');
+  useNextTickTexture('guns/smg/ironsight_optic.png');
   useNextTickTexture('guns/smg/glass.png');
+  useNextTickTexture('guns/smg/glass_acog.png');
 
   // preload bulletholes
   function preloadBulletholes() {

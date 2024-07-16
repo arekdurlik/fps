@@ -85,8 +85,11 @@ export function useGunEvents(muzzleRef: RefObject<THREE.Group>) {
     
     const recoilX = randomFloat(gunData.recoilXMin, gunData.recoilXMax);
     const recoilY = randomFloat(gunData.recoilYMin, gunData.recoilYMax);
-    const kickX = randomFloat(gunData.kickXMin, gunData.kickXMax);
-    const kickY = randomFloat(gunData.kickYMin, gunData.kickYMax);
+    const xDir = Math.random() > 0.5 ? -1 : 1;
+    const kickX = randomFloat(gunData.kickXMin * xDir, gunData.kickXMax * xDir);
+
+    const yDir = Math.random() > 0.5 ? -1 : 1;
+    const kickY = randomFloat(gunData.kickYMin * yDir, gunData.kickYMax * yDir);
     
     const baseSpread = aiming ? 0 : HIP_BASE_SPREAD;
     const mult = aiming ? spreadMult.current : spreadMult.current * HIP_SPREAD_MULT;

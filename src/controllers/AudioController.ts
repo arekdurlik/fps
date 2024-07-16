@@ -10,7 +10,7 @@ const listener = new THREE.AudioListener();
 const audioLoader = new THREE.AudioLoader();
 const bulletCasingMap = new Map<number, { volume: number, timestamp: number }>();
 const CASING_VOLUME_COOLDOWN = 1000;
-const CASING_START_VOLUME = 0.05;
+const CASING_START_VOLUME = 0.2;
 
 export function AudioController() {
   const { scene } = useThree();
@@ -32,21 +32,19 @@ export function AudioController() {
     switch (material) {
       case 'concrete': {
         const sound = Math.random() > 0.5 ? '01' : '02';
-        playSound(`audio/bullet_impact/concrete_${sound}.mp3`, position, 0.05, 1, 1.1);
+        playSound(`audio/bullet_impact/concrete_${sound}.mp3`, position, 0.15, 1, 1.1);
         break;
       }
       case 'metal':{
         const sound = Math.random() > 0.5 ? '01' : '02';
-        playSound(`audio/bullet_impact/metal_${sound}.mp3`, position, 0.05, 1.4, 1.5);
+        playSound(`audio/bullet_impact/metal_${sound}.mp3`, position, 0.2, 1.4, 1.5);
         break;
       }
       default: return;
     }
   }
 
-  /**
-   * lower volume of bullet cases with each collision
-   */
+  // lower volume of bullet cases with each collision
   function handleCasingCollision({ id, position }: BulletCasingCollisionData) {
     let volume = CASING_START_VOLUME;
 

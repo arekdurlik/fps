@@ -17,6 +17,7 @@ export type PlayerStateType = { [key: string]: unknown } & {
   setPlayer: (player: RefObject<RapierRigidBody>) => void
   setStrafingLeft: (value?: boolean, notifyData?: {}) => void
   setStrafingRight: (value?: boolean, notifyData?: {}) => void
+  setSwappingEquipment: (value?: boolean) => void
   setAiming: (value?: boolean) => void
   setIdling: (value?: boolean) => void
   setWalking: (value?: boolean) => void
@@ -76,6 +77,9 @@ export const PlayerState: PlayerStateType = {
     }
 
     usePlayerState.setState({ strafingRight });
+  },
+  setSwappingEquipment(swappingEquipment = true) {
+    usePlayerState.setState({ swappingEquipment });
   },
   setAiming(aiming = true) {
     if (aiming) {
@@ -182,6 +186,7 @@ export const PlayerState: PlayerStateType = {
   get jumping() { return usePlayerState.getState().jumping },
   get strafingLeft() { return usePlayerState.getState().strafingLeft },
   get strafingRight() { return usePlayerState.getState().strafingRight },
+  get swappingEquipment() { return usePlayerState.getState().swappingEquipment },
   get canShoot() { return usePlayerState.getState().canShoot },
 };
 
@@ -194,6 +199,7 @@ type PlayerStateStore = {
   jumping: boolean
   strafingLeft: boolean
   strafingRight: boolean
+  swappingEquipment: boolean
   canShoot: boolean
 };
 
@@ -206,5 +212,6 @@ export const usePlayerState = create<PlayerStateStore>(() => ({
   jumping: false,
   strafingLeft: false,
   strafingRight: false,
+  swappingEquipment: false,
   canShoot: true
 }));

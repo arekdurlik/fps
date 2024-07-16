@@ -83,7 +83,7 @@ export function PlayerController() {
         }
       }
 
-      if (r && !shift && !lmb && !rmb) {
+      if (r && !shift && !lmb && !rmb && !PlayerState.swappingEquipment) {
         GunState.reloadBegin();
       }
 
@@ -93,7 +93,7 @@ export function PlayerController() {
       }
     }
 
-    if (!GunState.reloading) {
+    if (!GunState.reloading && !PlayerState.swappingEquipment) {
       if (!PlayerState.running && !PlayerState.reloading) {
         // aim
         if (rmb && !PlayerState.aiming) {

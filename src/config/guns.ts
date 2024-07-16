@@ -1,5 +1,5 @@
 import { EquipmentType } from '../constants'
-import { defaultReflex, GunOptic, GunOptics } from './gunAttachments'
+import { defaultAcog, defaultReflex, GunOptic, GunOptics } from './gunAttachments'
 
 export enum GunName {
   NONE = 'NONE',
@@ -39,7 +39,8 @@ export const defaultSmg: Gun = {
   optic: null,
   attachments: {
     optics: {
-      [GunOptic.REFLEX]: defaultReflex
+      [GunOptic.REFLEX]: defaultReflex,
+      [GunOptic.ACOG]: defaultAcog
     }
   }
 }

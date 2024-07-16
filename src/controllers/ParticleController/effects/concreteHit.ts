@@ -5,6 +5,9 @@ const texture = new THREE.TextureLoader().load("smoke.png", texture => {
   texture.minFilter = texture.magFilter = THREE.NearestFilter;
 });
 
+const smokeMaterial = new THREE.MeshStandardMaterial({ map: texture, transparent: true, alphaTest: 0.005, depthWrite: false, blending: 1 });
+const debrisMaterial = new THREE.MeshStandardMaterial({ transparent: true, alphaTest: 0.005, depthWrite: false });
+
 const SMOKE_COLOR = 1;
 const SMOKE_SHADOW = 1;
 
@@ -34,7 +37,7 @@ export const concreteHit = (position: THREE.Vector3, normal = DEFAULT_NORMAL, he
         probability: 1,
     }],
     renderMode: RenderMode.Mesh,
-    material: new THREE.MeshStandardMaterial({ map: texture, transparent: true, depthWrite: false, blending: 1 }),
+    material: smokeMaterial,
   });
 
   smoke.addBehavior(new SizeOverLife(new PiecewiseBezier([[new Bezier(0.05, 0.1, 0.1, 0.5), 0]])));
@@ -61,7 +64,7 @@ export const concreteHit = (position: THREE.Vector3, normal = DEFAULT_NORMAL, he
       probability: 0.15,
     }],
     renderMode: RenderMode.Mesh,
-    material: new THREE.MeshStandardMaterial({ transparent: true, depthWrite: false }),
+    material: debrisMaterial
   });
 
   const moreDebris = new ParticleSystem({
@@ -82,7 +85,7 @@ export const concreteHit = (position: THREE.Vector3, normal = DEFAULT_NORMAL, he
       probability: 0.5,
     }],
     renderMode: RenderMode.Mesh,
-    material: new THREE.MeshStandardMaterial({ transparent: true, depthWrite: false }),
+    material: debrisMaterial,
   });
 
   smoke.emitter.name = 'smoke';

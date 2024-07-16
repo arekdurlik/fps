@@ -1,4 +1,3 @@
-import { Point } from '@react-three/drei'
 import * as THREE from 'three'
 import { ApplyForce, Bezier, ColorOverLife, ColorRange, ConeEmitter, ConstantValue, Gradient, IntervalValue, ParticleSystem, PiecewiseBezier, PointEmitter, RandomColorBetweenGradient, RenderMode, SizeOverLife } from 'three.quarks'
 
@@ -10,6 +9,8 @@ const smokeTexture = new THREE.TextureLoader().load('smoke.png', texture => {
   texture.minFilter = texture.magFilter = THREE.NearestFilter;
 });
 
+const smokeMaterial = new THREE.MeshStandardMaterial({ map: smokeTexture, transparent: true, depthWrite: false, blending: 1 });
+const sparksMaterial = new THREE.MeshBasicMaterial({ blending: THREE.AdditiveBlending, transparent: true, side: THREE.DoubleSide, });
 const up = new THREE.Vector3(0, 1, 0);
 const down = new THREE.Vector3(0, -1, 0);
 
@@ -81,11 +82,7 @@ export const metalHit = (position: THREE.Vector3, direction: THREE.Vector3) => {
     ],
 
     shape: new ConeEmitter({radius: 0, angle: 1}),
-    material: new THREE.MeshBasicMaterial({
-        blending: THREE.AdditiveBlending,
-        transparent: true,
-        side: THREE.DoubleSide,
-    }),
+    material: sparksMaterial,
     renderMode: RenderMode.Trail,
     rendererEmitterSettings: {
         startLength: new IntervalValue(1.5, 2.5),
@@ -114,7 +111,7 @@ export const metalHit = (position: THREE.Vector3, direction: THREE.Vector3) => {
         probability: 1,
     }],
     renderMode: RenderMode.Mesh,
-    material: new THREE.MeshStandardMaterial({ map: smokeTexture, transparent: true, depthWrite: false, blending: 1 }),
+    material: smokeMaterial,
   });
 
   smoke.addBehavior(new SizeOverLife(new PiecewiseBezier([[new Bezier(0.05, 0.1, 0.1, 0.5), 0]])));

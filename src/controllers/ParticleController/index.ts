@@ -76,7 +76,7 @@ export function ParticleController() {
 
   function makeSpark(position: Vector3, normal: Vector3) {
     const light = metalHitLights[lightIndex.current];
-    light.intensity = randomFloat(0.025, 0.125);
+    light.intensity = randomFloat(0.025, 0.175);
     light.position.copy(position);
     light.translateOnAxis(normal, 0.2);
     lightIndex.current = (lightIndex.current + 1) % metalHitLights.length;

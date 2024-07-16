@@ -6,12 +6,11 @@ import { SMG_PARAMS } from '../../../data'
 import { RenderOrder } from '../../../constants'
 import { PlayerState } from '../../../state/playerState'
 import { useNearestFilterTexture } from '../../../hooks/useNearestFilterTexture'
-const normalArray = new Uint8Array([0,1,0, 0,1,0, 0,1,0, 0,1,0]); 
 
-export function IronSight({ animations, hasOptic }: { animations: GunAnimations, hasOptic: boolean } ) {
+export function IronSight({ animations, hasOptic, normalArray }: { animations: GunAnimations, hasOptic: boolean, normalArray: Uint8Array } ) {
   const ref = useRef<THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>>(null!);
-  const renderParams = hasOptic ? SMG_PARAMS.reddot : SMG_PARAMS.stock;
-  const texture = useNearestFilterTexture(renderParams.ironsight);
+  const renderParams = hasOptic ? SMG_PARAMS.ironsight.optic : SMG_PARAMS.ironsight.stock;
+  const texture = useNearestFilterTexture(renderParams.texture);
   
   useFrame(() => {
     const sight = ref.current;
@@ -21,7 +20,7 @@ export function IronSight({ animations, hasOptic }: { animations: GunAnimations,
     sight.visible = animations.frame === 0 ? false : true;
 
     // reset
-    sight.position.set(0.00025, renderParams.ironSightY, 0);
+    sight.position.set(0.00025, renderParams.offsetY, 0);
     sight.rotation.set(0, 0, 0);
     
     sight.position.x += animations.posX;
@@ -44,6 +43,8 @@ export function IronSight({ animations, hasOptic }: { animations: GunAnimations,
     sight.position.x += animations.reloadX;
     sight.rotation.z -= animations.reloadY;
     sight.position.y += animations.reloadY;
+
+    sight.position.y += animations.knockback / 3;
     
     sight.updateMatrix();
   });

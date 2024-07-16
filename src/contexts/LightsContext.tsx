@@ -35,7 +35,7 @@ export function LightsContextProvider({ children }: { children: ReactNode }) {
     if (!GameState.camera) return;
 
     GameState.camera.add(muzzleFlashLights[0]);
-    muzzleFlashLights[0].position.set(0, 0.05, -0.4);
+    muzzleFlashLights[0].position.set(0, 0.05, -0.25);
 
   }, [GameState.camera]);
 

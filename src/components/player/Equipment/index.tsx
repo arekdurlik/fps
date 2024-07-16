@@ -8,6 +8,7 @@ import { useEquipmentAnimations } from './animations'
 import { EquipmentType,} from '../../../constants'
 import { PlayerState } from '../../../state/playerState'
 import { EquipmentSubject } from '../../../state/equipmentState/types'
+import { GunState } from '../../../state/equipmentState/gunState'
 
 export function Equipment() {
   const animations = useEquipmentAnimations();
@@ -23,7 +24,7 @@ export function Equipment() {
     );
     
     const setEquipped = () => EquipmentState.setEquipped(itemToEquip.current);
-    const setSwappingFalse = () => swapping.current = false;
+    const setSwappingFalse = () => PlayerState.setSwappingEquipment(false);
 
     const eqUnsubscribe = EquipmentState.subscribeMany([
       [EquipmentSubject.ITEM_SWAP, setEquipped],
@@ -39,7 +40,7 @@ export function Equipment() {
   }, []);
   
   function handleKey(e: KeyboardEvent) {
-    if (swapping.current || PlayerState.running || PlayerState.aiming) return;
+    if (PlayerState.swappingEquipment || PlayerState.running || PlayerState.aiming || GunState.reloading) return;
     
     let key = -1;
 
@@ -47,6 +48,7 @@ export function Equipment() {
       case 'Digit1': key = 1; break;
       case 'Digit2': key = 2; break;
       case 'Digit3': key = 3; break;
+      case 'Digit4': key = 4; break;
     }
 
     itemToEquip.current = key - 1;
@@ -56,14 +58,14 @@ export function Equipment() {
       const unequipTime =  WEAPONS_DATA[slots[equippedIndexRef.current].itemName].unequipTime;
       const equipTime = WEAPONS_DATA[slots[itemToEquip.current].itemName].equipTime;
 
-      swapping.current = true;
       animations.swap(unequipTime, equipTime);
+      PlayerState.setSwappingEquipment();
       EquipmentState.notify(EquipmentSubject.EQUIP_BEGIN);
     }
   }
 
   useFrame(() => {
-    if (!swapping.current) return;
+    if (!PlayerState.swappingEquipment) return;
 
     ref.current.position.x = animations.posX;
     ref.current.position.y = animations.posY;

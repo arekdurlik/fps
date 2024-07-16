@@ -79,6 +79,7 @@ export const useEquipmentState = create<EquipmentStateStore>((_, get) => ({
       itemName: GunName.NONE
     },
     defaultSmg,
-    update(defaultSmg, { optic: { $set: GunOptic.REFLEX }})
+    update(defaultSmg, { optic: { $set: GunOptic.REFLEX }}),
+    update(defaultSmg, { optic: { $set: GunOptic.ACOG }}),
   ]
 }));

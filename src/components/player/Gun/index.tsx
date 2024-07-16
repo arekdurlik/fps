@@ -3,18 +3,21 @@ import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useGunEvents } from './events'
 import { PlayerState } from '../../../state/playerState'
-import { SMG_BODY_SIGHT, SMG_BODY_STOCK, SMG_GLASS_REDDOT } from '../../../data'
+import { SMG_OPTIC_PARAMS, SMG_PARAMS } from '../../../data'
 import { GameState } from '../../../state/gameState'
 import { RenderOrder } from '../../../constants'
-import { Reticle } from './Reticle'
+import { OpticReticle } from './OpticReticle'
 import { MuzzleFlash } from './MuzzleFlash'
 import { IronSight } from './IronSight'
 import { useSpriteSheet } from '../../../hooks/useSpriteSheet'
 import { Gun as GunType } from '../../../config/guns'
+import { OpticGlass } from './OpticGlass'
 
-// make gun sprite normal face up so it get's lit up from above
-const normalArray = new Uint8Array([0,1,0, 0,1,0, 0,1,0, 0,1,0]);
+const gunNormalArray = new Uint8Array([0,1,1, 0,1,1, 0,1,1, 0,1,1]);
+
 const up = new THREE.Vector3(0, 1, 0);
+const down = new THREE.Vector3(0, -1, 0);
+const camDir = new THREE.Vector3();
 
 export function Gun({ optic, attachments }: GunType) {
   const muzzleRef = useRef<THREE.Group>(null!);
@@ -22,9 +25,8 @@ export function Gun({ optic, attachments }: GunType) {
   const bodyRef = useRef<THREE.Group>(null!);
   const bodyMaterial = useRef<THREE.MeshLambertMaterial>(null!);
 
-  const glassColor = optic ? attachments.optics[optic].glassColor : undefined;
-  const { texture: bodyTexture, setFrame: setBodyFrame } = useSpriteSheet(optic ? SMG_BODY_SIGHT : SMG_BODY_STOCK, 3, 1);
-  const { texture: glassTexture, setFrame: setGlassFrame } = useSpriteSheet(SMG_GLASS_REDDOT, 3, 1);
+  const hasOptic = optic !== null;
+  const { texture: bodyTexture, setFrame } = useSpriteSheet(hasOptic ? SMG_OPTIC_PARAMS[optic].body : SMG_PARAMS.body, 3, 1);
   const { animations } = useGunEvents(muzzleRef);
   
   useFrame((_, dt) => {
@@ -60,26 +62,39 @@ export function Gun({ optic, attachments }: GunType) {
     body.position.y += animations.jumpY;
     
     // sprite
-    setBodyFrame(animations.frame);
-    setGlassFrame(animations.frame);
-
+    setFrame(animations.frame);
+    
     // muzzle flash TODO: add to render params
     switch (animations.frame) {
       case 0: muzzle.position.x = -0.1; break;
       case 1: muzzle.position.x = -0.05; break;
       case 2: muzzle.position.x = 0; break;
     } 
+    
+    // recoil, kick, knockback
 
-    // recoil, kick, knockback - multiply recoil by dt to make it similar on different fps
-    GameState.camera.rotateX(animations.recoilY * dt * 100);
-    GameState.camera.rotateOnWorldAxis(up, animations.recoilX * dt * 100);
+    // prevent vertical recoil when looking straight up
+    const RECOIL_THRESHOLD = 0.1;
+    if (GameState.camera.getWorldDirection(camDir).angleTo(down) < Math.PI - RECOIL_THRESHOLD) {
+      // multiply recoil by dt to make it similar on different fps
+      GameState.camera.rotateX(animations.recoilY * dt * 100);
+      GameState.camera.rotateOnWorldAxis(up, animations.recoilX * dt * 100);
+
+      const cameraShake = PlayerState.aiming 
+      ? animations.kickX * 2 
+      : (-Math.abs(animations.kickX) * 3) + animations.kickX;
+
+      GameState.cameraWrapper.rotation.z = cameraShake;
+    }
+
     body.position.x += animations.kickX;
     body.position.y += animations.kickY;
     gun.rotation.z += animations.kickX / 2;
     
-    body.position.z += animations.knockback;
-
-    GameState.camera.setFocalLength(15 + animations.zoom - animations.knockback * 2);
+    body.position.z += animations.knockback * (PlayerState.aiming ? 3 : 1);
+    body.position.y -= animations.knockback / 3;
+    
+    GameState.camera.setFocalLength(15 + animations.zoom - animations.knockback * 5);
     
     gun.updateMatrix();
     body.updateMatrix();
@@ -91,25 +106,20 @@ export function Gun({ optic, attachments }: GunType) {
 
         <mesh renderOrder={RenderOrder.GUN_BODY} userData={{ shootThrough: true }}>
           <planeGeometry args={[1, 1, 1, 1]}>
-            <bufferAttribute attach="attributes-normal" array={normalArray} itemSize={3} />
+            <bufferAttribute attach="attributes-normal" array={gunNormalArray} itemSize={3} />
           </planeGeometry>
           <meshLambertMaterial ref={bodyMaterial} map={bodyTexture} transparent depthTest={false} />
         </mesh>
 
-        {optic && <mesh renderOrder={RenderOrder.GUN_BODY} userData={{ shootThrough: true }}>
-          <planeGeometry args={[1, 1, 1, 1]}>
-            <bufferAttribute attach="attributes-normal" array={normalArray} itemSize={3} />
-          </planeGeometry>
-          <meshLambertMaterial map={glassTexture} color={glassColor} transparent depthTest={false}/>
-        </mesh>}
 
         <group ref={muzzleRef}>
           <MuzzleFlash animations={animations}/>
         </group>
 
+        {optic && <OpticGlass optic={attachments.optics[optic]} animations={animations}/>}
       </group>  
       
-      {optic && <Reticle optic={attachments.optics[optic]} animations={animations}/>}
-      <IronSight hasOptic={optic !== null} animations={animations}/>
+      {optic && <OpticReticle optic={attachments.optics[optic]} animations={animations}/>}
+      <IronSight hasOptic={hasOptic} animations={animations} normalArray={gunNormalArray}/>
     </group>
 )}

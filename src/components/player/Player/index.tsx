@@ -21,6 +21,8 @@ export function Player() {
 
   useEffect(() => {
     GameState.setCamera(camera.current);
+    GameState.setCameraWrapper(cameraWrapper.current);
+    
     camera.current.setFocalLength(15);
     PlayerState.setPlayer(ref);
   }, [ref, camera]);

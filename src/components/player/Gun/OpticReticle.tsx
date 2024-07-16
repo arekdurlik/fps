@@ -5,10 +5,12 @@ import { useFrame } from '@react-three/fiber'
 import { useSpriteSheet } from '../../../hooks/useSpriteSheet'
 import { PlayerState } from '../../../state/playerState'
 import { GunOpticObject } from '../../../config/gunAttachments'
+import { SMG_OPTIC_PARAMS } from '../../../data'
 
-export function Reticle({ animations, optic }: { animations: GunAnimations, optic: GunOpticObject } ) {
+export function OpticReticle({ optic, animations }: { optic: GunOpticObject, animations: GunAnimations } ) {
   const ref = useRef<THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>>(null!);
   const { texture } = useSpriteSheet('guns/reticles.png', 4, 8, optic.reticleShape);
+  const reticleScale = SMG_OPTIC_PARAMS[optic.type].reticleScale;
   
   useFrame(() => {
     const reticle = ref.current;
@@ -41,7 +43,7 @@ export function Reticle({ animations, optic }: { animations: GunAnimations, opti
   });
 
   return <mesh ref={ref} matrixAutoUpdate={false} matrixWorldAutoUpdate={false} userData={{ shootThrough: true }}>
-    <planeGeometry args={[1/13, 1/13, 1, 1]} />
+    <planeGeometry args={[reticleScale, reticleScale, 1, 1]} />
     <meshBasicMaterial map={texture} color={optic.reticleColor} transparent depthTest={false}/>
   </mesh>
 }

@@ -11,6 +11,9 @@ const smokeTexture = new THREE.TextureLoader().load("smoke.png", texture => {
   texture.minFilter = texture.magFilter = THREE.NearestFilter;
 });
 
+const casingMaterial = new THREE.MeshStandardMaterial({ map: muzzleTexture, alphaTest: 0.5 });
+const smokeMaterial = new THREE.MeshStandardMaterial({ map: smokeTexture, emissive: '#555', emissiveIntensity: 0.4, transparent: true, alphaTest: 0.005, depthWrite: false });
+
 const RIGHT_OFFSET = 0.015;
 const DOWN_OFFSET = 0.02;
 const VELOCITY_COMPENSATE = 32;
@@ -36,7 +39,7 @@ export const bulletCasing = (position: THREE.Vector3, normal = DEFAULT_NORMAL, v
     startSize: new ConstantValue(0.0175),
     autoDestroy: true,
     renderMode: RenderMode.Mesh,
-    material: new THREE.MeshStandardMaterial({ map: muzzleTexture, transparent: true, alphaTest: 0 }),
+    material: casingMaterial,
   });
 
   const smoke = new ParticleSystem({
@@ -56,7 +59,7 @@ export const bulletCasing = (position: THREE.Vector3, normal = DEFAULT_NORMAL, v
       probability: 0.75,
     }],
     renderMode: RenderMode.Mesh,
-    material: new THREE.MeshStandardMaterial({ map: smokeTexture, emissive: '#777', emissiveIntensity: 0.05, transparent: true, depthWrite: false }),
+    material: smokeMaterial,
   });
 
   smoke.addBehavior(new SizeOverLife(new PiecewiseBezier([[new Bezier(0.005, 0.03, 0.1, 0.5), 0]])));

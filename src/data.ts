@@ -1,3 +1,5 @@
+import { GunOptic } from './config/gunAttachments'
+
 export type GunData = typeof WEAPONS_DATA.SMG;
 
 export const WEAPONS_DATA = {
@@ -16,44 +18,65 @@ export const WEAPONS_DATA = {
 
     recoilXMin: -0.00055,
     recoilXMax: 0.0005,
+
     recoilYMin: 0.001,
     recoilYMax: 0.0015,
-    kickXMin: -0.005,
-    kickXMax: 0.005,
-    kickYMin: -0.005,
-    kickYMax: 0.01,
+
+    kickXMin: 0.0015,
+    kickXMax: 0.0025,
+
+    kickYMin: 0.002,
+    kickYMax: 0.004,
+
     knockbackMin: 0.02,
-    knockbackMax: 0.05,
+    knockbackMax: 0.03,
     spread: 0.05,
 
+    
     renderParams: {
-      stock: {
-        body: 'guns/smg/body_stock.png',
-        ironsight: 'guns/smg/ironsight_stock.png',
-        ironSightY: -0.01,
-        zoom: 3
+      body: 'guns/smg/body_stock.png',
+      zoom: 3,
+      
+      ironsight: {
+        stock: {
+          texture: 'guns/smg/ironsight_stock.png',
+          offsetY: -0.01
+        },
+        optic: {
+          texture: 'guns/smg/ironsight_optic.png',
+          offsetY: -0.04
+        }
       },
-      reddot: {
-        body: 'guns/smg/body_reddot.png',
-        ironsight: 'guns/smg/ironsight_reddot.png',
-        glass: 'guns/smg/glass.png',
-        ironSightY: -0.04,
-        zoom: 6
+      optics: {
+        reflex: {
+          body: 'guns/smg/body_reddot.png',
+          glass: 'guns/smg/glass.png',
+          zoom: 4,
+          reticleScale: 0.06
+        },
+        acog: {
+          body: 'guns/smg/body_acog.png',
+          glass: 'guns/smg/glass_acog.png',
+          zoom: 14,
+          reticleScale: 0.0475
+        }
       }
+      
     },
   },
 }
 
 export const SMG_PARAMS = WEAPONS_DATA.SMG.renderParams;
 
-export const SMG_BODY_STOCK = SMG_PARAMS.stock.body;
-export const SMG_BODY_SIGHT = SMG_PARAMS.reddot.body;
 
-export const SMG_IRONSIGHT_STOCK = SMG_PARAMS.stock.ironsight;
-export const SMG_IRONSIGHT_REDDOT = SMG_PARAMS.reddot.ironsight;
+type OpticParams = {
+  body: string
+  glass: string
+  zoom: number
+  reticleScale: number
+};
 
-export const SMG_GLASS_REDDOT = SMG_PARAMS.reddot.glass;
-
-export const SMG_IRONSIGHT_ZOOM = SMG_PARAMS.stock.zoom;
-export const SMG_REDDOT_ZOOM = SMG_PARAMS.reddot.zoom;
-
+export const SMG_OPTIC_PARAMS: { [key in GunOptic]: OpticParams } = {
+  [GunOptic.REFLEX]: SMG_PARAMS.optics.reflex,
+  [GunOptic.ACOG]: SMG_PARAMS.optics.acog
+}
