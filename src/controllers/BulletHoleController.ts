@@ -18,8 +18,8 @@ const mat = new THREE.MeshStandardMaterial({
   transparent: true,
   depthWrite: false,
   polygonOffset: true,
-  polygonOffsetFactor: -0.1,
-  normalScale: new THREE.Vector2(0.3, 0.3)
+  polygonOffsetFactor: -1,
+  normalScale: new THREE.Vector2(0.3, 0.3),
 });
 
 export function BulletHoleController() {

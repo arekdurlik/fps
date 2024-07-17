@@ -8,7 +8,7 @@ import { useFrame } from '@react-three/fiber'
 import { usePlayerEvents } from './events'
 import { GameState } from '../../../state/gameState'
 import { PlayerState } from '../../../state/playerState'
-import { Collisions } from '../../../constants'
+import { Collisions, Layers } from '../../../constants'
 import { Equipment } from '../Equipment'
 
 const PLAYER_HEIGHT = 0.5;
@@ -20,6 +20,9 @@ export function Player() {
   const { animations } = usePlayerEvents();
 
   useEffect(() => {
+    camera.current.layers.enable(Layers.GUN);
+    camera.current.layers.enable(Layers.RETICLE);
+    
     GameState.setCamera(camera.current);
     GameState.setCameraWrapper(cameraWrapper.current);
     

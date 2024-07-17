@@ -5,13 +5,15 @@ import { useGunEvents } from './events'
 import { PlayerState } from '../../../state/playerState'
 import { SMG_OPTIC_PARAMS, SMG_PARAMS } from '../../../data'
 import { GameState } from '../../../state/gameState'
-import { RenderOrder } from '../../../constants'
+import { Layers, RenderOrder } from '../../../constants'
 import { OpticReticle } from './OpticReticle'
 import { MuzzleFlash } from './MuzzleFlash'
 import { IronSight } from './IronSight'
 import { useSpriteSheet } from '../../../hooks/useSpriteSheet'
 import { Gun as GunType } from '../../../config/guns'
 import { OpticGlass } from './OpticGlass'
+import { PIPScope } from './PIPScope'
+import { GunOptic } from '../../../config/gunAttachments'
 
 const gunNormalArray = new Uint8Array([0,1,1, 0,1,1, 0,1,1, 0,1,1]);
 
@@ -33,6 +35,7 @@ export function Gun({ optic, attachments }: GunType) {
     const [gun, body, muzzle] = [gunRef.current, bodyRef.current, muzzleRef.current];
     
     // reset
+    gun.position.set(0, 0, -0.165);
     gun.rotation.set(0, 0, 0);
     body.position.set(0, 0, 0);
     body.rotation.set(0, 0, 0);
@@ -42,8 +45,8 @@ export function Gun({ optic, attachments }: GunType) {
     body.position.y += animations.posY;
     
     // sway
-    body.position.x += animations.swayX / (PlayerState.aiming ? 10 : 1);
-    body.position.y += animations.swayY / (PlayerState.aiming ? 10 : 1);
+    body.position.x += animations.swayX / (PlayerState.aiming ? 3 : 1);
+    body.position.y += animations.swayY / (PlayerState.aiming ? 3 : 1);
     
     // mouse velocity
     animations.velocity();
@@ -66,9 +69,24 @@ export function Gun({ optic, attachments }: GunType) {
     
     // muzzle flash TODO: add to render params
     switch (animations.frame) {
-      case 0: muzzle.position.x = -0.1; break;
-      case 1: muzzle.position.x = -0.05; break;
-      case 2: muzzle.position.x = 0; break;
+      case 0: {
+        muzzle.position.x = -0.1; 
+        gun.scale.set(0.2, 0.2, 0.2);
+        gun.position.y -= 0.03;
+        break;
+      }
+      case 1: {
+        muzzle.position.x = -0.05; 
+        gun.scale.set(0.25, 0.25, 0.25); 
+        gun.position.y -= 0.0375;
+        break;
+      }
+      case 2: {
+        muzzle.position.x = 0; 
+        gun.scale.set(0.25, 0.25, 0.25); 
+        gun.position.y -= 0.038;
+        break;
+      }
     } 
     
     // recoil, kick, knockback
@@ -81,8 +99,8 @@ export function Gun({ optic, attachments }: GunType) {
       GameState.camera.rotateOnWorldAxis(up, animations.recoilX * dt * 100);
 
       const cameraShake = PlayerState.aiming 
-      ? animations.kickX * 2 
-      : (-Math.abs(animations.kickX) * 3) + animations.kickX;
+      ? animations.kickX * 3 
+      : (-Math.abs(animations.kickX) * 3) + animations.kickX * 2;
 
       GameState.cameraWrapper.rotation.z = cameraShake;
     }
@@ -94,32 +112,34 @@ export function Gun({ optic, attachments }: GunType) {
     body.position.z += animations.knockback * (PlayerState.aiming ? 3 : 1);
     body.position.y -= animations.knockback / 3;
     
-    GameState.camera.setFocalLength(15 + animations.zoom - animations.knockback * 5);
+    GameState.camera.setFocalLength(15 + animations.zoom + animations.knockback * 5);
     
     gun.updateMatrix();
     body.updateMatrix();
   });
 
   return (
-    <group ref={gunRef} position={[0, -0.035, -0.165]} scale={0.23} matrixAutoUpdate={false} matrixWorldAutoUpdate={false}>
-      <group ref={bodyRef} matrixAutoUpdate={false} matrixWorldAutoUpdate={false}>
+    <>
+    {optic === GunOptic.ACOG  && <PIPScope animations={animations}/>}
+      <group ref={gunRef} scale={0.23} matrixAutoUpdate={false} matrixWorldAutoUpdate={false}>
+        <group ref={bodyRef} matrixAutoUpdate={false} matrixWorldAutoUpdate={false}>
 
-        <mesh renderOrder={RenderOrder.GUN_BODY} userData={{ shootThrough: true }}>
-          <planeGeometry args={[1, 1, 1, 1]}>
-            <bufferAttribute attach="attributes-normal" array={gunNormalArray} itemSize={3} />
-          </planeGeometry>
-          <meshLambertMaterial ref={bodyMaterial} map={bodyTexture} transparent depthTest={false} />
-        </mesh>
+          <mesh renderOrder={RenderOrder.GUN_BODY} userData={{ shootThrough: true }} layers={Layers.GUN}>
+            <planeGeometry args={[1, 1, 1, 1]}>
+              <bufferAttribute attach="attributes-normal" array={gunNormalArray} itemSize={3} />
+            </planeGeometry>
+            <meshLambertMaterial ref={bodyMaterial} map={bodyTexture} transparent depthTest={false}/>
+          </mesh>
 
+          <group ref={muzzleRef} position={[0, 0, -0.1]}>
+            <MuzzleFlash animations={animations}/>
+          </group>
 
-        <group ref={muzzleRef}>
-          <MuzzleFlash animations={animations}/>
-        </group>
-
-        {optic && <OpticGlass optic={attachments.optics[optic]} animations={animations}/>}
-      </group>  
-      
-      {optic && <OpticReticle optic={attachments.optics[optic]} animations={animations}/>}
-      <IronSight hasOptic={hasOptic} animations={animations} normalArray={gunNormalArray}/>
-    </group>
+          {optic && <OpticGlass optic={attachments.optics[optic]} animations={animations}/>}
+        </group>  
+        
+        {optic && <OpticReticle optic={attachments.optics[optic]} animations={animations}/>}
+        <IronSight hasOptic={hasOptic} animations={animations} normalArray={gunNormalArray}/>
+      </group>
+    </>
 )}

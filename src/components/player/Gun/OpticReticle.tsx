@@ -6,6 +6,7 @@ import { useSpriteSheet } from '../../../hooks/useSpriteSheet'
 import { PlayerState } from '../../../state/playerState'
 import { GunOpticObject } from '../../../config/gunAttachments'
 import { SMG_OPTIC_PARAMS } from '../../../data'
+import { Layers } from '../../../constants'
 
 export function OpticReticle({ optic, animations }: { optic: GunOpticObject, animations: GunAnimations } ) {
   const ref = useRef<THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>>(null!);
@@ -26,6 +27,9 @@ export function OpticReticle({ optic, animations }: { optic: GunOpticObject, ani
     reticle.position.x += animations.roll / 15;
     reticle.position.x += animations.velX / 10;
 
+    reticle.position.x += animations.swayX / 7;
+    reticle.position.y += animations.swayY / 7;
+
     reticle.position.setZ(animations.frame === 0 ? 5 : 0);
     reticle.position.x += animations.velX / 20;
     reticle.position.y += animations.velY / 20;
@@ -35,15 +39,15 @@ export function OpticReticle({ optic, animations }: { optic: GunOpticObject, ani
     reticle.position.x -= animations.kickX / 2;
     reticle.position.y -= animations.kickY / 2;
     
-    const scale = animations.frame === 1 ? 0.6 : 1;
+    const scale = animations.frame === 1 ? 1 : 1;
     reticle.scale.set(scale, scale, scale);
     reticle.material.opacity = animations.frame === 1 ? optic.reticleOpacity * 0.2 : optic.reticleOpacity;
 
     reticle.updateMatrix();
   });
 
-  return <mesh ref={ref} matrixAutoUpdate={false} matrixWorldAutoUpdate={false} userData={{ shootThrough: true }}>
+  return <mesh layers={Layers.RETICLE} ref={ref} matrixAutoUpdate={false} matrixWorldAutoUpdate={false} userData={{ shootThrough: true }}>
     <planeGeometry args={[reticleScale, reticleScale, 1, 1]} />
-    <meshBasicMaterial map={texture} color={optic.reticleColor} transparent depthTest={false}/>
+    <meshLambertMaterial map={texture} color={optic.reticleColor} transparent depthTest={false} emissive={optic.reticleColor} emissiveIntensity={optic.reticleOpacity * 2}/>
   </mesh>
 }

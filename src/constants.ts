@@ -4,8 +4,16 @@ import { PointLight } from 'three'
 export enum RenderOrder {
   'SPRITE' = -200,
   'BULLETHOLES' = -199,
-  'GUN_IRONSIGHT' = 999,
+  'GUN_MUZZLEFLASH' = 997,
+  'GUN_IRONSIGHT' = 998,
+  'GUN_SCOPE' = 999,
   'GUN_BODY' = 1000
+}
+
+export enum Layers {
+  'GUN' = 1,
+  'SCOPE' = 2,
+  'RETICLE' = 3
 }
 
 export enum Collisions {

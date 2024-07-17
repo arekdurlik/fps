@@ -3,7 +3,7 @@ import { GunAnimations } from './animations'
 import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { SMG_PARAMS } from '../../../data'
-import { RenderOrder } from '../../../constants'
+import { Layers, RenderOrder } from '../../../constants'
 import { PlayerState } from '../../../state/playerState'
 import { useNearestFilterTexture } from '../../../hooks/useNearestFilterTexture'
 
@@ -49,10 +49,10 @@ export function IronSight({ animations, hasOptic, normalArray }: { animations: G
     sight.updateMatrix();
   });
 
-  return <mesh ref={ref} renderOrder={RenderOrder.GUN_IRONSIGHT} matrixAutoUpdate={false} matrixWorldAutoUpdate={false} userData={{ shootThrough: true }}>
+  return <mesh ref={ref} renderOrder={RenderOrder.GUN_IRONSIGHT} layers={Layers.GUN} matrixAutoUpdate={false} matrixWorldAutoUpdate={false} userData={{ shootThrough: true }}>
     <planeGeometry args={[1/2.3, 1/2.3, 1, 1]}>
       <bufferAttribute attach="attributes-normal" array={normalArray} itemSize={3}/>
     </planeGeometry>
-    <meshLambertMaterial map={texture} transparent depthTest={false}/>
+    <meshLambertMaterial map={texture} transparent/>
   </mesh>
 }

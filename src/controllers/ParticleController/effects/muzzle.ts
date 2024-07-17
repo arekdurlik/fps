@@ -1,6 +1,7 @@
 import { Vector3Object } from '@react-three/rapier'
 import * as THREE from 'three'
 import { Bezier, ColorOverLife, ConeEmitter, ConstantValue, Gradient, IntervalValue, ParticleSystem, PiecewiseBezier, PointEmitter, RandomColorBetweenGradient, RenderMode, RotationOverLife, SizeOverLife } from 'three.quarks'
+import { RenderOrder } from '../../../constants'
 
 const smokeTexture = new THREE.TextureLoader().load("smoke.png", texture => {
   texture.minFilter = texture.magFilter = THREE.NearestFilter;
@@ -20,7 +21,7 @@ const smokeMaterial = new THREE.MeshStandardMaterial({
 });
 const muzzleMaterial = new THREE.MeshBasicMaterial({ 
   map: muzzleTexture, 
-  alphaTest: 0.5 
+  alphaTest: 0.1 
 });
 
 const SMOKE_COLOR = 1;
@@ -65,7 +66,7 @@ export const muzzle = (position: THREE.Vector3, direction: THREE.Vector3, veloci
       shape: new PointEmitter(),
       startLife: new ConstantValue(0.02),
       startRotation: new IntervalValue(0, 6),
-      startSize: new IntervalValue(0.2, 0.3),
+      startSize: new IntervalValue(0.2, 0.375),
       autoDestroy: true,
 
       emissionOverTime: new ConstantValue(1),

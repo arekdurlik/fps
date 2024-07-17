@@ -7,7 +7,7 @@ export function GunParams() {
     reticleOpacity: { value: 1, min: 0, max: 1 },
     reticleShape: { value: 0, step: 1, min: 0, max: 31 },
     reticleColor: { value: '#ff0000' },
-    glassColor: { value: '#779955' }
+    glassColor: { value: '#aaffbb' }
   });
 
 
@@ -18,7 +18,7 @@ export function GunParams() {
       if (!current) return;
 
       if (e.deltaY < 0) {
-        GunState.setActiveOpticParameters({ ...current, reticleOpacity: current.reticleOpacity + 0.25 > 1 ? 0.25 : current.reticleOpacity + 0.25 });
+        GunState.setActiveOpticParameters({ ...current, reticleOpacity: current.reticleOpacity + 0.333 > 1 ? 0.333 : current.reticleOpacity + 0.333 });
       } else {
         GunState.setActiveOpticParameters({ ...current, reticleShape: current.reticleShape + 1 });
       }
