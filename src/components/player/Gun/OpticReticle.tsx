@@ -48,6 +48,6 @@ export function OpticReticle({ optic, animations }: { optic: GunOpticObject, ani
 
   return <mesh layers={Layers.RETICLE} ref={ref} matrixAutoUpdate={false} matrixWorldAutoUpdate={false} userData={{ shootThrough: true }}>
     <planeGeometry args={[reticleScale, reticleScale, 1, 1]} />
-    <meshLambertMaterial map={texture} color={optic.reticleColor} transparent depthTest={false} emissive={optic.reticleColor} emissiveIntensity={optic.reticleOpacity * 2}/>
+    <meshLambertMaterial map={texture} color={optic.reticleColor} transparent depthTest={false} emissive={optic.reticleColor} emissiveIntensity={optic.reticleOpacity * 3}/>
   </mesh>
 }

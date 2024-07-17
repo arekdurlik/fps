@@ -58,7 +58,7 @@ export const WEAPONS_DATA = {
           body: 'guns/smg/body_acog.png',
           glass: 'guns/smg/glass_acog.png',
           zoom: 4,
-          reticleScale: 0.0475
+          reticleScale: 0.06
         }
       }
       

@@ -84,7 +84,7 @@ export function Gun({ optic, attachments }: GunType) {
       case 2: {
         muzzle.position.x = 0; 
         gun.scale.set(0.25, 0.25, 0.25); 
-        gun.position.y -= 0.038;
+        gun.position.y -= 0.035;
         break;
       }
     } 

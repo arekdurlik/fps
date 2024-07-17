@@ -4,9 +4,9 @@ import * as THREE from 'three'
 import { GameState } from '../../../state/gameState'
 import { Layers, RenderOrder } from '../../../constants'
 import { GunAnimations } from './animations'
+import { useGLTF } from '@react-three/drei'
 
 export function PIPScope({ animations }: { animations: GunAnimations }) {
-  const { scene, gl } = useThree();
   const ref = useRef<THREE.Mesh>(null!);
   const target = useMemo(() => {
     const target = new THREE.WebGLRenderTarget(1920, 1080);
@@ -14,13 +14,16 @@ export function PIPScope({ animations }: { animations: GunAnimations }) {
     target.texture.offset.setX(0.25);
     return target; 
   }, []);
+  
+  const { scene, gl } = useThree();
+  const { nodes } = useGLTF('guns/pip/acog.glb');
 
   useFrame(() => {
     ref.current.visible = animations.frame === 2 ? true : false;
     if (!ref.current.visible) return;
 
     // reset
-    ref.current.position.set(0, -0.001, -0.145);
+    ref.current.position.set(0, 0.002, -0.145);
     
     ref.current.position.x += animations.posX / 5;
     ref.current.position.y += animations.posY / 10;
@@ -43,8 +46,7 @@ export function PIPScope({ animations }: { animations: GunAnimations }) {
     GameState.camera.layers.enable(Layers.RETICLE);
   }, 1);
 
-  return <mesh ref={ref} renderOrder={RenderOrder.GUN_SCOPE} layers={Layers.SCOPE}>
-    <circleGeometry args={[0.035, 16]}/>
+  return <mesh ref={ref} renderOrder={RenderOrder.GUN_SCOPE} layers={Layers.SCOPE} geometry={(nodes.Circle as THREE.Mesh).geometry}>
     <meshBasicMaterial map={target.texture}/>
   </mesh>
 }

@@ -27,7 +27,7 @@ export function OpticGlass({ optic, animations }: { optic: GunOpticObject, anima
       <planeGeometry args={[1, 1, 1, 1]}>
         <bufferAttribute attach="attributes-normal" array={glassNormalArray} itemSize={3}/>
       </planeGeometry>
-      <meshLambertMaterial map={glassTexture} color={optic.glassColor} alphaTest={0.001} depthTest={false} emissive={optic.glassColor} emissiveIntensity={1} blending={THREE.MultiplyBlending}/>
+      <meshLambertMaterial map={glassTexture} color={optic.glassColor}  transparent alphaTest={0.0001} depthTest={false} emissive={optic.glassColor} emissiveIntensity={1} blending={THREE.MultiplyBlending}/>
     </mesh>
     </>
   )

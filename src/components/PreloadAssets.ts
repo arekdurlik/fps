@@ -3,6 +3,7 @@ import { useNextTickTexture } from '../hooks/useNextTickTexture'
 import * as THREE from 'three'
 import { WorldState } from '../state/worldState'
 import { WorldSubject } from '../state/worldState/types'
+import { useGLTF } from '@react-three/drei'
 
 export function PreloadAssets() {
   const { scene } = useThree();
@@ -16,6 +17,8 @@ export function PreloadAssets() {
   useNextTickTexture('guns/smg/ironsight_optic.png');
   useNextTickTexture('guns/smg/glass.png');
   useNextTickTexture('guns/smg/glass_acog.png');
+
+  useGLTF.preload('guns/pip/acog.glb');
 
   // preload bulletholes
   function preloadBulletholes() {

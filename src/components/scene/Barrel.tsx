@@ -12,7 +12,7 @@ export function Barrel({ position = [0, 0, 0]}: { position: Triplet }) {
 
   return <Billboard position={position}>
       <mesh position={[0, 0.5, 0]} geometry={plane} userData={{ material: 'metal' }}>
-        <meshLambertMaterial map={texture} transparent/>
+        <meshLambertMaterial map={texture} alphaTest={0.5}/>
       </mesh>
       <RigidBody type='fixed'>
         <CuboidCollider args={[0.25, 1, 0.25]} collisionGroups={interactionGroups(Collisions.WORLD)}/>

@@ -66,7 +66,7 @@ export const muzzle = (position: THREE.Vector3, direction: THREE.Vector3, veloci
       shape: new PointEmitter(),
       startLife: new ConstantValue(0.02),
       startRotation: new IntervalValue(0, 6),
-      startSize: new IntervalValue(0.2, 0.375),
+      startSize: new IntervalValue(0.15, 0.35),
       autoDestroy: true,
 
       emissionOverTime: new ConstantValue(1),
