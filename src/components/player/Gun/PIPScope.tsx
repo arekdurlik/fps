@@ -12,7 +12,7 @@ const camPos = new THREE.Vector3();
 const camQuat = new THREE.Quaternion();
 
 export function PIPScope({ animations }: { animations: GunAnimations }) {
-  const [secondaryCamera] = useState(new THREE.PerspectiveCamera(10, 1));
+  const [secondaryCamera] = useState(new THREE.PerspectiveCamera(12, 1));
   const target = useMemo(() => new THREE.WebGLRenderTarget(512, 512), []);
   const ref = useRef<THREE.Mesh>(null!);
   const bodyRef = useRef<THREE.Mesh>(null!);
@@ -22,7 +22,6 @@ export function PIPScope({ animations }: { animations: GunAnimations }) {
   const texture = useNearestFilterTexture('guns/smg/acog_end.png');
 
   useEffect(() => {
-    secondaryCamera.frustumCulled = true;
     scene.add(secondaryCamera);
   }, []);
 

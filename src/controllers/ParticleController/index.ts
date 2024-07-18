@@ -1,7 +1,7 @@
 import { useThree } from '@react-three/fiber'
 import { useEffect, useRef } from 'react'
 import { concreteHit } from './effects/concreteHit'
-import { muzzle } from './effects/muzzle'
+import { MAX_SMOKE_SYSTEMS, muzzle } from './effects/muzzle'
 import { useFixedFrame } from '../../hooks/useFixedFrame'
 import { PARTICLES_FPS } from '../../constants'
 import { bulletCasing } from './effects/bulletCasing'
@@ -20,6 +20,11 @@ import { EquipmentState } from '../../state/equipmentState'
 const down = new Vector3(0, -1, 0);
 const batchSystem = new BatchedRenderer();
 let effect: ParticleSystem[];
+
+// mesh rotation hack
+let smokeSystemIndex = 0;
+const smokeSystemIds: number[] = [];
+const smokeSystemRotations: Map<number, number> = new Map();
 
 export function ParticleController() {
   const { metalHitLights } = useLightsContext();
@@ -42,11 +47,19 @@ export function ParticleController() {
   useFixedFrame(PARTICLES_FPS, (_, dt) => {
     batchSystem.update(dt);
 
+    // mesh rotation hack
+    batchSystem.batches.forEach(b => {
+      b.systems.forEach(system => {
+        const rotation = smokeSystemRotations.get(system.emitter.id);
+        rotation && system.emitter.rotateZ(rotation);
+      })
+    });
+    
     metalHitLights.forEach(light => {
       if (light.intensity > 0) {
         light.intensity = Math.max(0, light.intensity - 0.05);
       }
-    })
+    });
   });
 
   function handleBulletImpact({ position, object, normal }: BulletImpactData) {
@@ -83,7 +96,20 @@ export function ParticleController() {
   }
 
   function handleShotFired({ muzzlePosition, direction, velocity, muzzleFlash }: ShotFiredData) {
-    addToScene(muzzle(muzzlePosition, direction, velocity, muzzleFlash));
+    const system = muzzle(muzzlePosition, direction, velocity, muzzleFlash, batchSystem);
+
+    // mesh rotation hack
+    system.forEach(sys => {
+      if (sys.emitter.name === 'muzzleSmoke') {
+        const id = sys.emitter.id;
+        smokeSystemRotations.set(id, randomFloat(-0.02, 0.02));
+        smokeSystemIds[smokeSystemIndex] = sys.emitter.id;
+      }
+    })
+    smokeSystemIndex = (smokeSystemIndex + 1) % MAX_SMOKE_SYSTEMS;
+    smokeSystemRotations.delete(smokeSystemIds[smokeSystemIndex]);
+
+    addToScene(system);
     addToScene(bulletCasing(muzzlePosition, direction, velocity));
   }
 

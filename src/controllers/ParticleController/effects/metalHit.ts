@@ -69,6 +69,7 @@ export const metalHit = (position: THREE.Vector3, direction: THREE.Vector3) => {
     startSpeed: new IntervalValue(2, 4),
     startSize: new IntervalValue(0.01, 0.02),
     worldSpace: true,
+    autoDestroy: true,
 
     emissionOverTime: new ConstantValue(0),
     emissionBursts: [

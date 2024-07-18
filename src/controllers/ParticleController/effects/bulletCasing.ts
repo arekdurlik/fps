@@ -1,18 +1,27 @@
 import * as THREE from 'three'
 import { Vector3Object } from '@react-three/rapier'
 import { Bezier, ColorOverLife, ConeEmitter, ConstantValue, Gradient, IntervalValue, ParticleSystem, PiecewiseBezier, RandomColorBetweenGradient, RenderMode, SizeOverLife } from 'three.quarks'
-import { randomFloat } from '../../../helpers'
+import { randomFloat, randomInt } from '../../../helpers'
 
 const muzzleTexture = new THREE.TextureLoader().load("casing.png", texture => {
   texture.minFilter = texture.magFilter = THREE.NearestFilter;
 });
 
-const smokeTexture = new THREE.TextureLoader().load("smoke.png", texture => {
+const smokeTexture = new THREE.TextureLoader().load("smoke2.png", texture => {
   texture.minFilter = texture.magFilter = THREE.NearestFilter;
 });
 
-const casingMaterial = new THREE.MeshStandardMaterial({ map: muzzleTexture, alphaTest: 0.5 });
-const smokeMaterial = new THREE.MeshStandardMaterial({ map: smokeTexture, emissive: '#555', emissiveIntensity: 0.4, transparent: true, alphaTest: 0.005, depthWrite: false });
+const casingMaterial = new THREE.MeshStandardMaterial({ 
+  map: muzzleTexture, 
+  alphaTest: 0.5 
+});
+
+const smokeMaterial = new THREE.MeshStandardMaterial({ 
+  map: smokeTexture, 
+  transparent: true, 
+  alphaTest: 0.005, 
+  depthWrite: false 
+});
 
 const RIGHT_OFFSET = 0.015;
 const DOWN_OFFSET = 0.02;
@@ -47,13 +56,13 @@ export const bulletCasing = (position: THREE.Vector3, normal = DEFAULT_NORMAL, v
     duration: 0,
     looping: false,
     shape: new ConeEmitter({ radius: 0.005, arc: 6.283185307179586, thickness: 0, angle: 0.02 }),
-    startLife: new IntervalValue(0.5, 0.9),
-    startSpeed: new IntervalValue(0.2, 2),
+    startLife: new IntervalValue(0.2, 0.5),
+    startSpeed: new IntervalValue(1, 1.5),
     startRotation: new IntervalValue(0, 6),
     autoDestroy: true,
     emissionBursts: [{
       time: 0,
-      count: new ConstantValue(4),
+      count: new ConstantValue(3),
       cycle: 1,
       interval: 0.01,
       probability: 0.75,
@@ -62,9 +71,9 @@ export const bulletCasing = (position: THREE.Vector3, normal = DEFAULT_NORMAL, v
     material: smokeMaterial,
   });
 
-  smoke.addBehavior(new SizeOverLife(new PiecewiseBezier([[new Bezier(0.005, 0.03, 0.1, 0.5), 0]])));
+  smoke.addBehavior(new SizeOverLife(new PiecewiseBezier([[new Bezier(0.02, 0.03, 0.05, 0.2), 0]])));
   smoke.addBehavior(new ColorOverLife(
-    new Gradient([[new THREE.Vector3(1, 1, 1), 0]], [[0.05, 0], [0.01, 0.5], [0, 1]]),
+    new Gradient([[new THREE.Vector3(1, 1, 1), 0]], [[0.2, 0], [0.1, 0.5], [0, 1]]),
   ));
   
   smoke.emitter.name = 'casingSmoke';

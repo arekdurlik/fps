@@ -21,7 +21,7 @@ export const defaultReflex: GunOpticObject = {
   reticleOpacity: 0.75,
   reticleShape: 0,
   reticleColor: '#ff0000',
-  glassColor: '#aaffbb'
+  glassColor: '#ccffee'
 };
 
 export const defaultAcog: GunOpticObject = {
@@ -29,5 +29,5 @@ export const defaultAcog: GunOpticObject = {
   reticleOpacity: 0.75,
   reticleShape: 0,
   reticleColor: '#00ff00',
-  glassColor: '#aaffbb'
+  glassColor: '#ccffee'
 }

@@ -1,11 +1,11 @@
 import * as THREE from 'three'
 import { ApplyCollision, ApplyForce, Bezier, ColorOverLife, ConeEmitter, ConstantValue, Gradient, IntervalValue, ParticleSystem, PiecewiseBezier, RandomColorBetweenGradient, RenderMode, SizeOverLife } from 'three.quarks'
 
-const texture = new THREE.TextureLoader().load("smoke.png", texture => {
+const texture = new THREE.TextureLoader().load("smoke2.png", texture => {
   texture.minFilter = texture.magFilter = THREE.NearestFilter;
 });
 
-const smokeMaterial = new THREE.MeshStandardMaterial({ map: texture, transparent: true,  depthWrite: false, blending: 1 });
+const smokeMaterial = new THREE.MeshStandardMaterial({ map: texture, transparent: true, depthWrite: false });
 const debrisMaterial = new THREE.MeshStandardMaterial({ transparent: true, alphaTest: 0.005, depthWrite: false });
 
 const SMOKE_COLOR = 1;
@@ -39,8 +39,8 @@ export const concreteHit = (position: THREE.Vector3, normal = DEFAULT_NORMAL, he
 
   smoke.addBehavior(new SizeOverLife(new PiecewiseBezier([[new Bezier(0.025, 0.05, 0.2, 0.4), 0]])));
   smoke.addBehavior(new ColorOverLife(new RandomColorBetweenGradient(
-    new Gradient([[new THREE.Vector3(SMOKE_COLOR, SMOKE_COLOR, SMOKE_COLOR), 0]], [[0.3, 0], [0.05, 0.7], [0, 1]]),
-    new Gradient([[new THREE.Vector3(SMOKE_COLOR, SMOKE_COLOR, SMOKE_COLOR), 0]], [[0.1, 0], [0.05, 0.7], [0, 1]])
+    new Gradient([[new THREE.Vector3(SMOKE_COLOR, SMOKE_COLOR, SMOKE_COLOR), 0]], [[0.4, 0], [0.05, 0.7], [0, 1]]),
+    new Gradient([[new THREE.Vector3(SMOKE_COLOR, SMOKE_COLOR, SMOKE_COLOR), 0]], [[0.15, 0], [0.05, 0.7], [0, 1]])
   )));
 
   const debris = new ParticleSystem({
