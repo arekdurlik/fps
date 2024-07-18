@@ -17,6 +17,7 @@ export function PreloadAssets() {
   useNextTickTexture('guns/smg/ironsight_optic.png');
   useNextTickTexture('guns/smg/glass.png');
   useNextTickTexture('guns/smg/glass_acog.png');
+  useNextTickTexture('guns/smg/acog_end.png');
 
   useGLTF.preload('guns/pip/acog.glb');
 

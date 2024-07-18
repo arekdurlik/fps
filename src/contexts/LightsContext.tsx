@@ -24,7 +24,7 @@ const METAL_HIT_LIGHTS = 2;
 const REMAINING_LIGHTS = TOTAL_LIGHTS - METAL_HIT_LIGHTS - METAL_HIT_LIGHTS;
 
 export function LightsContextProvider({ children }: { children: ReactNode }) {
-  const [muzzleFlashLights] = useState(new Array(MUZZLE_FLASH_LIGHTS).fill(null).map(() => new THREE.PointLight('#d89c43', 0, 10, 0.7)));
+  const [muzzleFlashLights] = useState(new Array(MUZZLE_FLASH_LIGHTS).fill(null).map(() => new THREE.PointLight('#d89c43', 0, 6, 0.5)));
   const [metalHitLights] = useState(new Array(METAL_HIT_LIGHTS).fill(null).map(() => new THREE.PointLight('#d89c43', 0, 10, 0.7)));
   const [lights] = useState<Lights>(new Array(REMAINING_LIGHTS).fill(null).map(() => new THREE.PointLight('#000', 0, 1)));
 
@@ -35,7 +35,7 @@ export function LightsContextProvider({ children }: { children: ReactNode }) {
     if (!GameState.camera) return;
 
     GameState.camera.add(muzzleFlashLights[0]);
-    muzzleFlashLights[0].position.set(0, 0.05, -0.25);
+    muzzleFlashLights[0].position.set(0, 0, -0.2);
 
   }, [GameState.camera]);
 

@@ -17,7 +17,6 @@ const smokeMaterial = new THREE.MeshStandardMaterial({
   emissiveIntensity: 0.01, 
   transparent: true, 
   depthWrite: false, 
-  depthTest: false 
 });
 const muzzleMaterial = new THREE.MeshBasicMaterial({ 
   map: muzzleTexture, 

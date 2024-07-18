@@ -5,14 +5,11 @@ const texture = new THREE.TextureLoader().load("smoke.png", texture => {
   texture.minFilter = texture.magFilter = THREE.NearestFilter;
 });
 
-const smokeMaterial = new THREE.MeshStandardMaterial({ map: texture, transparent: true, alphaTest: 0.005, depthWrite: false, blending: 1 });
+const smokeMaterial = new THREE.MeshStandardMaterial({ map: texture, transparent: true,  depthWrite: false, blending: 1 });
 const debrisMaterial = new THREE.MeshStandardMaterial({ transparent: true, alphaTest: 0.005, depthWrite: false });
 
 const SMOKE_COLOR = 1;
-const SMOKE_SHADOW = 1;
-
 const DEBRIS_COLOR = 1;
-const DEBRIS_COLOR2 = 1;
 
 const DEFAULT_NORMAL = new THREE.Vector3(0, 1, 0);
 const DOWN = new THREE.Vector3(0, -1, 0);
@@ -25,13 +22,13 @@ export const concreteHit = (position: THREE.Vector3, normal = DEFAULT_NORMAL, he
     duration: 0,
     looping: false,
     shape: new ConeEmitter({ radius: 0, arc: 6.283185307179586, thickness: 0, angle: 0.2 }),
-    startLife: new IntervalValue(0.5, 0.8),
-    startSpeed: new IntervalValue(0.3, 1),
+    startLife: new IntervalValue(0.35, 0.75),
+    startSpeed: new IntervalValue(0.3, 0.7),
     startRotation: new IntervalValue(0, 6),
     autoDestroy: true,
     emissionBursts: [{
         time: 0,
-        count: new ConstantValue(5),
+        count: new ConstantValue(4),
         cycle: 1,
         interval: 0.01,
         probability: 1,
@@ -40,10 +37,10 @@ export const concreteHit = (position: THREE.Vector3, normal = DEFAULT_NORMAL, he
     material: smokeMaterial,
   });
 
-  smoke.addBehavior(new SizeOverLife(new PiecewiseBezier([[new Bezier(0.05, 0.1, 0.1, 0.5), 0]])));
+  smoke.addBehavior(new SizeOverLife(new PiecewiseBezier([[new Bezier(0.025, 0.05, 0.2, 0.4), 0]])));
   smoke.addBehavior(new ColorOverLife(new RandomColorBetweenGradient(
-    new Gradient([[new THREE.Vector3(SMOKE_COLOR, SMOKE_COLOR, SMOKE_COLOR), 0]], [[0.2, 0], [0.05, 0.7], [0, 1]]),
-    new Gradient([[new THREE.Vector3(SMOKE_SHADOW, SMOKE_SHADOW, SMOKE_SHADOW), 0]], [[0.2, 0], [0.05, 0.7], [0, 1]])
+    new Gradient([[new THREE.Vector3(SMOKE_COLOR, SMOKE_COLOR, SMOKE_COLOR), 0]], [[0.3, 0], [0.05, 0.7], [0, 1]]),
+    new Gradient([[new THREE.Vector3(SMOKE_COLOR, SMOKE_COLOR, SMOKE_COLOR), 0]], [[0.1, 0], [0.05, 0.7], [0, 1]])
   )));
 
   const debris = new ParticleSystem({
@@ -79,7 +76,7 @@ export const concreteHit = (position: THREE.Vector3, normal = DEFAULT_NORMAL, he
     autoDestroy: true,
     emissionBursts: [{
       time: 0,
-      count: new ConstantValue(10),
+      count: new ConstantValue(5),
       cycle: 1,
       interval: 0.01,
       probability: 0.5,
@@ -101,8 +98,8 @@ export const concreteHit = (position: THREE.Vector3, normal = DEFAULT_NORMAL, he
   });
 
   const debrisColor = new ColorOverLife(new RandomColorBetweenGradient(
-    new Gradient([[new THREE.Vector3(DEBRIS_COLOR, DEBRIS_COLOR, DEBRIS_COLOR), 0]], [[0.8, 0], [0.8, 0.7], [0, 1]]),
-    new Gradient([[new THREE.Vector3(DEBRIS_COLOR2, DEBRIS_COLOR2, DEBRIS_COLOR2), 0]], [[0, 0], [0, 0.7], [0, 1]]),
+    new Gradient([[new THREE.Vector3(DEBRIS_COLOR, DEBRIS_COLOR, DEBRIS_COLOR), 0]], [[1, 0], [1, 0.7], [0, 1]]),
+    new Gradient([[new THREE.Vector3(DEBRIS_COLOR, DEBRIS_COLOR, DEBRIS_COLOR), 0]], [[0, 0], [0, 0.7], [0, 1]]),
   ));
 
   debris.addBehavior(debrisColor);

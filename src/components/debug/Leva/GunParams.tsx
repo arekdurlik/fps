@@ -10,6 +10,8 @@ export function GunParams() {
     glassColor: { value: '#aaffbb' }
   });
 
+  const opacityLevels = [0.333, 0.5, 0.75, 1];
+  let opacityIndex = 0;
 
   useEffect(() => {
     window.addEventListener('wheel', (e: WheelEvent) => {
@@ -18,7 +20,8 @@ export function GunParams() {
       if (!current) return;
 
       if (e.deltaY < 0) {
-        GunState.setActiveOpticParameters({ ...current, reticleOpacity: current.reticleOpacity + 0.333 > 1 ? 0.333 : current.reticleOpacity + 0.333 });
+        opacityIndex = (opacityIndex + 1) % opacityLevels.length;
+        GunState.setActiveOpticParameters({ ...current, reticleOpacity: opacityLevels[opacityIndex]});
       } else {
         GunState.setActiveOpticParameters({ ...current, reticleShape: current.reticleShape + 1 });
       }

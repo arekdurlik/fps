@@ -19,8 +19,8 @@ export const WEAPONS_DATA = {
     recoilXMin: -0.00055,
     recoilXMax: 0.0005,
 
-    recoilYMin: 0.001,
-    recoilYMax: 0.0015,
+    recoilYMin: 0.00095,
+    recoilYMax: 0.00115,
 
     kickXMin: 0.0015,
     kickXMax: 0.0025,

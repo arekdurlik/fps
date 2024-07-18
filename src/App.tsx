@@ -26,7 +26,7 @@ function App() {
         <Suspense fallback={<LoadingScreen/>}>
           <LightsContextProvider>
             <PreloadAssets/>
-            <PointerLockControls/>
+            <PointerLockControls maxPolarAngle={Math.PI / 1.025} pointerSpeed={0.4}/>
             <Stats/>
             <Physics gravity={[0, -12.81, 0]} timeStep={1/PHYSICS_FPS}>
               <Player />

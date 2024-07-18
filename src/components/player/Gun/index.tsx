@@ -78,18 +78,18 @@ export function Gun({ optic, attachments }: GunType) {
       case 1: {
         muzzle.position.x = -0.05; 
         gun.scale.set(0.25, 0.25, 0.25); 
-        gun.position.y -= 0.0375;
+        gun.position.y -= 0.035;
         break;
       }
       case 2: {
         muzzle.position.x = 0; 
         gun.scale.set(0.25, 0.25, 0.25); 
-        gun.position.y -= 0.035;
+        gun.position.y -= 0.038;
         break;
       }
     } 
     
-    // recoil, kick, knockback
+    // recoil, kick, knockback, camera shake
 
     // prevent vertical recoil when looking straight up
     const RECOIL_THRESHOLD = 0.1;
@@ -102,12 +102,13 @@ export function Gun({ optic, attachments }: GunType) {
       ? animations.kickX * 3 
       : (-Math.abs(animations.kickX) * 3) + animations.kickX * 2;
 
-      GameState.cameraWrapper.rotation.z = cameraShake;
+      GameState.cameraWrapper.rotation.set(0, 0, 0);
+      GameState.cameraWrapper.rotateOnWorldAxis(camDir, cameraShake);
     }
 
     body.position.x += animations.kickX;
     body.position.y += animations.kickY;
-    gun.rotation.z += animations.kickX / 2;
+    gun.rotation.z += animations.kickX;
     
     body.position.z += animations.knockback * (PlayerState.aiming ? 3 : 1);
     body.position.y -= animations.knockback / 3;

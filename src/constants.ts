@@ -1,4 +1,3 @@
-import { PointLight } from 'three'
 
 // BULLETHOLES: -199 - MAX_BULLETHOLES
 export enum RenderOrder {

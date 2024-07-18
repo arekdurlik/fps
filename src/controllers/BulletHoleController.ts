@@ -17,6 +17,7 @@ const orientation = new THREE.Euler();
 const mat = new THREE.MeshStandardMaterial({ 
   transparent: true,
   depthWrite: false,
+  alphaTest: 0.01,
   polygonOffset: true,
   polygonOffsetFactor: -1,
   normalScale: new THREE.Vector2(0.3, 0.3),
@@ -25,8 +26,10 @@ const mat = new THREE.MeshStandardMaterial({
 export function BulletHoleController() {
   const map = useNearestFilterTexture('bullethole.png');
   const map2 = useNearestFilterTexture('bullethole2.png');
+  const map3 = useNearestFilterTexture('bullethole3.png');
   const normalMap = useNearestFilterTexture('bullethole_normal.png');
   const normalMap2 = useNearestFilterTexture('bullethole2_normal.png');
+  const normalMap3 = useNearestFilterTexture('bullethole3_normal.png');
   const bulletHoles = useRef<{ parent: THREE.Object3D, hole: THREE.Mesh }[]>([]);
   
   useEffect(() => {
@@ -50,10 +53,13 @@ export function BulletHoleController() {
     const decalGeometry = new DecalGeometry(object as THREE.Mesh, position, orientation, new THREE.Vector3(w, h, 0.1));
     const mesh = new THREE.Mesh(decalGeometry, mat.clone());
 
+    mesh.material.opacity = 0.75 + (Math.random() * 0.25);
+    mesh.material.normalScale.set(0.05 + Math.random() * 0.25, 0.05 + Math.random() * 0.25);
+
     const randomMap = Math.random();
 
-    mesh.material.map = randomMap < 0.75 ? map : map2;
-    mesh.material.normalMap = randomMap < 0.75 ? normalMap: normalMap2;
+    mesh.material.map = randomMap > 0.6 ? map : randomMap > 0.2 ? map2 : map3;
+    mesh.material.normalMap = randomMap > 0.6 ? normalMap : randomMap > 0.2 ? normalMap2 : normalMap3;
     mesh.userData.shootThrough = true;
 
     mesh.renderOrder = renderOrderIndex;
@@ -72,7 +78,6 @@ export function BulletHoleController() {
 
     // fade out oldest bulletholes and remove if over the limit
     bulletHoles.current.forEach((bh, index) => {
-
       const threshold = Math.min(20, MAX_BULLETHOLES);
 
       const opacity = invlerp(
@@ -91,7 +96,7 @@ export function BulletHoleController() {
       if (bh.hole.material instanceof THREE.Material) {
         bh.hole.material.opacity = opacity;
       }
-    })
+    });
   }
 
   return null;
