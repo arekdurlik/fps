@@ -20,11 +20,11 @@ export const useLightsContext = () => useContext(LightsContext);
 const TOTAL_LIGHTS = 10;
 
 const MUZZLE_FLASH_LIGHTS = 1;
-const METAL_HIT_LIGHTS = 2; 
-const REMAINING_LIGHTS = TOTAL_LIGHTS - METAL_HIT_LIGHTS - METAL_HIT_LIGHTS;
+const METAL_HIT_LIGHTS = 1; 
+const REMAINING_LIGHTS = 0;
 
 export function LightsContextProvider({ children }: { children: ReactNode }) {
-  const [muzzleFlashLights] = useState(new Array(MUZZLE_FLASH_LIGHTS).fill(null).map(() => new THREE.PointLight('#d89c43', 0, 6, 0.5)));
+  const [muzzleFlashLights] = useState(new Array(MUZZLE_FLASH_LIGHTS).fill(null).map(() => new THREE.PointLight('#d89c43', 0, 10, 0.3)));
   const [metalHitLights] = useState(new Array(METAL_HIT_LIGHTS).fill(null).map(() => new THREE.PointLight('#d89c43', 0, 10, 0.7)));
   const [lights] = useState<Lights>(new Array(REMAINING_LIGHTS).fill(null).map(() => new THREE.PointLight('#000', 0, 1)));
 

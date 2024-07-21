@@ -36,8 +36,8 @@ export function IronSight({ animations, hasOptic, normalArray }: { animations: G
     sight.position.x += animations.frame === 1 ? 0.03  : 0;
     sight.position.y += animations.frame === 1 ? -0.02 : 0;
 
-    sight.position.x -= animations.kickX / 2;
-    sight.position.y -= animations.kickY / 2;
+    sight.position.x -= animations.kickX / 3;
+    sight.position.y -= animations.kickY / 3;
     sight.position.z += animations.knockback;
     
     sight.position.x += animations.reloadX;
@@ -49,10 +49,10 @@ export function IronSight({ animations, hasOptic, normalArray }: { animations: G
     sight.updateMatrix();
   });
 
-  return <mesh ref={ref} renderOrder={RenderOrder.GUN_IRONSIGHT} layers={Layers.GUN} matrixAutoUpdate={false} matrixWorldAutoUpdate={false} userData={{ shootThrough: true }}>
+  return <mesh dispose={null} ref={ref} receiveShadow renderOrder={RenderOrder.GUN_IRONSIGHT} layers={Layers.GUN} matrixAutoUpdate={false} matrixWorldAutoUpdate={false} userData={{ shootThrough: true }}>
     <planeGeometry args={[1/2.3, 1/2.3, 1, 1]}>
       <bufferAttribute attach="attributes-normal" array={normalArray} itemSize={3}/>
     </planeGeometry>
-    <meshLambertMaterial map={texture} transparent/>
+    <meshStandardMaterial map={texture} transparent/>
   </mesh>
 }

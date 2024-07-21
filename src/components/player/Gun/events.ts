@@ -6,7 +6,7 @@ import { playSound } from '../../../utils'
 import { BULLET_SPREAD_FPS } from '../../../constants'
 import { useFixedFrame } from '../../../hooks/useFixedFrame'
 import { lerp } from 'three/src/math/MathUtils.js'
-import { randomFloat } from '../../../helpers'
+import { randomFloat, randomInt } from '../../../helpers'
 import { GameState } from '../../../state/gameState'
 import { EquipmentState, useEquipmentState} from '../../../state/equipmentState'
 import { GunData, WEAPONS_DATA } from '../../../data'
@@ -23,6 +23,7 @@ export function useGunEvents(muzzleRef: RefObject<THREE.Group>) {
   const gunData = WEAPONS_DATA[GunState.equipped.itemName] as GunData;
   const animations = useGunAnimations();
   const lastShotTimestamp = useRef(0);
+  const lastShotSound = useRef(-1);
   const spreadMult = useRef(0);
   
   useEffect(() => {
@@ -119,7 +120,11 @@ export function useGunEvents(muzzleRef: RefObject<THREE.Group>) {
       muzzleFlash
     }
 
-    playSound('gunshot', 0.3);
+    let shot = randomInt(1, 5);
+    if (shot === lastShotSound.current) shot = shot + 1 > 5 ? 1 : 5;
+
+    lastShotSound.current = shot;
+    playSound(`shot${shot}`, 0.23);
     animations.shoot(data);
     EquipmentState.notify(EquipmentSubject.SHOT_FIRED, data);
   }

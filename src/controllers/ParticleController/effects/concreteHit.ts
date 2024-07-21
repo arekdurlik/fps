@@ -9,7 +9,7 @@ const smokeMaterial = new THREE.MeshStandardMaterial({ map: texture, transparent
 const debrisMaterial = new THREE.MeshStandardMaterial({ transparent: true, alphaTest: 0.005, depthWrite: false });
 
 const SMOKE_COLOR = 1;
-const DEBRIS_COLOR = 1;
+const DEBRIS_COLOR = 0.7;
 
 const DEFAULT_NORMAL = new THREE.Vector3(0, 1, 0);
 const DOWN = new THREE.Vector3(0, -1, 0);

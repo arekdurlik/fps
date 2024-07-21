@@ -40,7 +40,7 @@ export function Player() {
   });
 
   return (
-    <RigidBody colliders={false} ref={ref} name='player' enabledRotations={[false, false, false]} canSleep={false}>
+    <RigidBody colliders={false} ref={ref} enabledRotations={[false, false, false]} canSleep={false}>
       <group ref={cameraWrapper}>
         <PerspectiveCamera makeDefault ref={camera}>
           <Equipment/>

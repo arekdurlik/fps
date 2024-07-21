@@ -12,7 +12,7 @@ export type GunAnimations = ReturnType<typeof useGunAnimations>;
 
 export function useGunAnimations() {
   const mouseVelocity = useMouseVelocity();
-  const [{ posX, posY }, positionSpring] = useSpring(() => ({ posX: 0.2, posY: 0 }));
+  const [{ posX, posY }, positionSpring] = useSpring(() => ({ posX: 0.25, posY: 0 }));
   const [{ swayX, swayY }, swaySpring] = useSpring(() => ({ swayX: 0, swayY: 0 }));
   const [{ roll }, rollSpring] = useSpring(() => ({ roll: 0 }));
   const [{ velX, velY }, velocitySpring] = useSpring(() => ({ velX: 0, velY: 0 }));
@@ -27,26 +27,7 @@ export function useGunAnimations() {
     Debug.log('Gun animation: Idle', 'gunAnimation');
 
     swaySpring.stop();
-    swaySpring.start({
-      to: [
-        { swayX: 0.001, swayY: 0, },
-        { swayX: 0.0005, swayY: 0.0025, },
-        { swayX: 0, swayY: 0.005 },
-        { swayX: -0.00125, swayY: 0.0025 },
-        { swayX: -0.0025, swayY: 0 },
-        { swayX: -0.00125, swayY: -0.0025 },
-        { swayX: 0, swayY: -0.005 },
-        { swayX: 0.0025, swayY: -0.0025 },
-        { swayX: 0.005, swayY: 0 },
-        { swayX: 0.003, swayY: 0.0025 },
-        { swayX: 0.001, swayY: 0.005 },
-        { swayX: 0.0005, swayY: 0.0025 },
-        { swayX: -0.001, swayY: 0 },
-        { swayX: -0.0005, swayY: -0.0025 },
-        { swayX: 0, swayY: -0.005 },
-        { swayX: 0.0005, swayY: -0.0025 },
-        { swayX: 0.001, swayY: 0 },
-      ],
+    swaySpring.start({ swayX: 0, swayY: 0, 
       loop: true,
       config: { duration: 300 },
     });
@@ -121,7 +102,7 @@ export function useGunAnimations() {
   
   function aimEnd() {
     positionSpring.stop();
-    positionSpring.start({ posX: 0.2, posY: 0 });
+    positionSpring.start({ posX: 0.25, posY: 0 });
     
     spriteSpring.start({
       to: [
@@ -144,7 +125,7 @@ export function useGunAnimations() {
         { ...(muzzleFlash && { muzzleflash: randomFloat(0.5, 0.7), config: { duration: 0 }})},
         { ...(muzzleFlash && { muzzleflash: 0, config: { duration: 25 } })},
         { knockback, recoilX, recoilY, kickX, kickY, config: { duration: 20 }},
-        { knockback: 0, recoilX: 0, recoilY: 0, kickX: 0, kickY: 0, config: { duration: 150 }}
+        { knockback: 0, recoilX: 0, recoilY: 0, kickX: 0, kickY: 0, config: { duration: 200 }}
       ]
     });
   }

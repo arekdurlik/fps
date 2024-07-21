@@ -70,8 +70,10 @@ export function BulletCasingController() {
       colliders="cuboid"
       mass={0}
       restitution={0.001}
+      ccd
       onCollisionEnter={(e) => {
-        WorldState.notify(WorldSubject.BULLET_CASING_COLLISION, { position: e.manifold.solverContactPoint(0), id: e.target.colliderObject!.id })
+        const position = e.manifold.solverContactPoint(0);
+        position && WorldState.notify(WorldSubject.BULLET_CASING_COLLISION, { position, id: e.target.colliderObject!.id })
       }}
       collisionGroups={interactionGroups(Collisions.BULLET_CASING, [Collisions.WORLD])}
     >

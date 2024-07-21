@@ -11,7 +11,7 @@ export function preloadVFX(batchSystem: BatchedRenderer, scene: THREE.Scene) {
   const effects = [
     metalHit(vec, vec),
     concreteHit(vec, vec, 0), 
-    muzzle(vec, vec, vec, true), 
+    muzzle(vec, vec, vec, true, batchSystem), 
     bulletCasing(vec, vec, vec),
   ];
 

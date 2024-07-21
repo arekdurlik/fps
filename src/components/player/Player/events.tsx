@@ -5,17 +5,18 @@ import { EquipmentState } from '../../../state/equipmentState'
 import { EquipmentSubject } from '../../../state/equipmentState/types'
 import { JumpBeginData, PlayerSubject, RunStepLeftData } from '../../../state/playerState/types'
 import { PlayerState } from '../../../state/playerState'
+import { randomFloat, randomInt } from '../../../helpers'
 
 export function usePlayerEvents() {
   const animations = usePlayerAnimations();
   
   useEffect(() => {
-    const jump = (data: JumpBeginData) => !data?.fall && playSound('jump');
-    const land = () => playSound('land', 0.7);
-    const walkL = () => playSound('walkL', 0.2);
-    const walkR = () => playSound('walkR', 0.2);
-    const runL = ({ firstStep }: RunStepLeftData) => { playSound('walkL', firstStep ? 0.2 : 0.4) };
-    const runR = () => playSound('walkR', 0.4);
+    const jump = (data: JumpBeginData) => !data?.fall && playSound('jump', 0.4);
+    const land = () => playSound('land', 0.2);
+    const walkL = () => playSound(`walk${randomInt(1, 2)}`, randomFloat(0.6, 0.8));
+    const walkR = () => playSound(`walk${randomInt(3, 4)}`, randomFloat(0.6, 0.8));
+    const runL = ({ firstStep }: RunStepLeftData) => { playSound(`walk${randomInt(1, 2)}`, firstStep ? 0.6 : randomFloat(0.7, 1)) };
+    const runR = () => playSound(`walk${randomInt(3, 4)}`, randomFloat(0.7, 1));
     const canShoot = () => PlayerState.setCanShoot(true);
     const cantShoot = () => PlayerState.setCanShoot(false);
 

@@ -9,7 +9,7 @@ import { Scene } from './components/scene'
 import { HUD } from './components/ui/HUD'
 import { Controllers } from './controllers'
 import { Physics } from '@react-three/rapier'
-import { BasicShadowMap } from 'three'
+import { PCFSoftShadowMap } from 'three'
 import { PHYSICS_FPS } from './constants'
 import { LevaParams } from './components/debug/Leva'
 import { LoadingScreen } from './components/ui/LoadingScreen'
@@ -22,7 +22,10 @@ function App() {
     <Console/>
     <LevaParams/>
     <HUD/>
-      <Canvas shadows={{ type: BasicShadowMap }} gl={{ antialias: false }} dpr={1}>  
+      <Canvas shadows={{ type: PCFSoftShadowMap }} gl={{ antialias: false }} dpr={2} onCreated={({ gl }) => {
+        gl.shadowMap.autoUpdate = false;
+        gl.shadowMap.needsUpdate = false;
+      }}>  
         <Suspense fallback={<LoadingScreen/>}>
           <LightsContextProvider>
             <PreloadAssets/>

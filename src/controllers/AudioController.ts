@@ -32,12 +32,12 @@ export function AudioController() {
     switch (material) {
       case 'concrete': {
         const sound = Math.random() > 0.5 ? '01' : '02';
-        playSound(`audio/bullet_impact/concrete_${sound}.mp3`, position, 0.15, 1, 1.1);
+        playSound(`audio/bullet_impact/concrete_${sound}.mp3`, position, 0.2, 1, 1.1);
         break;
       }
       case 'metal':{
         const sound = Math.random() > 0.5 ? '01' : '02';
-        playSound(`audio/bullet_impact/metal_${sound}.mp3`, position, 0.2, 1.4, 1.5);
+        playSound(`audio/bullet_impact/metal_${sound}.mp3`, position, 0.3, 1.4, 1.5);
         break;
       }
       default: return;

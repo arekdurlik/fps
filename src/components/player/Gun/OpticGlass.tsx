@@ -17,13 +17,13 @@ export function OpticGlass({ optic, animations }: { optic: GunOpticObject, anima
 
   return (
     <>
-    <mesh renderOrder={RenderOrder.GUN_SCOPE} layers={Layers.GUN} userData={{ shootThrough: true }}>
+    <mesh dispose={null} receiveShadow renderOrder={RenderOrder.GUN_SCOPE} layers={Layers.GUN} userData={{ shootThrough: true }}>
       <planeGeometry args={[1, 1, 1, 1]}>
         <bufferAttribute attach="attributes-normal" array={glassNormalArray} itemSize={3}/>
       </planeGeometry>
       <meshLambertMaterial map={glassTexture} color={optic.glassColor} transparent alphaTest={0.01} depthTest={false}/>
     </mesh>
-    <mesh renderOrder={RenderOrder.GUN_BODY} layers={Layers.GUN} userData={{ shootThrough: true }}>
+    <mesh dispose={null} renderOrder={RenderOrder.GUN_BODY} layers={Layers.GUN} userData={{ shootThrough: true }}>
       <planeGeometry args={[1, 1, 1, 1]}>
         <bufferAttribute attach="attributes-normal" array={glassNormalArray} itemSize={3}/>
       </planeGeometry>

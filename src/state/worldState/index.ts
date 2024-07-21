@@ -1,4 +1,5 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
+import { create } from 'zustand'
 import { Debug } from '../debugState'
 import { DataParameter } from '../types'
 import { Observers, WorldSubject } from './types'
@@ -9,6 +10,8 @@ const initObservers: Observers = Object.fromEntries(
 );
 
 type WorldState = {
+  setTime: (time: number) => void
+
   observers: Observers
   subscribe: <S extends keyof Observers>(subject: S, cb: (data: DataParameter<Observers[S][0]>) => void) => Function
   subscribeMany: <S extends keyof Observers>(subjects: [subject: S, cb: (data: DataParameter<Observers[S][0]>) => void][]) => Function
@@ -18,6 +21,10 @@ type WorldState = {
 
 export const WorldState: WorldState = {
   observers: initObservers,
+
+  setTime(time) {
+    useWorldState.setState({ time });
+  },
 
   subscribe(subject, cb) {
     const newObservers = this.observers[subject];
@@ -53,3 +60,10 @@ export const WorldState: WorldState = {
   },
 };
 
+type WorldStateStore = {
+  time: number
+}
+
+export const useWorldState = create<WorldStateStore>(() => ({
+  time: 1,
+}));

@@ -16,6 +16,7 @@ import { BulletImpactData, WorldSubject } from '../../state/worldState/types'
 import { EquipmentSubject, ShotFiredData } from '../../state/equipmentState/types'
 import { WorldState } from '../../state/worldState'
 import { EquipmentState } from '../../state/equipmentState'
+import { fog } from './effects/fog'
 
 const down = new Vector3(0, -1, 0);
 const batchSystem = new BatchedRenderer();
@@ -54,7 +55,7 @@ export function ParticleController() {
         rotation && system.emitter.rotateZ(rotation);
       })
     });
-    
+
     metalHitLights.forEach(light => {
       if (light.intensity > 0) {
         light.intensity = Math.max(0, light.intensity - 0.05);
@@ -102,7 +103,9 @@ export function ParticleController() {
     system.forEach(sys => {
       if (sys.emitter.name === 'muzzleSmoke') {
         const id = sys.emitter.id;
-        smokeSystemRotations.set(id, randomFloat(-0.02, 0.02));
+        const rotation = randomFloat(0.01, 0.02);
+        const direction = Math.random() > 0.5 ? 1 : -1;
+        smokeSystemRotations.set(id, rotation * direction);
         smokeSystemIds[smokeSystemIndex] = sys.emitter.id;
       }
     })

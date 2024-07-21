@@ -40,13 +40,22 @@ export function PIPScope({ animations }: { animations: GunAnimations }) {
     body.position.set(0, -0.0025, -0.145);
     body.rotation.set(0, 0, 0);
     
-    // scope anim
-    scope.position.x += animations.posX / 5;
-    scope.position.y += animations.posY / 10;
+    body.position.x -= animations.posX / 15;
+    body.position.y -= animations.posY / 15;
+    body.position.y += animations.jumpY / 7;
     
+    scope.position.x += animations.posX / 10;
+    scope.position.y += animations.posY / 10;
+    scope.position.y += animations.jumpY / 7;
+
+    // scope anim
     scope.position.x += animations.velX / 14;
     scope.position.y += animations.velY / 10;
     
+    body.position.x += animations.kickX / 2;
+    body.position.y += animations.kickY / 2;
+    body.position.y += animations.knockback / 8;
+
     scope.position.z += animations.knockback;
     scope.position.y -= animations.knockback / 3;
     
@@ -81,11 +90,11 @@ export function PIPScope({ animations }: { animations: GunAnimations }) {
   }, 1);
   
   return <>
-    <mesh ref={bodyRef} renderOrder={RenderOrder.GUN_SCOPE} layers={Layers.SCOPE}>
+    <mesh dispose={null} ref={bodyRef} renderOrder={RenderOrder.GUN_SCOPE} layers={Layers.SCOPE}>
       <planeGeometry args={[0.08, 0.08]}/>
-      <meshBasicMaterial map={texture} transparent depthTest={false} />
+      <meshStandardMaterial map={texture} transparent depthTest={false} />
     </mesh>
-    <mesh ref={ref} renderOrder={RenderOrder.GUN_SCOPE} layers={Layers.SCOPE} geometry={(nodes.Circle as THREE.Mesh).geometry}>
+    <mesh dispose={null} ref={ref} renderOrder={RenderOrder.GUN_SCOPE} layers={Layers.SCOPE} geometry={(nodes.Circle as THREE.Mesh).geometry}>
       <meshBasicMaterial map={target.texture}/>
     </mesh>
   </>

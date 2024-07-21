@@ -53,6 +53,10 @@ export function randomFloat(min: number, max: number) {
   return Math.random() * (max - min) + min;
 }
 
+export function randomDirection() {
+  return Math.random() > 0.5 ? 1 : -1;
+}
+
 export function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }

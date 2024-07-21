@@ -12,6 +12,7 @@ import { EquipmentType, PLAYER_INPUT_FPS } from '../constants'
 import { EquipmentState } from '../state/equipmentState'
 import { GunState } from '../state/equipmentState/gunState'
 import { PlayerSubject } from '../state/playerState/types'
+import { GameState } from '../state/gameState'
 
 const PLAYER_SPEED = 40;
 const RUN_MULTIPLIER = 2.2;
@@ -56,20 +57,23 @@ export function PlayerController() {
     let [horizontal, vertical] = [0, 0];
     
     // ground raycast
-    const rayDirection = { x: 0, y: -1, z: 0 };
+    const rayDirection = { x: 0, y: -3, z: 0 };
 
-    const rayOrigin1 = { x: player.translation().x + 0.1, y: player.translation().y - 1, z: player.translation().z + 0.1 };
-    const rayOrigin2 = { x: player.translation().x - 0.1, y: player.translation().y - 1, z: player.translation().z - 0.1 };
-    const rayOrigin3 = { x: player.translation().x + 0.1, y: player.translation().y - 1, z: player.translation().z - 0.1 };
-    const rayOrigin4 = { x: player.translation().x - 0.1, y: player.translation().y - 1, z: player.translation().z + 0.1 };
+    if (!PlayerState.player) return;
+
+    const rayOrigin1 = { x: player.translation().x + 0.1, y: player.translation().y, z: player.translation().z + 0.1 };
+    const rayOrigin2 = { x: player.translation().x - 0.1, y: player.translation().y, z: player.translation().z - 0.1 };
+    const rayOrigin3 = { x: player.translation().x + 0.1, y: player.translation().y, z: player.translation().z - 0.1 };
+    const rayOrigin4 = { x: player.translation().x - 0.1, y: player.translation().y, z: player.translation().z + 0.1 };
     
-    const grounded1 = rapier.world.castRay(new RAPIER.Ray(rayOrigin1, rayDirection), 0, false);
-    const grounded2 = rapier.world.castRay(new RAPIER.Ray(rayOrigin2, rayDirection), 0, false);
-    const grounded3 = rapier.world.castRay(new RAPIER.Ray(rayOrigin3, rayDirection), 0, false);
-    const grounded4 = rapier.world.castRay(new RAPIER.Ray(rayOrigin4, rayDirection), 0, false);
+    const grounded1 = rapier.world.castRay(new RAPIER.Ray(rayOrigin1, rayDirection), 0.25, false);
+    const grounded2 = rapier.world.castRay(new RAPIER.Ray(rayOrigin2, rayDirection), 0.25, false);
+    const grounded3 = rapier.world.castRay(new RAPIER.Ray(rayOrigin3, rayDirection), 0.25, false);
+    const grounded4 = rapier.world.castRay(new RAPIER.Ray(rayOrigin4, rayDirection), 0.25, false);
+
     
     const grounded = grounded1 || grounded2 || grounded3 || grounded4;
-
+    
     if (PlayerState.canShoot && EquipmentState.equipped?.type === EquipmentType.GUN) {
       // fire gun or empty click
       if (lmb) {
@@ -194,13 +198,14 @@ export function PlayerController() {
     // jump
     if (space && !PlayerState.jumping && grounded && (Date.now() - jumpEndTimestamp > JUMP_COOLDOWN )
       || (!PlayerState.jumping && !grounded)) { 
-        
+    
+        player.setLinvel({ x: velocity.x, y: -0.75, z: velocity.z }, true);
         if (space) {
           if (!GunState.reloading) {
             PlayerState.setJumping(true);
             
             jumpStartTimestamp = Date.now();
-            player.setLinvel({ x: velocity.x, y: JUMP_VELOCITY, z: velocity.z }, true);
+            player.applyImpulse({ x: 0, y: 0.8, z: 0}, true);
           }
         } else {
           PlayerState.setJumping(true, { fall: true });

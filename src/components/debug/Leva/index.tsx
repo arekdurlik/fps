@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { GunParams } from './GunParams'
+import { WorldParams } from './WorldParams'
 
 export function LevaParams() {
   useEffect(() => {
@@ -15,5 +16,6 @@ export function LevaParams() {
 
   return <>
     <GunParams/>
+    <WorldParams/>
   </>
 }

@@ -14,13 +14,12 @@ const up = new THREE.Vector3(0, 0, 1);
 const quaternion = new THREE.Quaternion();
 const randomRotation = new THREE.Quaternion();
 const orientation = new THREE.Euler();
-const mat = new THREE.MeshStandardMaterial({ 
-  transparent: true,
+const mat = new THREE.MeshStandardMaterial({
   depthWrite: false,
+  transparent: true,
   alphaTest: 0.01,
   polygonOffset: true,
   polygonOffsetFactor: -1,
-  normalScale: new THREE.Vector2(0.3, 0.3),
 });
 
 export function BulletHoleController() {
@@ -54,7 +53,7 @@ export function BulletHoleController() {
     const mesh = new THREE.Mesh(decalGeometry, mat.clone());
 
     mesh.material.opacity = 0.75 + (Math.random() * 0.25);
-    mesh.material.normalScale.set(0.05 + Math.random() * 0.25, 0.05 + Math.random() * 0.25);
+    mesh.material.normalScale.set(0.25 + Math.random() * 0.65, 0.25 + Math.random() * 0.65);
 
     const randomMap = Math.random();
 
@@ -94,7 +93,9 @@ export function BulletHoleController() {
       }
 
       if (bh.hole.material instanceof THREE.Material) {
-        bh.hole.material.opacity = opacity;
+        if (opacity < bh.hole.material.opacity) {
+          bh.hole.material.opacity = opacity;
+        }
       }
     });
   }

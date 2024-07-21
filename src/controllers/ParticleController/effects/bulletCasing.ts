@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { Vector3Object } from '@react-three/rapier'
 import { Bezier, ColorOverLife, ConeEmitter, ConstantValue, Gradient, IntervalValue, ParticleSystem, PiecewiseBezier, RandomColorBetweenGradient, RenderMode, SizeOverLife } from 'three.quarks'
-import { randomFloat, randomInt } from '../../../helpers'
+import { randomFloat } from '../../../helpers'
 
 const muzzleTexture = new THREE.TextureLoader().load("casing.png", texture => {
   texture.minFilter = texture.magFilter = THREE.NearestFilter;
@@ -19,8 +19,9 @@ const casingMaterial = new THREE.MeshStandardMaterial({
 const smokeMaterial = new THREE.MeshStandardMaterial({ 
   map: smokeTexture, 
   transparent: true, 
-  alphaTest: 0.005, 
-  depthWrite: false 
+  alphaTest: 0.002, 
+  depthWrite: false,
+  blending: THREE.AdditiveBlending,
 });
 
 const RIGHT_OFFSET = 0.015;
@@ -32,6 +33,8 @@ const cameraUp = new THREE.Vector3(0, 1, 0);
 const DEFAULT_NORMAL = cameraUp;
 const rightVector = new THREE.Vector3();
 const initialPosition = new THREE.Vector3();
+
+const smokeColorVec = new THREE.Vector3();
 
 export const bulletCasing = (position: THREE.Vector3, normal = DEFAULT_NORMAL, velocity: Vector3Object) => {
   velocityCompensate.set(velocity!.x / VELOCITY_COMPENSATE, velocity!.y / VELOCITY_COMPENSATE, velocity!.z / VELOCITY_COMPENSATE);
@@ -57,7 +60,7 @@ export const bulletCasing = (position: THREE.Vector3, normal = DEFAULT_NORMAL, v
     looping: false,
     shape: new ConeEmitter({ radius: 0.005, arc: 6.283185307179586, thickness: 0, angle: 0.02 }),
     startLife: new IntervalValue(0.2, 0.5),
-    startSpeed: new IntervalValue(1, 1.5),
+    startSpeed: new IntervalValue(0, 1),
     startRotation: new IntervalValue(0, 6),
     autoDestroy: true,
     emissionBursts: [{
@@ -71,9 +74,12 @@ export const bulletCasing = (position: THREE.Vector3, normal = DEFAULT_NORMAL, v
     material: smokeMaterial,
   });
 
-  smoke.addBehavior(new SizeOverLife(new PiecewiseBezier([[new Bezier(0.02, 0.03, 0.05, 0.2), 0]])));
+  const smokeColor = randomFloat(0.9, 1);
+  smokeColorVec.set(smokeColor, smokeColor - 0.25, smokeColor - 0.45);
+
+  smoke.addBehavior(new SizeOverLife(new PiecewiseBezier([[new Bezier(0.02, 0.03, 0.05, 0.15), 0]])));
   smoke.addBehavior(new ColorOverLife(
-    new Gradient([[new THREE.Vector3(1, 1, 1), 0]], [[0.2, 0], [0.1, 0.5], [0, 1]]),
+    new Gradient([[smokeColorVec, 0]], [[0.5, 0], [0.1, 0.5], [0, 1]]),
   ));
   
   smoke.emitter.name = 'casingSmoke';

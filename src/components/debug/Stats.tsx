@@ -12,7 +12,7 @@ export function Stats() {
   useEffect(() => {
     setTimeout(() => {
       startRecording.current = true;
-    }, 1000);
+    }, 2000);
   }, []);
   
   useFrame(() => {
